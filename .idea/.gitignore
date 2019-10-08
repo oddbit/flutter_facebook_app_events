@@ -1,0 +1,12 @@
+libraries/
+shelf/
+*.iml
+*.ipr
+*.iws
+encodings.xml
+misc.xml
+modules.xml
+vcs.xml
+workspace.xml
+# Default ignored files
+/shelf/

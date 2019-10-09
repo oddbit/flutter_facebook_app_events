@@ -1,4 +1,4 @@
-group 'id.oddbit.facebook_analytics'
+group 'id.oddbit.flutter.facebook_app_events'
 version '1.0-SNAPSHOT'
 
 buildscript {

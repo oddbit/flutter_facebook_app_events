@@ -3,37 +3,35 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-const MethodChannel facebookAppEventsChannel =
-    MethodChannel('flutter.oddbit.id/facebook_app_events');
+const channelName = 'flutter.oddbit.id/facebook_app_events';
 
 class FacebookAppEvents {
-  static const MethodChannel _channel = facebookAppEventsChannel;
+  static const _channel = MethodChannel(channelName);
 
-  Future<void> clearUserData() async {
-    await _channel.invokeMethod<void>('clearUserData');
+  Future<void> clearUserData() {
+    return _channel.invokeMethod<void>('clearUserData');
   }
 
-  Future<void> clearUserID() async {
-    await _channel.invokeMethod<void>('clearUserID');
+  Future<void> clearUserID() {
+    return _channel.invokeMethod<void>('clearUserID');
   }
 
   Future<void> logEvent({
     @required String name,
     Map<String, dynamic> parameters,
     double valueToSum,
-  }) async {
-    final arguments = <String, dynamic>{
+  }) {
+    final args = <String, dynamic>{
       'name': name,
       'parameters': parameters,
       'valueToSum': valueToSum,
     };
 
-    await _channel.invokeMethod<void>('logEvent', arguments);
+    return _channel.invokeMethod<void>('logEvent', args);
   }
 
-  static Future<String> get platformVersion async {
-    final String version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
+  static Future<String> get platformVersion {
+    return _channel.invokeMethod('getPlatformVersion');
   }
 
   Future<void> setUserData({
@@ -47,7 +45,7 @@ class FacebookAppEvents {
     String state,
     String zip,
     String country,
-  }) async {
+  }) {
     final args = <String, dynamic>{
       'email': email,
       'firstName': firstName,
@@ -61,22 +59,22 @@ class FacebookAppEvents {
       'country': country,
     };
 
-    await _channel.invokeMethod<void>('setUserData', args);
+    return _channel.invokeMethod<void>('setUserData', args);
   }
 
-  Future<void> setUserID(String id) async {
-    await _channel.invokeMethod<void>('setUserID', id);
+  Future<void> setUserID(String id) {
+    return _channel.invokeMethod<void>('setUserID', id);
   }
 
   Future<void> updateUserProperties({
     @required Map<String, dynamic> parameters,
     String applicationId,
-  }) async {
+  }) {
     final args = <String, dynamic>{
       'parameters': parameters,
       'applicationId': applicationId,
     };
 
-    await _channel.invokeMethod<void>('updateUserProperties', args);
+    return _channel.invokeMethod<void>('updateUserProperties', args);
   }
 }

@@ -1,4 +1,4 @@
-package id.oddbit.facebook_app_events_example
+package id.oddbit.flutter.facebook_app_events_example
 
 import android.os.Bundle
 

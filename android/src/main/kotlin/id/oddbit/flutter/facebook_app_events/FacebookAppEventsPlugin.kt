@@ -1,4 +1,4 @@
-package id.oddbit.facebook_analytics
+package id.oddbit.flutter.facebook_app_events
 
 import android.os.Bundle
 import android.util.Log

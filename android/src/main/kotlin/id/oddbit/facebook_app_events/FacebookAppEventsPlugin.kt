@@ -2,6 +2,8 @@ package id.oddbit.facebook_app_events
 
 import android.os.Bundle
 import com.facebook.appevents.AppEventsLogger
+import com.facebook.GraphRequest
+import com.facebook.GraphResponse
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -25,12 +27,13 @@ class FacebookAppEventsPlugin(private val registrar: Registrar) : MethodCallHand
 
   override fun onMethodCall(call: MethodCall, result: Result) {
     when (call.method) {
-      "logEvent" -> handleLogEvent(call, result)
-      "setUserData" -> handleSetUserData(call, result)
       "clearUserData" -> handleClearUserData(call, result)
-      "setUserID" -> handleSetUserId(call, result)
       "clearUserID" -> handleClearUserId(call, result)
       "getPlatformVersion" -> handlePlatformVersion(call, result)
+      "logEvent" -> handleLogEvent(call, result)
+      "setUserData" -> handleSetUserData(call, result)
+      "setUserID" -> handleSetUserId(call, result)
+      "updateUserProperties" -> handleUpdateUserProperties(call, result)
       else -> result.notImplemented()
     }
   }
@@ -62,10 +65,27 @@ class FacebookAppEventsPlugin(private val registrar: Registrar) : MethodCallHand
       parameterBundle?.getString("city"),
       parameterBundle?.getString("state"),
       parameterBundle?.getString("zip"),
-      parameterBundle?.getString("country"),
+      parameterBundle?.getString("country")
     )
 
     result.success(null)
+  }
+
+  private fun handleUpdateUserProperties(call: MethodCall, result: Result) {
+    val applicationId = call.argument("applicationId") as? String
+    val parameters = call.argument("parameters") as? Map<String, Object>
+    val parameterBundle = createBundleFromMap(parameters) ?: Bundle()
+
+    val requestCallback = GraphRequest.Callback() {
+      @Override
+      fun onCompleted(response: GraphResponse) {
+        val data = response.getJSONObject()
+        result.success(data)
+      }
+    }
+
+    if (applicationId == null) AppEventsLogger.updateUserProperties(parameterBundle, requestCallback)
+    else AppEventsLogger.updateUserProperties(parameterBundle, applicationId, requestCallback)
   }
 
   private fun handleClearUserData(call: MethodCall, result: Result) {
@@ -113,6 +133,9 @@ class FacebookAppEventsPlugin(private val registrar: Registrar) : MethodCallHand
         bundle.putDouble(key, value as Double)
       } else if (value is Boolean) {
         bundle.putBoolean(key, value as Boolean)
+      } else if (value is Map<*, *>) {
+        val nestedBundle = createBundleFromMap(value as Map<String, Any>)
+        bundle.putBundle(key, nestedBundle as Bundle)
       } else {
         throw IllegalArgumentException(
             "Unsupported value type: " + value.javaClass.kotlin)

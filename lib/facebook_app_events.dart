@@ -9,9 +9,12 @@ const MethodChannel facebookAppEventsChannel =
 class FacebookAppEvents {
   static const MethodChannel _channel = facebookAppEventsChannel;
 
-  static Future<String> get platformVersion async {
-    final String version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
+  Future<void> clearUserData() async {
+    await _channel.invokeMethod<void>('clearUserData');
+  }
+
+  Future<void> clearUserID() async {
+    await _channel.invokeMethod<void>('clearUserID');
   }
 
   Future<void> logEvent({
@@ -28,12 +31,9 @@ class FacebookAppEvents {
     await _channel.invokeMethod<void>('logEvent', arguments);
   }
 
-  Future<void> setUserID(String id) async {
-    await _channel.invokeMethod<void>('setUserID', id);
-  }
-
-  Future<void> clearUserID() async {
-    await _channel.invokeMethod<void>('clearUserID');
+  static Future<String> get platformVersion async {
+    final String version = await _channel.invokeMethod('getPlatformVersion');
+    return version;
   }
 
   Future<void> setUserData({
@@ -48,7 +48,7 @@ class FacebookAppEvents {
     String zip,
     String country,
   }) async {
-    final args =  <String, dynamic>{
+    final args = <String, dynamic>{
       'email': email,
       'firstName': firstName,
       'lastName': lastName,
@@ -60,11 +60,23 @@ class FacebookAppEvents {
       'zip': zip,
       'country': country,
     };
-    
+
     await _channel.invokeMethod<void>('setUserData', args);
   }
 
-  Future<void> clearUserData() async {
-    await _channel.invokeMethod<void>('clearUserData');
+  Future<void> setUserID(String id) async {
+    await _channel.invokeMethod<void>('setUserID', id);
+  }
+
+  Future<void> updateUserProperties({
+    @required Map<String, dynamic> parameters,
+    String applicationId,
+  }) async {
+    final args = <String, dynamic>{
+      'parameters': parameters,
+      'applicationId': applicationId,
+    };
+
+    await _channel.invokeMethod<void>('updateUserProperties', args);
   }
 }

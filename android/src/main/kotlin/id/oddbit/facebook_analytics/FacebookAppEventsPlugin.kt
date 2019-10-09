@@ -1,6 +1,7 @@
-package id.oddbit.facebook_app_events
+package id.oddbit.facebook_analytics
 
 import android.os.Bundle
+import android.util.Log
 import com.facebook.appevents.AppEventsLogger
 import com.facebook.GraphRequest
 import com.facebook.GraphResponse
@@ -10,7 +11,8 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
-class FacebookAppEventsPlugin(private val registrar: Registrar) : MethodCallHandler {
+class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
+  private val logTag = "FacebookAppEvents"
   var logger: AppEventsLogger
 
   init {
@@ -82,6 +84,10 @@ class FacebookAppEventsPlugin(private val registrar: Registrar) : MethodCallHand
         val data = response.getJSONObject()
         result.success(data)
       }
+    }
+
+    for (key in parameterBundle.keySet()) {
+      Log.d(logTag, "[updateUserProperties] " + key + ": " + parameterBundle.get(key))
     }
 
     if (applicationId == null) AppEventsLogger.updateUserProperties(parameterBundle, requestCallback)

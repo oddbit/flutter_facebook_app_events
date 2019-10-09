@@ -1,4 +1,4 @@
-group 'id.oddbit.facebook_app_events'
+group 'id.oddbit.facebook_analytics'
 version '1.0-SNAPSHOT'
 
 buildscript {

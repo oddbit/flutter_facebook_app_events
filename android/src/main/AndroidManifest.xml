@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="id.oddbit.facebook_app_events">
+    package="id.oddbit.facebook_analytics">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <application><meta-data android:name="com.facebook.sdk.ApplicationId"

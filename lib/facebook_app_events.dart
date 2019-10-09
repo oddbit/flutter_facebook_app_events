@@ -35,4 +35,36 @@ class FacebookAppEvents {
   Future<void> clearUserID() async {
     await _channel.invokeMethod<void>('clearUserID');
   }
+
+  Future<void> setUserData({
+    String email,
+    String firstName,
+    String lastName,
+    String phone,
+    String dateOfBirth,
+    String gender,
+    String city,
+    String state,
+    String zip,
+    String country,
+  }) async {
+    final args =  <String, dynamic>{
+      'email': email,
+      'firstName': firstName,
+      'lastName': lastName,
+      'phone': phone,
+      'dateOfBirth': dateOfBirth,
+      'gender': gender,
+      'city': city,
+      'state': state,
+      'zip': zip,
+      'country': country,
+    };
+    
+    await _channel.invokeMethod<void>('setUserData', args);
+  }
+
+  Future<void> clearUserData() async {
+    await _channel.invokeMethod<void>('clearUserData');
+  }
 }

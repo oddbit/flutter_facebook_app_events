@@ -26,7 +26,8 @@ class FacebookAppEventsPlugin(private val registrar: Registrar) : MethodCallHand
   override fun onMethodCall(call: MethodCall, result: Result) {
     when (call.method) {
       "logEvent" -> handleLogEvent(call, result)
-//      "setUserID" -> handleSetUserId(call, result)
+      "setUserID" -> handleSetUserId(call, result)
+      "clearUserID" -> handleClearUserId(call, result)
       "getPlatformVersion" -> handlePlatformVersion(call, result)
       else -> result.notImplemented()
     }
@@ -45,11 +46,16 @@ class FacebookAppEventsPlugin(private val registrar: Registrar) : MethodCallHand
     result.success(null)
   }
 
-//  private fun handleSetUserId(call: MethodCall, result: Result) {
-//    val id = call.arguments as String
-//    logger.setUserID(id)
-//    result.success(null)
-//  }
+  private fun handleSetUserId(call: MethodCall, result: Result) {
+    val id = call.arguments as String
+    AppEventsLogger.setUserID(id)
+    result.success(null)
+  }
+
+  private fun handleClearUserId(call: MethodCall, result: Result) {
+    AppEventsLogger.clearUserID()
+    result.success(null)
+  }
 
   private fun handlePlatformVersion(call: MethodCall, result: Result) {
     result.success("Android ${android.os.Build.VERSION.RELEASE}")

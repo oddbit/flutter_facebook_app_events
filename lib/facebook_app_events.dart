@@ -31,4 +31,8 @@ class FacebookAppEvents {
   Future<void> setUserID(String id) async {
     await _channel.invokeMethod<void>('setUserID', id);
   }
+
+  Future<void> clearUserID() async {
+    await _channel.invokeMethod<void>('clearUserID');
+  }
 }

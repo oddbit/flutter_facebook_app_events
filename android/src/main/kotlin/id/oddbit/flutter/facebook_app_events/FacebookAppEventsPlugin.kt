@@ -31,7 +31,6 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
     when (call.method) {
       "clearUserData" -> handleClearUserData(call, result)
       "clearUserID" -> handleClearUserId(call, result)
-      "getPlatformVersion" -> handlePlatformVersion(call, result)
       "logEvent" -> handleLogEvent(call, result)
       "setUserData" -> handleSetUserData(call, result)
       "setUserID" -> handleSetUserId(call, result)
@@ -109,11 +108,6 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
     AppEventsLogger.clearUserID()
     result.success(null)
   }
-
-  private fun handlePlatformVersion(call: MethodCall, result: Result) {
-    result.success("Android ${android.os.Build.VERSION.RELEASE}")
-  }
-
 
   fun logEvent(eventName: String?, params: Bundle?, valToSum: Double?) {
     if (valToSum != null) appEventsLogger.logEvent(eventName, valToSum, params)

@@ -30,10 +30,6 @@ class FacebookAppEvents {
     return _channel.invokeMethod<void>('logEvent', args);
   }
 
-  static Future<String> get platformVersion {
-    return _channel.invokeMethod('getPlatformVersion');
-  }
-
   Future<void> setUserData({
     String email,
     String firstName,

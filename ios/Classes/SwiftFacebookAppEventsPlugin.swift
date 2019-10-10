@@ -17,9 +17,6 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     case "clearUserID":
       handleClearUserID(call, result: result)
       break
-    case "getPlatformVersion":
-      handleGetPlatformVersion(call, result: result)
-      break
     case "logEvent":
       handleLogEvent(call, result: result)
       break
@@ -75,10 +72,6 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     AppEvents.setUserData(arguments["country"] as? String, forType: AppEvents.UserDataType.country)
 
     result(nil)
-  }
-
-  private func handleGetPlatformVersion(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    result("iOS " + UIDevice.current.systemVersion)
   }
 
   private func handleSetUserId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

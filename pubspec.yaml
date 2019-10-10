@@ -1,6 +1,6 @@
 name: facebook_app_events
 description: Flutter plugin for Facebook Analytics and App Events
-version: 0.0.1
+version: 0.0.2
 author: Oddbit Team <flutter@oddbit.id>
 homepage: https://github.com/oddbit/flutter_facebook_app_events
 

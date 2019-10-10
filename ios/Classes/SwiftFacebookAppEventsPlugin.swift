@@ -63,16 +63,16 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
 
   private func handleSetUserData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     let arguments = call.arguments as? [String: Any] ?? [String: Any]()
-    AppEvents.setUserData(arguments["email"] as? String, FBSDKAppEventUserDataType.email)
-    AppEvents.setUserData(arguments["firstName"] as? String, FBSDKAppEventUserDataType.firstName)
-    AppEvents.setUserData(arguments["lastName"] as? String, FBSDKAppEventUserDataType.lastName)
-    AppEvents.setUserData(arguments["phone"] as? String, FBSDKAppEventUserDataType.phone)
-    AppEvents.setUserData(arguments["dateOfBirth"] as? String, FBSDKAppEventUserDataType.dateOfBirth)
-    AppEvents.setUserData(arguments["gender"] as? String, FBSDKAppEventUserDataType.gender)
-    AppEvents.setUserData(arguments["city"] as? String, FBSDKAppEventUserDataType.city)
-    AppEvents.setUserData(arguments["state"] as? String, FBSDKAppEventUserDataType.state)
-    AppEvents.setUserData(arguments["zip"] as? String, FBSDKAppEventUserDataType.zip)
-    AppEvents.setUserData(arguments["country"] as? String, FBSDKAppEventUserDataType.country)
+    AppEvents.setUserData(arguments["email"] as? String, forType: AppEvents.UserDataType.email)
+    AppEvents.setUserData(arguments["firstName"] as? String, forType: AppEvents.UserDataType.firstName)
+    AppEvents.setUserData(arguments["lastName"] as? String, forType: AppEvents.UserDataType.lastName)
+    AppEvents.setUserData(arguments["phone"] as? String, forType: AppEvents.UserDataType.phone)
+    AppEvents.setUserData(arguments["dateOfBirth"] as? String, forType: AppEvents.UserDataType.dateOfBirth)
+    AppEvents.setUserData(arguments["gender"] as? String, forType: AppEvents.UserDataType.gender)
+    AppEvents.setUserData(arguments["city"] as? String, forType: AppEvents.UserDataType.city)
+    AppEvents.setUserData(arguments["state"] as? String, forType: AppEvents.UserDataType.state)
+    AppEvents.setUserData(arguments["zip"] as? String, forType: AppEvents.UserDataType.zip)
+    AppEvents.setUserData(arguments["country"] as? String, forType: AppEvents.UserDataType.country)
 
     result(nil)
   }
@@ -93,7 +93,7 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
       let parameters =  arguments["parameters"] as! [String: Any]
       let graphRequest = GraphRequest(graphPath: "path", parameters: parameters)
       
-      let callback: GraphRequestBlock =  { (connection, result, error) in
+      let callback: GraphRequestBlock =  { (connection, resultResponse, error) in
          if error != nil {
            result(nil)
          } else {
@@ -102,7 +102,8 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
       }
 
       if let id = applicationId {
-        AppEvents.updateUserProperties( parameters, applicationId, handler: callback)
+        AppEvents.userID = id
+        AppEvents.updateUserProperties( parameters, handler: callback)
       } else {
         AppEvents.updateUserProperties( parameters, handler: callback)
       }

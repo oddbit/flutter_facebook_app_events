@@ -89,23 +89,15 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
 
   private func handleUpdateUserProperties(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
       let arguments = call.arguments as? [String: Any] ?? [String: Any]()
-      let applicationId = arguments["applicationId"] as? String
       let parameters =  arguments["parameters"] as! [String: Any]
       let graphRequest = GraphRequest(graphPath: "path", parameters: parameters)
       
-      let callback: GraphRequestBlock =  { (connection, resultResponse, error) in
+      AppEvents.updateUserProperties( parameters, handler: { (connection, result, error) in
          if error != nil {
            result(nil)
          } else {
             result(result)
          }
-      }
-
-      if let id = applicationId {
-        AppEvents.userID = id
-        AppEvents.updateUserProperties( parameters, handler: callback)
-      } else {
-        AppEvents.updateUserProperties( parameters, handler: callback)
-      }
+      })     
   }
 }

@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import FBSDKCoreKit
 
 public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -13,6 +14,9 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     case "getPlatformVersion":
       handleGetPlatformVersion(call, result: result)
       break;
+    case "logEvent":
+      AppEvents.logEvent(AppEvents.Name("Test"))
+      break
     default:
       result(FlutterMethodNotImplemented)
     }

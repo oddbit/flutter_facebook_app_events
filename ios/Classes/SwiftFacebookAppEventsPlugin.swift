@@ -91,11 +91,11 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
       let arguments = call.arguments as? [String: Any] ?? [String: Any]()
       let parameters =  arguments["parameters"] as! [String: Any]
       
-      AppEvents.updateUserProperties( parameters, handler: { (connection, result, error) in
+      AppEvents.updateUserProperties( parameters, handler: { (connection, response, error) in
          if error != nil {
            result(nil)
          } else {
-            result(result)
+            result(response)
          }
       })     
   }

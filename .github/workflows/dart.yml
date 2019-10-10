@@ -1,10 +1,9 @@
-name: Dart CI
-
+name: Publish package to pub.dev
 on:
   push:
-    branches:    
+    branches:   
       - master
-      - develop 
+      - develop
 jobs:
   build:
     runs-on: ubuntu-latest

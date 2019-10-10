@@ -1,16 +1,18 @@
 # facebook_app_events_example
 
-Demonstrates how to use the facebook_app_events plugin.
+Demonstrates how to use the `facebook_app_events` plugin. Read the offical ["getting started" documentation](https://developers.facebook.com/docs/app-events/getting-started-app-events-android#custom-events) for full understanding.
 
-## Getting Started
+## [Logging events](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventslogger.html/)
 
-This project is a starting point for a Flutter application.
+```dart
+import 'package:facebook_app_events/facebook_app_events.dart';
+...
+final facebookAppEvents = FacebookAppEvents();
+facebookAppEvents.logEvent(
+    name: 'button_clicked',
+    parameters: {
+        'button_id': 'the_clickme_button',
+    },
+);
+```
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.

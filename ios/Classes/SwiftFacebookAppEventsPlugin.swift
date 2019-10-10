@@ -59,18 +59,20 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
          AppEvents.logEvent(AppEvents.Name(eventName), parameters: parameters)
          result(nil)
     }
-
-
   }
 
   private func handleSetUserData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     let arguments = call.arguments as? [String: Any] ?? [String: Any]()
-    let userParams = ["email", "firstName", "lastName", "phone", "dateOfBirth"]
-
-    for key in userParams {
-      let value = arguments[key] as? String
-      AppEvents.setUserData(value, forType: AppEvents.UserDataType(key))
-    }
+    AppEvents.setUserData(arguments["email"] as? String, FBSDKAppEventUserDataType.email)
+    AppEvents.setUserData(arguments["firstName"] as? String, FBSDKAppEventUserDataType.firstName)
+    AppEvents.setUserData(arguments["lastName"] as? String, FBSDKAppEventUserDataType.lastName)
+    AppEvents.setUserData(arguments["phone"] as? String, FBSDKAppEventUserDataType.phone)
+    AppEvents.setUserData(arguments["dateOfBirth"] as? String, FBSDKAppEventUserDataType.dateOfBirth)
+    AppEvents.setUserData(arguments["gender"] as? String, FBSDKAppEventUserDataType.gender)
+    AppEvents.setUserData(arguments["city"] as? String, FBSDKAppEventUserDataType.city)
+    AppEvents.setUserData(arguments["state"] as? String, FBSDKAppEventUserDataType.state)
+    AppEvents.setUserData(arguments["zip"] as? String, FBSDKAppEventUserDataType.zip)
+    AppEvents.setUserData(arguments["country"] as? String, FBSDKAppEventUserDataType.country)
 
     result(nil)
   }
@@ -84,25 +86,25 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
       AppEvents.userID = id
       result(nil)
   }
+
   private func handleUpdateUserProperties(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
       let arguments = call.arguments as? [String: Any] ?? [String: Any]()
       let applicationId = arguments["applicationId"] as? String
       let parameters =  arguments["parameters"] as! [String: Any]
       let graphRequest = GraphRequest(graphPath: "path", parameters: parameters)
-      let requestCallback =  graphRequest.start { (urlResponse, requestResult, error) in
+      
+      let callback: GraphRequestBlock =  { (connection, result, error) in
          if error != nil {
            result(nil)
          } else {
-            let dict = requestResult as! NSMutableDictionary
-            result(dict)
+            result(result)
          }
       }
 
       if let id = applicationId {
-        //error in graphrequest, error message :  error: cannot convert value of type 'GraphRequest' to expected argument type 'GraphRequestBlock?'
-        AppEvents.updateUserProperties( parameters, applicationId, handler: graphRequest)
+        AppEvents.updateUserProperties( parameters, applicationId, handler: callback)
       } else {
-        AppEvents.updateUserProperties( parameters, handler: graphRequest)
+        AppEvents.updateUserProperties( parameters, handler: callback)
       }
   }
 }

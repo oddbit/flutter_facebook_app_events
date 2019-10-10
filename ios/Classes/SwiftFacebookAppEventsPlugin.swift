@@ -90,7 +90,6 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
   private func handleUpdateUserProperties(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
       let arguments = call.arguments as? [String: Any] ?? [String: Any]()
       let parameters =  arguments["parameters"] as! [String: Any]
-      let graphRequest = GraphRequest(graphPath: "path", parameters: parameters)
       
       AppEvents.updateUserProperties( parameters, handler: { (connection, result, error) in
          if error != nil {

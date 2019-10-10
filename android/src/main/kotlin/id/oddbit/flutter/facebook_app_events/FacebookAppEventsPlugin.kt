@@ -13,10 +13,10 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 
 class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
   private val logTag = "FacebookAppEvents"
-  var logger: AppEventsLogger
+  var appEventsLogger: AppEventsLogger
 
   init {
-    this.logger = AppEventsLogger.newLogger(registrar.context())
+    this.appEventsLogger = AppEventsLogger.newLogger(registrar.context())
   }
 
   companion object {
@@ -116,8 +116,8 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
 
 
   fun logEvent(eventName: String?, params: Bundle?, valToSum: Double?) {
-    if (valToSum != null) logger.logEvent(eventName, valToSum, params)
-    else logger.logEvent(eventName, params)
+    if (valToSum != null) appEventsLogger.logEvent(eventName, valToSum, params)
+    else appEventsLogger.logEvent(eventName, params)
   }
 
   private fun createBundleFromMap(parameterMap: Map<String, Any>?): Bundle? {

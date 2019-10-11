@@ -1,11 +1,9 @@
-## 0.0.4
+## 0.1.0
 
-* Testing deployment via Github actions.
-
-## 0.0.2
-
-* Adding iOS support.
-
-## 0.0.1
-
-* Initial version. Only Android support.
+* First initial release supporting some basic functionality
+  - `clearUserData`
+  - `clearUserID`
+  - `logEvent`
+  - `setUserData`
+  - `setUserID`
+  - `updateUserProperties`

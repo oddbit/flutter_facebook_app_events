@@ -17,6 +17,9 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     case "clearUserID":
       handleClearUserID(call, result: result)
       break
+    case "flush":
+      handleFlush(call, result: result)
+      break
     case "logEvent":
       handleLogEvent(call, result: result)
       break
@@ -44,6 +47,11 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
 
   private func handleClearUserID(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
       AppEvents.clearUserID()
+      result(nil)
+  }
+
+  private func handleFlush(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+      AppEvents.flush()
       result(nil)
   }
 

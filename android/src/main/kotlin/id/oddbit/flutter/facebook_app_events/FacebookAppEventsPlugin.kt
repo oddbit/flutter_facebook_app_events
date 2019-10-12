@@ -31,6 +31,7 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
     when (call.method) {
       "clearUserData" -> handleClearUserData(call, result)
       "clearUserID" -> handleClearUserId(call, result)
+      "flush" -> handleFlush(call, result)
       "logEvent" -> handleLogEvent(call, result)
       "logPushNotificationOpen" -> handlePushNotificationOpen(call, result)
       "setUserData" -> handleSetUserData(call, result)
@@ -38,6 +39,21 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
       "updateUserProperties" -> handleUpdateUserProperties(call, result)
       else -> result.notImplemented()
     }
+  }
+
+  private fun handleClearUserData(call: MethodCall, result: Result) {
+    AppEventsLogger.clearUserData()
+    result.success(null)
+  }
+
+  private fun handleClearUserId(call: MethodCall, result: Result) {
+    AppEventsLogger.clearUserID()
+    result.success(null)
+  }
+
+  private fun handleFlush(call: MethodCall, result: Result) {
+    appEventsLogger.flush()
+    result.success(null)
   }
 
   private fun handleLogEvent(call: MethodCall, result: Result) {
@@ -116,19 +132,9 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
     else AppEventsLogger.updateUserProperties(parameterBundle, applicationId, requestCallback)
   }
 
-  private fun handleClearUserData(call: MethodCall, result: Result) {
-    AppEventsLogger.clearUserData()
-    result.success(null)
-  }
-
   private fun handleSetUserId(call: MethodCall, result: Result) {
     val id = call.arguments as String
     AppEventsLogger.setUserID(id)
-    result.success(null)
-  }
-
-  private fun handleClearUserId(call: MethodCall, result: Result) {
-    AppEventsLogger.clearUserID()
     result.success(null)
   }
 

@@ -18,6 +18,11 @@ class FacebookAppEvents {
     return _channel.invokeMethod<void>('clearUserID');
   }
 
+  /// Explicitly flush any stored events to the server. 
+  Future<void> flush() {
+    return _channel.invokeMethod<void>('flush');
+  }
+
   /// Log an app event with the specified [name] and the supplied [parameters] value.
   Future<void> logEvent({
     @required String name,

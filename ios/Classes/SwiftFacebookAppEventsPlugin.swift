@@ -1,6 +1,7 @@
 import Flutter
 import UIKit
 import FBSDKCoreKit
+import FBSDKSettings
 
 public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -19,6 +20,9 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
       break
     case "flush":
       handleFlush(call, result: result)
+      break
+    case "getApplicationId":
+      getApplicationId(call, result: result)
       break
     case "logEvent":
       handleLogEvent(call, result: result)
@@ -53,6 +57,10 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
   private func handleFlush(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
       AppEvents.flush()
       result(nil)
+  }
+
+  private func handleGetApplicationId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+      result(FBSDKSettings.AppID)
   }
 
   private func handleLogEvent(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

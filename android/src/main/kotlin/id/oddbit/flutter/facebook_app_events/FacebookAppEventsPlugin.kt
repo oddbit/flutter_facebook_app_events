@@ -32,6 +32,7 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
       "clearUserData" -> handleClearUserData(call, result)
       "clearUserID" -> handleClearUserId(call, result)
       "flush" -> handleFlush(call, result)
+      "getApplicationId" -> getApplicationId(call, result)
       "logEvent" -> handleLogEvent(call, result)
       "logPushNotificationOpen" -> handlePushNotificationOpen(call, result)
       "setUserData" -> handleSetUserData(call, result)
@@ -54,6 +55,10 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
   private fun handleFlush(call: MethodCall, result: Result) {
     appEventsLogger.flush()
     result.success(null)
+  }
+
+  private fun getApplicationId(call: MethodCall, result: Result) {    
+    result.success(appEventsLogger.getApplicationId())
   }
 
   private fun handleLogEvent(call: MethodCall, result: Result) {

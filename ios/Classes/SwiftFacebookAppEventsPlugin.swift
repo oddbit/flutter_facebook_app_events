@@ -20,6 +20,9 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     case "logEvent":
       handleLogEvent(call, result: result)
       break
+    case "logPushNotificationOpen":
+      handlePushNotificationOpen(call, result: result)
+      break
     case "setUserData":
       handleSetUserData(call, result: result)
       break
@@ -50,12 +53,24 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     let parameters = arguments["parameters"] as! [String: Any]
     if let valueToSum = arguments["valueToSum"] {
         let valueToDouble = valueToSum as! Double
-        AppEvents.logEvent(AppEvents.Name(eventName), valueToSum: valueToDouble, parameters: parameters)
-        result(nil)
+      AppEvents.logEvent(AppEvents.Name(eventName), valueToSum: valueToDouble, parameters: parameters)
     } else {
-         AppEvents.logEvent(AppEvents.Name(eventName), parameters: parameters)
-         result(nil)
+      AppEvents.logEvent(AppEvents.Name(eventName), parameters: parameters)
     }
+
+    result(nil)
+  }
+
+  private func handlePushNotificationOpen(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    let payload = arguments["payload"] as! [String: Any]
+    if let action = arguments["action"] {
+        let actionString = action as! String
+      AppEvents.logPushNotificationOpen(payload, action: actionString)
+    } else {
+      AppEvents.logPushNotificationOpen(payload)
+    }
+
+    result(nil)
   }
 
   private func handleSetUserData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

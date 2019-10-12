@@ -32,6 +32,7 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
       "clearUserData" -> handleClearUserData(call, result)
       "clearUserID" -> handleClearUserId(call, result)
       "logEvent" -> handleLogEvent(call, result)
+      "logPushNotificationOpen" -> handlePushNotificationOpen(call, result)
       "setUserData" -> handleSetUserData(call, result)
       "setUserID" -> handleSetUserId(call, result)
       "updateUserProperties" -> handleUpdateUserProperties(call, result)
@@ -41,13 +42,35 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
 
   private fun handleLogEvent(call: MethodCall, result: Result) {
     val eventName = call.argument("name") as? String
-
     val parameters = call.argument("parameters") as? Map<String, Object>
-    val parameterBundle = createBundleFromMap(parameters)
-
     val valueToSum = call.argument("valueToSum") as? Double
 
     logEvent(eventName, parameterBundle, valueToSum)
+    if (valToSum != null && parameters != null) {
+      val parameterBundle = createBundleFromMap(parameters)
+      appEventsLogger.logEvent(eventName, valToSum, params)
+    } else if (valueToSum != null) {
+      appEventsLogger.logEvent(eventName, valToSum)
+    } else if (parameters != null) {
+      val parameterBundle = createBundleFromMap(parameters)
+      appEventsLogger.logEvent(eventName, parameters)
+    } else {
+      appEventsLogger.logEvent(eventName)
+    } 
+
+    result.success(null)
+  }
+
+  private fun handlePushNotificationOpen(call: MethodCall, result: Result) {
+    val action = call.argument("action") as? String
+    val payload = call.argument("payload") as? Map<String, Object>
+    val payloadBundle = createBundleFromMap(parameters)
+
+    if (action != null) {
+      appEventsLogger.logEvent(payloadBundle, action)
+    } else {
+      appEventsLogger.logEvent(payloadBundle)
+    }
 
     result.success(null)
   }
@@ -107,11 +130,6 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
   private fun handleClearUserId(call: MethodCall, result: Result) {
     AppEventsLogger.clearUserID()
     result.success(null)
-  }
-
-  fun logEvent(eventName: String?, params: Bundle?, valToSum: Double?) {
-    if (valToSum != null) appEventsLogger.logEvent(eventName, valToSum, params)
-    else appEventsLogger.logEvent(eventName, params)
   }
 
   private fun createBundleFromMap(parameterMap: Map<String, Any>?): Bundle? {

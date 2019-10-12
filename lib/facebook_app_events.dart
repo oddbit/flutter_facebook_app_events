@@ -33,9 +33,9 @@ class FacebookAppEvents {
     return _channel.invokeMethod<void>('logEvent', args);
   }
 
-  /// Sets user data to associate with all app events. 
-  /// All user data are hashed and used to match Facebook user from this 
-  /// instance of an application. The user data will be persisted between 
+  /// Sets user data to associate with all app events.
+  /// All user data are hashed and used to match Facebook user from this
+  /// instance of an application. The user data will be persisted between
   /// application instances.
   Future<void> setUserData({
     String email,
@@ -65,9 +65,22 @@ class FacebookAppEvents {
     return _channel.invokeMethod<void>('setUserData', args);
   }
 
-  /// Sets a user [id] to associate with all app events. 
-  /// This can be used to associate your own user id with the 
-  /// app events logged from this instance of an application. 
+  /// Logs an app event that tracks that the application was open via Push Notification.
+  Future<void> logPushNotificationOpen({
+    @required Map<String, dynamic> payload,
+    String action,
+  }) {
+    final args = <String, dynamic>{
+      'payload': payload,
+      'action': action,
+    };
+
+    return _channel.invokeMethod<void>('logPushNotificationOpen', args);
+  }
+
+  /// Sets a user [id] to associate with all app events.
+  /// This can be used to associate your own user id with the
+  /// app events logged from this instance of an application.
   /// The user ID will be persisted between application instances.
   Future<void> setUserID(String id) {
     return _channel.invokeMethod<void>('setUserID', id);

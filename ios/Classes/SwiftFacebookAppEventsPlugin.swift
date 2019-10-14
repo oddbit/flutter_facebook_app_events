@@ -1,7 +1,6 @@
 import Flutter
 import UIKit
 import FBSDKCoreKit
-import FBSDKSettings
 
 public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -22,7 +21,7 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
       handleFlush(call, result: result)
       break
     case "getApplicationId":
-      getApplicationId(call, result: result)
+      handleGetApplicationId(call, result: result)
       break
     case "logEvent":
       handleLogEvent(call, result: result)
@@ -60,7 +59,7 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
   }
 
   private func handleGetApplicationId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-      result(FBSDKSettings.AppID)
+      result(Settings.appID)
   }
 
   private func handleLogEvent(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -78,12 +77,13 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
   }
 
   private func handlePushNotificationOpen(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    let payload = arguments["payload"] as! [String: Any]
+   let arguments = call.arguments as? [String: Any] ?? [String: Any]()
+    let payload = arguments["payload"] as? [String: Any]
     if let action = arguments["action"] {
         let actionString = action as! String
-      AppEvents.logPushNotificationOpen(payload, action: actionString)
+      AppEvents.logPushNotificationOpen(payload!, action: actionString)
     } else {
-      AppEvents.logPushNotificationOpen(payload)
+      AppEvents.logPushNotificationOpen(payload!)
     }
 
     result(nil)

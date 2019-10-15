@@ -18,12 +18,12 @@ class FacebookAppEvents {
     return _channel.invokeMethod<void>('clearUserID');
   }
 
-  /// Explicitly flush any stored events to the server. 
+  /// Explicitly flush any stored events to the server.
   Future<void> flush() {
     return _channel.invokeMethod<void>('flush');
   }
 
-  /// Explicitly flush any stored events to the server. 
+  /// Explicitly flush any stored events to the server.
   Future<void> getApplicationId() {
     return _channel.invokeMethod<void>('getApplicationId');
   }

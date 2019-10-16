@@ -57,7 +57,7 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
     result.success(null)
   }
 
-  private fun getApplicationId(call: MethodCall, result: Result) {    
+  private fun getApplicationId(call: MethodCall, result: Result) {
     result.success(appEventsLogger.getApplicationId())
   }
 
@@ -66,18 +66,17 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
     val parameters = call.argument("parameters") as? Map<String, Object>
     val valueToSum = call.argument("valueToSum") as? Double
 
-    logEvent(eventName, parameterBundle, valueToSum)
-    if (valToSum != null && parameters != null) {
+    if (valueToSum != null && parameters != null) {
       val parameterBundle = createBundleFromMap(parameters)
-      appEventsLogger.logEvent(eventName, valToSum, params)
+      appEventsLogger.logEvent(eventName, valueToSum, parameterBundle)
     } else if (valueToSum != null) {
-      appEventsLogger.logEvent(eventName, valToSum)
+      appEventsLogger.logEvent(eventName, valueToSum)
     } else if (parameters != null) {
       val parameterBundle = createBundleFromMap(parameters)
-      appEventsLogger.logEvent(eventName, parameters)
+      appEventsLogger.logEvent(eventName, parameterBundle)
     } else {
       appEventsLogger.logEvent(eventName)
-    } 
+    }
 
     result.success(null)
   }
@@ -85,12 +84,12 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
   private fun handlePushNotificationOpen(call: MethodCall, result: Result) {
     val action = call.argument("action") as? String
     val payload = call.argument("payload") as? Map<String, Object>
-    val payloadBundle = createBundleFromMap(parameters)
+    val payloadBundle = createBundleFromMap(payload)
 
     if (action != null) {
-      appEventsLogger.logEvent(payloadBundle, action)
+      appEventsLogger.logPushNotificationOpen(payloadBundle, action)
     } else {
-      appEventsLogger.logEvent(payloadBundle)
+      appEventsLogger.logPushNotificationOpen(payloadBundle)
     }
 
     result.success(null)

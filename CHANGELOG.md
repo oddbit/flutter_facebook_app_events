@@ -1,3 +1,6 @@
+## 0.2.1
+ * Bug fixing.
+ 
 ## 0.2.0
  * Adding app events 
     - `logPushNotificationOpen`

@@ -58,3 +58,16 @@ Read through the "[Getting Started with App Events for iOS](https://developers.f
 <key>FacebookDisplayName</key>
 <string>[APP_NAME]</string>
  ```
+
+ ## About Facebook App Events and Facebook Analytics
+ Please refer to the official SDK documentation for 
+ [iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/fbsdkappevents.html)
+ and 
+ [Android](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventslogger.html) respectively for the correct and expected behavior. Please 
+ [report an issue](https://github.com/oddbit/flutter_facebook_app_events/issues)
+ if you find anything that is not working according to official documentation.
+
+ ## Facebook Analytics
+ The events that your app is reporting will appear in Facebook Analytics for apps. You can read more about how to configure your dashboard and best
+ practices on how to report data in Facebook help resources: 
+ https://www.facebook.com/help/analytics/319598688400448

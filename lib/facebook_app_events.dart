@@ -108,4 +108,17 @@ class FacebookAppEvents {
 
     return _channel.invokeMethod<void>('updateUserProperties', args);
   }
+
+  // Below are shorthand implementations of the predefined app event constants
+
+  /// Log event when app starts
+  ///
+  /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnameactivatedapp
+  Future<void> logActivateApp() {
+    return logEvent(name: _EVENT_NAME_ACTIVATED_APP);
+  }
 }
+
+/// See: https://github.com/facebook/facebook-android-sdk/blob/master/facebook-core/src/main/java/com/facebook/appevents/AppEventsConstants.java
+
+const _EVENT_NAME_ACTIVATED_APP = 'fb_mobile_activate_app';

@@ -1,3 +1,7 @@
+## 0.3.0 
+ * Add sample of shorthand log methods for app events.
+   - logActivateApp
+ 
 ## 0.2.1
  * Bug fixing.
  

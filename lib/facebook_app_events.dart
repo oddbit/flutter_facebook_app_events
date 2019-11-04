@@ -8,6 +8,14 @@ const channelName = 'flutter.oddbit.id/facebook_app_events';
 class FacebookAppEvents {
   static const _channel = MethodChannel(channelName);
 
+  // See: https://github.com/facebook/facebook-android-sdk/blob/master/facebook-core/src/main/java/com/facebook/appevents/AppEventsConstants.java
+  static const eventNameActivatedApp = 'fb_mobile_activate_app';
+  static const eventNameDeactivatedApp = 'fb_mobile_deactivate_app';
+  static const eventNameCompletedRegistration =
+      'fb_mobile_complete_registration';
+
+  static const paramNameRegistrationMethod = "fb_registration_method";
+
   /// Clears the current user data
   Future<void> clearUserData() {
     return _channel.invokeMethod<void>('clearUserData');
@@ -111,14 +119,30 @@ class FacebookAppEvents {
 
   // Below are shorthand implementations of the predefined app event constants
 
-  /// Log event when app starts
+  /// Log this event when an app is being activated.
   ///
   /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnameactivatedapp
-  Future<void> logActivateApp() {
-    return logEvent(name: _EVENT_NAME_ACTIVATED_APP);
+  Future<void> logActivatedApp() {
+    return logEvent(name: eventNameActivatedApp);
+  }
+
+  /// Log this event when an app is being deactivated.
+  ///
+  /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnamedeactivatedapp
+  Future<void> logDeactivatedApp() {
+    return logEvent(name: eventNameDeactivatedApp);
+  }
+
+  /// Log this event when the user has completed registration with the app.
+  /// Parameter [registrationMethod] is used to specify the method the user has
+  /// used to register for the app, e.g. "Facebook", "email", "Google", etc.
+  /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnamecompletedregistration
+  Future<void> logCompletedRegistration({String registrationMethod}) {
+    return logEvent(
+      name: eventNameCompletedRegistration,
+      parameters: {
+        paramNameRegistrationMethod: registrationMethod,
+      },
+    );
   }
 }
-
-/// See: https://github.com/facebook/facebook-android-sdk/blob/master/facebook-core/src/main/java/com/facebook/appevents/AppEventsConstants.java
-
-const _EVENT_NAME_ACTIVATED_APP = 'fb_mobile_activate_app';

@@ -13,10 +13,25 @@ class FacebookAppEvents {
   static const eventNameDeactivatedApp = 'fb_mobile_deactivate_app';
   static const eventNameCompletedRegistration =
       'fb_mobile_complete_registration';
+  static const eventNameViewedContent = 'fb_mobile_content_view';
   static const eventNameRated = 'fb_mobile_rate';
 
   static const _paramNameValueToSum = "_valueToSum";
   static const paramNameRegistrationMethod = "fb_registration_method";
+
+  /// Parameter key used to specify a generic content type/family for the logged event, e.g.
+  /// "music", "photo", "video".  Options to use will vary depending on the nature of the app.
+  static const paramNameContentType = "fb_content_type";
+
+  /// Parameter key used to specify data for the one or more pieces of content being logged about.
+  /// Data should be a JSON encoded string.
+  /// Example:
+  ///   "[{\"id\": \"1234\", \"quantity\": 2, \"item_price\": 5.99}, {\"id\": \"5678\", \"quantity\": 1, \"item_price\": 9.99}]"
+  static const paramNameContent = "fb_content";
+
+  /// Parameter key used to specify an ID for the specific piece of content being logged about.
+  /// This could be an EAN, article identifier, etc., depending on the nature of the app.
+  static const paramNameContentId = "fb_content_id";
 
   /// Clears the current user data
   Future<void> clearUserData() {
@@ -155,6 +170,24 @@ class FacebookAppEvents {
     return logEvent(
       name: eventNameRated,
       valueToSum: valueToSum,
+    );
+  }
+
+  /// Log this event when the user has viewed a form of content in the app.
+  ///
+  /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnameviewedcontent
+  Future<void> logViewContent({
+    Map<String, dynamic> content,
+    String id,
+    String type,
+  }) {
+    return logEvent(
+      name: eventNameViewedContent,
+      parameters: {
+        paramNameContent: content,
+        paramNameContentId: id,
+        paramNameContentType: type,
+      },
     );
   }
 }

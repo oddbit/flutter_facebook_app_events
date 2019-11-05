@@ -65,7 +65,7 @@ class FacebookAppEvents {
       _paramNameValueToSum: valueToSum,
     };
 
-    return _channel.invokeMethod<void>('logEvent', args);
+    return _channel.invokeMethod<void>('logEvent', _filterOutNulls(args));
   }
 
   /// Sets user data to associate with all app events.
@@ -189,5 +189,17 @@ class FacebookAppEvents {
         paramNameContentType: type,
       },
     );
+  }
+
+  /// Creates a new map containing all of the key/value pairs from [parameters]
+  /// except those whose value is `null`.
+  Map<String, dynamic> _filterOutNulls(Map<String, dynamic> parameters) {
+    final Map<String, dynamic> filtered = <String, dynamic>{};
+    parameters.forEach((String key, dynamic value) {
+      if (value != null) {
+        filtered[key] = value;
+      }
+    });
+    return filtered;
   }
 }

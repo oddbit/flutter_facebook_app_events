@@ -64,7 +64,7 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
   private fun handleLogEvent(call: MethodCall, result: Result) {
     val eventName = call.argument("name") as? String
     val parameters = call.argument("parameters") as? Map<String, Object>
-    val valueToSum = call.argument("valueToSum") as? Double
+    val valueToSum = call.argument("_valueToSum") as? Double
 
     if (valueToSum != null && parameters != null) {
       val parameterBundle = createBundleFromMap(parameters)

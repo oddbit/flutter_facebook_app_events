@@ -13,7 +13,9 @@ class FacebookAppEvents {
   static const eventNameDeactivatedApp = 'fb_mobile_deactivate_app';
   static const eventNameCompletedRegistration =
       'fb_mobile_complete_registration';
+  static const eventNameRated = 'fb_mobile_rate';
 
+  static const _paramNameValueToSum = "_valueToSum";
   static const paramNameRegistrationMethod = "fb_registration_method";
 
   /// Clears the current user data
@@ -45,7 +47,7 @@ class FacebookAppEvents {
     final args = <String, dynamic>{
       'name': name,
       'parameters': parameters,
-      'valueToSum': valueToSum,
+      _paramNameValueToSum: valueToSum,
     };
 
     return _channel.invokeMethod<void>('logEvent', args);
@@ -143,6 +145,16 @@ class FacebookAppEvents {
       parameters: {
         paramNameRegistrationMethod: registrationMethod,
       },
+    );
+  }
+
+  /// Log this event when the user has rated an item in the app.
+  ///
+  /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnamerated
+  Future<void> logRated({double valueToSum}) {
+    return logEvent(
+      name: eventNameRated,
+      valueToSum: valueToSum,
     );
   }
 }

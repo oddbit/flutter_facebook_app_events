@@ -5,7 +5,7 @@ Flutter plugin for [Facebook App Events](https://developers.facebook.com/docs/ap
 
 > An app event is an action that takes place in your app or on your web page such as a person installing your app or completing a purchase. Facebook App Events allows you to track these events to view analytics, measure ad performance, and build audiences for ad targeting.
 
-This plugin is using the implementing support for logging events and user data from your app and to Facebook analytics for [your application](https://developers.facebook.com/apps/). 
+Flutter plugin for Facebook App Events, an app measurement solution that provides insight on app usage and user engagement in [Facebook Analytics](https://developers.facebook.com/apps/).
 
 ## Setting things up
 You must first create an app at Facebook for developers: https://developers.facebook.com/

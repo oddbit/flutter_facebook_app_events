@@ -10,6 +10,12 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="facebook_app_events_example"
         android:icon="@mipmap/ic_launcher">
+
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

@@ -12,12 +12,22 @@ You must first create an app at Facebook for developers: https://developers.face
 
 Get your app id (referred to as `[APP_ID]` below)
 
+
 ### Configure Android
-Read through the "[Getting Started with App Events for Android](https://developers.facebook.com/docs/app-events/getting-started-app-events-android)" tutuorial and in particular, follow [step 2](https://developers.facebook.com/docs/app-events/getting-started-app-events-android#2--add-your-facebook-app-id) by adding the following into `/app/res/values/strings.xml`
+Read through the "[Getting Started with App Events for Android](https://developers.facebook.com/docs/app-events/getting-started-app-events-android)" tutuorial and in particular, follow [step 2](https://developers.facebook.com/docs/app-events/getting-started-app-events-android#2--add-your-facebook-app-id) by adding the following into `/app/res/values/strings.xml` (or into respective `debug` or `release` build flavor)
 
 ```xml
 <string name="facebook_app_id">[APP_ID]</string>
 ```
+
+After that, add that string resource reference to your main `AndroidManifest.xml` file
+
+```xml
+<meta-data
+  android:name="com.facebook.sdk.ApplicationId"
+  android:value="@string/facebook_app_id" />
+```
+
 
 ### Configure iOS
 Read through the "[Getting Started with App Events for iOS](https://developers.facebook.com/docs/app-events/getting-started-app-events-ios)" tutuorial and in particular, follow [step 4](https://developers.facebook.com/docs/app-events/getting-started-app-events-ios#plist-config) by opening `info.plist` "As Source Code" and add the following

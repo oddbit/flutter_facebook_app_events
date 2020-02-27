@@ -134,6 +134,8 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
 
     if (applicationId == null) AppEventsLogger.updateUserProperties(parameterBundle, requestCallback)
     else AppEventsLogger.updateUserProperties(parameterBundle, applicationId, requestCallback)
+
+    result.success(null)
   }
 
   private fun handleSetUserId(call: MethodCall, result: Result) {

@@ -1,6 +1,10 @@
+## 0.5.2
+
+- Fixing issue [#18](https://github.com/oddbit/flutter_facebook_app_events/issues/18) - `updateUserProperties` Future is not being resolved.
+
 ## 0.5.1
 
-- Updating documentation from issue #15
+- Updating documentation from issue [#15](https://github.com/oddbit/flutter_facebook_app_events/issues/15)
 
 ## 0.5.0
 

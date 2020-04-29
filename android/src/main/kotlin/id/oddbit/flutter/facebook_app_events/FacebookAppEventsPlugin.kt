@@ -2,6 +2,7 @@ package id.oddbit.flutter.facebook_app_events
 
 import android.os.Bundle
 import android.util.Log
+import com.facebook.FacebookSdk
 import com.facebook.appevents.AppEventsLogger
 import com.facebook.GraphRequest
 import com.facebook.GraphResponse
@@ -38,6 +39,7 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
       "setUserData" -> handleSetUserData(call, result)
       "setUserID" -> handleSetUserId(call, result)
       "updateUserProperties" -> handleUpdateUserProperties(call, result)
+      "setAutoLogAppEventsEnabled" -> handleSetAutoLogAppEventsEnabled(call, result)
       else -> result.notImplemented()
     }
   }
@@ -172,5 +174,11 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
       }
     }
     return bundle
+  }
+
+  private fun handleSetAutoLogAppEventsEnabled(call: MethodCall, result: Result) {
+    val enabled = call.arguments as Boolean
+    FacebookSdk.setAutoLogAppEventsEnabled(enabled)
+    result.success(null)
   }
 }

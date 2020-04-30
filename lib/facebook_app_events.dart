@@ -202,4 +202,12 @@ class FacebookAppEvents {
     });
     return filtered;
   }
+
+  /// Re-enables auto logging of app events after user consent
+  /// if disabled for GDPR-compliance.
+  ///
+  /// See: https://developers.facebook.com/docs/app-events/gdpr-compliance
+  Future<void> setAutoLogAppEventsEnabled(bool enabled) {
+    return _channel.invokeMethod<void>('setAutoLogAppEventsEnabled', enabled);
+  }
 }

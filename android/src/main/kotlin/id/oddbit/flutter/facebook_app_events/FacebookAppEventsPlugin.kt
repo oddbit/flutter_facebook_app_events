@@ -6,6 +6,7 @@ import com.facebook.FacebookSdk
 import com.facebook.appevents.AppEventsLogger
 import com.facebook.GraphRequest
 import com.facebook.GraphResponse
+import com.facebook.LoggingBehavior
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -40,10 +41,11 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
       "setUserID" -> handleSetUserId(call, result)
       "updateUserProperties" -> handleUpdateUserProperties(call, result)
       "setAutoLogAppEventsEnabled" -> handleSetAutoLogAppEventsEnabled(call, result)
+      "setIsDebugEnabled" -> handleSetIsDebugEnabled(call, result)
       else -> result.notImplemented()
     }
   }
-
+  
   private fun handleClearUserData(call: MethodCall, result: Result) {
     AppEventsLogger.clearUserData()
     result.success(null)
@@ -179,6 +181,13 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
   private fun handleSetAutoLogAppEventsEnabled(call: MethodCall, result: Result) {
     val enabled = call.arguments as Boolean
     FacebookSdk.setAutoLogAppEventsEnabled(enabled)
+    result.success(null)
+  }
+
+  private fun handleSetIsDebugEnabled(call: MethodCall, result: Result) {
+    val enabled = call.arguments as Boolean
+    FacebookSdk.setIsDebugEnabled(true);
+    FacebookSdk.addLoggingBehavior(LoggingBehavior.APP_EVENTS);
     result.success(null)
   }
 }

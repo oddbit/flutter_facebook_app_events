@@ -41,6 +41,9 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         case "setAutoLogAppEventsEnabled":
             handleSetAutoLogAppEventsEnabled(call, result: result)
             break
+        case "setIsDebugEnabled":
+            handleSetIsDebugEnabled(call, result: result)
+            break
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -130,6 +133,12 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     private func handleSetAutoLogAppEventsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let enabled = call.arguments as! Bool
         Settings.isAutoLogAppEventsEnabled = enabled
+        result(nil)
+    }
+    
+    private func handleSetIsDebugEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let enabled = call.arguments as! Bool
+        Settings.enableLoggingBehavior(.appEvents)
         result(nil)
     }
 }

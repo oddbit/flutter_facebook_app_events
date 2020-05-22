@@ -210,4 +210,9 @@ class FacebookAppEvents {
   Future<void> setAutoLogAppEventsEnabled(bool enabled) {
     return _channel.invokeMethod<void>('setAutoLogAppEventsEnabled', enabled);
   }
+
+  /// Enables or disables debug logging of app events.
+  Future<void> setIsDebugEnabled(bool enabled) {
+    return _channel.invokeMethod<void>('setIsDebugEnabled', enabled);
+  }
 }

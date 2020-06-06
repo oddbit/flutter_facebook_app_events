@@ -11,6 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
@@ -18,5 +20,12 @@ dev_dependencies:
 
 flutter:
   plugin:
-    androidPackage: id.oddbit.flutter.facebook_app_events
-    pluginClass: FacebookAppEventsPlugin
+    platforms: 
+      android:
+        package: id.oddbit.flutter.facebook_app_events
+        pluginClass: FacebookAppEventsPlugin
+      ios:
+        pluginClass: FacebookAppEventsPlugin
+      web:
+        pluginClass: FacebookAppEventsPlugin
+        fileName: web/facebook_app_events_plugin.dart

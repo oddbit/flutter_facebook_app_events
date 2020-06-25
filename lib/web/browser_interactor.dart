@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:js';
 
 class BrowserInteractor {
@@ -10,7 +9,6 @@ class BrowserInteractor {
     // JS context from window browser
     var object = context;
     for (String entry in jsVariablePath) {
-      print(object[entry]);
       object = object[entry];
     }
     return object.callMethod(jsFunctionName, jsArgs);

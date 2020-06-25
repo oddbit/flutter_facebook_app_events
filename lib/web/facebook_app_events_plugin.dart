@@ -32,18 +32,10 @@ class FacebookAppEventsPlugin {
     return _channel.invokeMethod<void>('setIsDebugEnabled', enabled);
     */
 
-    print(call.method);
     switch (call.method) {
       case 'logEvent':
-        print(call.arguments);
-        print('3');
-        print(context['FB']);
-        print(context['FB']['AppEvents']);
-        print('4');
-        print(call.arguments['name']);
         await _browserInteractor.callJSMethod(
             ['FB', 'AppEvents'], 'logEvent', [call.arguments['name']]);
-        print('finished!');
         break;
       default:
         var message =

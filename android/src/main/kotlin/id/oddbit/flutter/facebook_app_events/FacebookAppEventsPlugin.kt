@@ -40,6 +40,7 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
       "setUserID" -> handleSetUserId(call, result)
       "updateUserProperties" -> handleUpdateUserProperties(call, result)
       "setAutoLogAppEventsEnabled" -> handleSetAutoLogAppEventsEnabled(call, result)
+      "setDataProcessingOptions" -> setDataProcessingOptions(call, result)
       else -> result.notImplemented()
     }
   }
@@ -179,6 +180,15 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
   private fun handleSetAutoLogAppEventsEnabled(call: MethodCall, result: Result) {
     val enabled = call.arguments as Boolean
     FacebookSdk.setAutoLogAppEventsEnabled(enabled)
+    result.success(null)
+  }
+
+  private fun setDataProcessingOptions(call: MethodCall, result: Result) {
+    val options = call.argument("options") as? ArrayList<String> ?: arrayListOf()
+    val country = call.argument("country") as? Int ?: 0
+    val state = call.argument("state") as? Int ?: 0
+
+    FacebookSdk.setDataProcessingOptions(options.toTypedArray(), country, state)
     result.success(null)
   }
 }

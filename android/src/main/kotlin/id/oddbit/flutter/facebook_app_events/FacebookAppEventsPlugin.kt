@@ -11,6 +11,8 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
+import java.math.BigDecimal
+import java.util.*
 
 class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
   private val logTag = "FacebookAppEvents"
@@ -40,6 +42,7 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
       "setUserID" -> handleSetUserId(call, result)
       "updateUserProperties" -> handleUpdateUserProperties(call, result)
       "setAutoLogAppEventsEnabled" -> handleSetAutoLogAppEventsEnabled(call, result)
+      "logPurchase" -> handlePurchased(call, result)
       else -> result.notImplemented()
     }
   }
@@ -179,6 +182,17 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
   private fun handleSetAutoLogAppEventsEnabled(call: MethodCall, result: Result) {
     val enabled = call.arguments as Boolean
     FacebookSdk.setAutoLogAppEventsEnabled(enabled)
+    result.success(null)
+  }
+
+  private fun handlePurchased(call: MethodCall, result: Result) {
+    var amount = (call.argument("amount") as? Double)?.toBigDecimal()
+    var currency = Currency.getInstance(call.argument("currency") as? String)
+    val parameters = call.argument("parameters") as? Map<String, Object>
+    val parameterBundle = createBundleFromMap(parameters) ?: Bundle()
+
+    appEventsLogger.logPurchase(amount, currency, parameterBundle)
+
     result.success(null)
   }
 }

@@ -13,17 +13,29 @@ class MyApp extends StatelessWidget {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: RaisedButton(
-            color: Colors.green,
-            child: Text("Click me!"),
-            onPressed: () {
-              facebookAppEvents.logEvent(
-                name: 'button_clicked',
-                parameters: {
-                  'button_id': 'the_clickme_button',
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              RaisedButton(
+                color: Colors.green,
+                child: Text("Click me!"),
+                onPressed: () {
+                  facebookAppEvents.logEvent(
+                    name: 'button_clicked',
+                    parameters: {
+                      'button_id': 'the_clickme_button',
+                    },
+                  );
                 },
-              );
-            },
+              ),
+              RaisedButton(
+                color: Colors.green,
+                child: Text("Test purchase!"),
+                onPressed: () {
+                  facebookAppEvents.logPurchase(amount: 1, currency: "USD");
+                },
+              ),
+            ],
           ),
         ),
       ),

@@ -18,5 +18,9 @@ dev_dependencies:
 
 flutter:
   plugin:
-    androidPackage: id.oddbit.flutter.facebook_app_events
-    pluginClass: FacebookAppEventsPlugin
+    platforms:
+      android:
+        package: id.oddbit.flutter.facebook_app_events
+        pluginClass: FacebookAppEventsPlugin
+      ios:
+        pluginClass: FacebookAppEventsPlugin

@@ -210,6 +210,20 @@ class FacebookAppEvents {
     return _channel.invokeMethod<void>('setAutoLogAppEventsEnabled', enabled);
   }
 
+  /// Set Data Processing Options
+  /// This is needed for California Consumer Privacy Act (CCPA) compliance
+  ///
+  /// See: https://developers.facebook.com/docs/marketing-apis/data-processing-options
+  Future<void> setDataProcessingOptions(List<String> options, { int country, int state }) {
+    final args = <String, dynamic>{
+      'options': options,
+      'country': country,
+      'state': state,
+    };
+
+    return _channel.invokeMethod<void>('setDataProcessingOptions', args);
+  }
+  
   Future<void> logPurchase({@required double amount, @required String currency, Map<String, dynamic> parameters}) {
     final args = <String, dynamic>{
       'amount': amount,

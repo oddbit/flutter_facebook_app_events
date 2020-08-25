@@ -11,8 +11,7 @@ class FacebookAppEvents {
   // See: https://github.com/facebook/facebook-android-sdk/blob/master/facebook-core/src/main/java/com/facebook/appevents/AppEventsConstants.java
   static const eventNameActivatedApp = 'fb_mobile_activate_app';
   static const eventNameDeactivatedApp = 'fb_mobile_deactivate_app';
-  static const eventNameCompletedRegistration =
-      'fb_mobile_complete_registration';
+  static const eventNameCompletedRegistration = 'fb_mobile_complete_registration';
   static const eventNameViewedContent = 'fb_mobile_content_view';
   static const eventNameRated = 'fb_mobile_rate';
 
@@ -209,5 +208,14 @@ class FacebookAppEvents {
   /// See: https://developers.facebook.com/docs/app-events/gdpr-compliance
   Future<void> setAutoLogAppEventsEnabled(bool enabled) {
     return _channel.invokeMethod<void>('setAutoLogAppEventsEnabled', enabled);
+  }
+
+  Future<void> logPurchase({@required double amount, @required String currency, Map<String, dynamic> parameters}) {
+    final args = <String, dynamic>{
+      'amount': amount,
+      'currency': currency,
+      'parameters': parameters,
+    };
+    return _channel.invokeMethod<void>('logPurchase', _filterOutNulls(args));
   }
 }

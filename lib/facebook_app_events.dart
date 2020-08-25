@@ -11,7 +11,8 @@ class FacebookAppEvents {
   // See: https://github.com/facebook/facebook-android-sdk/blob/master/facebook-core/src/main/java/com/facebook/appevents/AppEventsConstants.java
   static const eventNameActivatedApp = 'fb_mobile_activate_app';
   static const eventNameDeactivatedApp = 'fb_mobile_deactivate_app';
-  static const eventNameCompletedRegistration = 'fb_mobile_complete_registration';
+  static const eventNameCompletedRegistration =
+      'fb_mobile_complete_registration';
   static const eventNameViewedContent = 'fb_mobile_content_view';
   static const eventNameRated = 'fb_mobile_rate';
 
@@ -214,7 +215,11 @@ class FacebookAppEvents {
   /// This is needed for California Consumer Privacy Act (CCPA) compliance
   ///
   /// See: https://developers.facebook.com/docs/marketing-apis/data-processing-options
-  Future<void> setDataProcessingOptions(List<String> options, { int country, int state }) {
+  Future<void> setDataProcessingOptions(
+    List<String> options, {
+    int country,
+    int state,
+  }) {
     final args = <String, dynamic>{
       'options': options,
       'country': country,
@@ -223,8 +228,12 @@ class FacebookAppEvents {
 
     return _channel.invokeMethod<void>('setDataProcessingOptions', args);
   }
-  
-  Future<void> logPurchase({@required double amount, @required String currency, Map<String, dynamic> parameters}) {
+
+  Future<void> logPurchase({
+    @required double amount,
+    @required String currency,
+    Map<String, dynamic> parameters,
+  }) {
     final args = <String, dynamic>{
       'amount': amount,
       'currency': currency,

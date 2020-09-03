@@ -13,6 +13,8 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import java.math.BigDecimal
 import java.util.*
+import android.os.Parcelable
+import kotlin.collections.ArrayList
 
 class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
   private val logTag = "FacebookAppEvents"
@@ -172,6 +174,20 @@ class FacebookAppEventsPlugin(registrar: Registrar) : MethodCallHandler {
       } else if (value is Map<*, *>) {
         val nestedBundle = createBundleFromMap(value as Map<String, Any>)
         bundle.putBundle(key, nestedBundle as Bundle)
+      } else if (value is List<*>) {
+        val list = ArrayList<Any?>()
+        value.forEach {
+            if(it is Map<*, *>) {
+                val nestedBundle = createBundleFromMap(it as Map<String, Any>)
+                if (nestedBundle is Bundle)
+                    list.add(nestedBundle)
+            } else if(it is String) {
+                val toAdd = Bundle()
+                toAdd.putString("string", it)
+                list.add(toAdd)
+            }
+        }
+        bundle.putParcelableArrayList(key, list as ArrayList<Parcelable>)
       } else {
         throw IllegalArgumentException(
             "Unsupported value type: " + value.javaClass.kotlin)

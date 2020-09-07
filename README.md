@@ -78,6 +78,16 @@ and
 [report an issue](https://github.com/oddbit/flutter_facebook_app_events/issues)
 if you find anything that is not working according to official documentation.
 
+## Getting involved
+First of all, thank you for even considering to get involved. You are a real super :star:  and we :heart:  you!
+
+Please do not use the Github issues for discussions or questions about usage. Send an email to opensource@oddbit.id if you have a great 
+idea or something that that can't be helped by the community.
+
+Try asking the community on [StackOverflow](https://stackoverflow.com/search?q=facebook+app+events+flutter) if it is general questions 
+on how to use either the Facebook App Events as a reporting tool itself 
+or even on how to use this plugin. 
+
 ## Facebook Analytics
 
 The events that your app is reporting will appear in Facebook Analytics for apps. You can read more about how to configure your dashboard and best

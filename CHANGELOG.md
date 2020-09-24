@@ -1,3 +1,8 @@
+## 0.8.0
+- Fixed 'logViewContent' crash (https://github.com/oddbit/flutter_facebook_app_events/issues/27)
+- logViewContent expects the content param to be a string
+- Added 'logInitiateCheckout' method (https://github.com/oddbit/flutter_facebook_app_events/issues/55)
+
 ## 0.7.0
 
 - Merging [PR #44](https://github.com/oddbit/flutter_facebook_app_events/pull/44) - Adding setDataProcessingOptions for CCPA compliance

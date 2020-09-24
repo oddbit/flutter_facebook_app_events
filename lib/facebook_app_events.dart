@@ -11,8 +11,10 @@ class FacebookAppEvents {
   // See: https://github.com/facebook/facebook-android-sdk/blob/master/facebook-core/src/main/java/com/facebook/appevents/AppEventsConstants.java
   static const eventNameActivatedApp = 'fb_mobile_activate_app';
   static const eventNameDeactivatedApp = 'fb_mobile_deactivate_app';
-  static const eventNameCompletedRegistration = 'fb_mobile_complete_registration';
+  static const eventNameCompletedRegistration =
+      'fb_mobile_complete_registration';
   static const eventNameViewedContent = 'fb_mobile_content_view';
+  static const eventNameInitiateCheckout = 'fb_mobile_initiated_checkout';
   static const eventNameRated = 'fb_mobile_rate';
 
   static const _paramNameValueToSum = "_valueToSum";
@@ -31,6 +33,18 @@ class FacebookAppEvents {
   /// Parameter key used to specify an ID for the specific piece of content being logged about.
   /// This could be an EAN, article identifier, etc., depending on the nature of the app.
   static const paramNameContentId = "fb_content_id";
+
+  /// Parameter key used to specify number of items
+  /// Data should be an integer
+  static const paramNameNumItems = "fb_num_items";
+
+  /// Parameter key used to specify whether the payment info is available or not
+  /// Data should be a bool
+  static const paramNamePaymentInfoAvailable = "fb_payment_info_available";
+
+  /// Parameter key used to specify the currency
+  /// Data should be a String
+  static const paramNameCurrency = "fb_currency";
 
   /// Clears the current user data
   Future<void> clearUserData() {
@@ -176,7 +190,7 @@ class FacebookAppEvents {
   ///
   /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnameviewedcontent
   Future<void> logViewContent({
-    Map<String, dynamic> content,
+    String content,
     String id,
     String type,
   }) {
@@ -186,6 +200,28 @@ class FacebookAppEvents {
         paramNameContent: content,
         paramNameContentId: id,
         paramNameContentType: type,
+      },
+    );
+  }
+
+  /// Log this event when the user has entered the checkout process. The [amount] passed to logEvent should be the total price in the cart.
+  ///
+  /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnameinitiatedcheckout
+  Future<void> logInitiateCheckout({
+    int numItems,
+    String currency,
+    double amount,
+    String id,
+    String type,
+  }) {
+    return logEvent(
+      name: eventNameInitiateCheckout,
+      parameters: {
+        paramNameContentId: id,
+        paramNameContentType: type,
+        paramNameNumItems: numItems,
+        paramNameCurrency: currency,
+        _paramNameValueToSum: amount,
       },
     );
   }
@@ -214,7 +250,8 @@ class FacebookAppEvents {
   /// This is needed for California Consumer Privacy Act (CCPA) compliance
   ///
   /// See: https://developers.facebook.com/docs/marketing-apis/data-processing-options
-  Future<void> setDataProcessingOptions(List<String> options, { int country, int state }) {
+  Future<void> setDataProcessingOptions(List<String> options,
+      {int country, int state}) {
     final args = <String, dynamic>{
       'options': options,
       'country': country,
@@ -223,8 +260,11 @@ class FacebookAppEvents {
 
     return _channel.invokeMethod<void>('setDataProcessingOptions', args);
   }
-  
-  Future<void> logPurchase({@required double amount, @required String currency, Map<String, dynamic> parameters}) {
+
+  Future<void> logPurchase(
+      {@required double amount,
+      @required String currency,
+      Map<String, dynamic> parameters}) {
     final args = <String, dynamic>{
       'amount': amount,
       'currency': currency,

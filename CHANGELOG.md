@@ -2,7 +2,8 @@
 - Added currency and valueToSum to 'logCompletedRegistration' method
 - Fixed 'logViewContent' crash (https://github.com/oddbit/flutter_facebook_app_events/issues/27)
 - logViewContent expects the content param to be a string
-- Added 'logInitiateCheckout' method (https://github.com/oddbit/flutter_facebook_app_events/issues/55)
+- Added 'logInitiateCheckout' standard event method (https://github.com/oddbit/flutter_facebook_app_events/issues/55)
+- Added 'logAddToCart' standard event method
 
 ## 0.7.0
 

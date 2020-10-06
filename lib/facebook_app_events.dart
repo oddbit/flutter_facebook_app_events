@@ -15,6 +15,7 @@ class FacebookAppEvents {
       'fb_mobile_complete_registration';
   static const eventNameViewedContent = 'fb_mobile_content_view';
   static const eventNameInitiateCheckout = 'fb_mobile_initiated_checkout';
+  static const eventNameAddToCart = 'fb_mobile_add_to_cart';
   static const eventNameRated = 'fb_mobile_rate';
 
   static const _paramNameValueToSum = "_valueToSum";
@@ -227,8 +228,27 @@ class FacebookAppEvents {
         paramNameContentType: type,
         paramNameNumItems: numItems,
         paramNameCurrency: currency,
-        _paramNameValueToSum: amount,
       },
+      valueToSum: amount,
+    );
+  }
+
+  Future<void> logAddToCart({
+    int numItems,
+    String currency,
+    double amount,
+    String id,
+    String type,
+  }) {
+    return logEvent(
+      name: eventNameAddToCart,
+      parameters: {
+        paramNameContentId: id,
+        paramNameContentType: type,
+        paramNameNumItems: numItems,
+        paramNameCurrency: currency,
+      },
+      valueToSum: amount,
     );
   }
 

@@ -1,3 +1,6 @@
+## 0.7.1
+Refining documentation and code formatting.
+
 ## 0.7.0
 
 - Merging [PR #44](https://github.com/oddbit/flutter_facebook_app_events/pull/44) - Adding setDataProcessingOptions for CCPA compliance

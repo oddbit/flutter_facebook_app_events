@@ -1,3 +1,11 @@
+## 0.8.0
+
+ - Updating Facebook SDK version to 8.1.0
+ - Adding `logInitiatedCheckout` event per request in [issue #55](https://github.com/oddbit/flutter_facebook_app_events/issues/55)
+ - Adding anonymous id getter `getAnonymousId()`
+    - Android SDK: [`getAnonymousAppDeviceGUID`](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventslogger.html/)
+    - iOS SDK: [`anonymousID`](https://developers.facebook.com/docs/reference/iossdk/8.1.0/FBSDKCoreKit/classes/fbsdkappevents.html/)
+
 ## 0.7.2
 
 Updating Android and iOS integration native code

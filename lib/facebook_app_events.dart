@@ -15,9 +15,15 @@ class FacebookAppEvents {
       'fb_mobile_complete_registration';
   static const eventNameViewedContent = 'fb_mobile_content_view';
   static const eventNameRated = 'fb_mobile_rate';
+  static const eventNameInitiatedCheckout = 'fb_mobile_initiated_checkout';
 
   static const _paramNameValueToSum = "_valueToSum";
+  static const paramNameCurrency = "fb_currency";
   static const paramNameRegistrationMethod = "fb_registration_method";
+  static const paramNamePaymentInfoAvailable = "fb_payment_info_available";
+  static const paramNameNumItems = "fb_num_items";
+  static const paramValueYes = "1";
+  static const paramValueNo = "0";
 
   /// Parameter key used to specify a generic content type/family for the logged event, e.g.
   /// "music", "photo", "video".  Options to use will vary depending on the nature of the app.
@@ -195,18 +201,6 @@ class FacebookAppEvents {
     );
   }
 
-  /// Creates a new map containing all of the key/value pairs from [parameters]
-  /// except those whose value is `null`.
-  Map<String, dynamic> _filterOutNulls(Map<String, dynamic> parameters) {
-    final Map<String, dynamic> filtered = <String, dynamic>{};
-    parameters.forEach((String key, dynamic value) {
-      if (value != null) {
-        filtered[key] = value;
-      }
-    });
-    return filtered;
-  }
-
   /// Re-enables auto logging of app events after user consent
   /// if disabled for GDPR-compliance.
   ///
@@ -244,5 +238,44 @@ class FacebookAppEvents {
       'parameters': parameters,
     };
     return _channel.invokeMethod<void>('logPurchase', _filterOutNulls(args));
+  }
+
+  Future<void> logInitiatedCheckout({
+    @required double totalPrice,
+    @required String currency,
+    @required String contentType,
+    @required String contentId,
+    @required int numItems,
+    bool paymentInfoAvailable = false,
+  }) {
+    return logEvent(
+      name: eventNameInitiatedCheckout,
+      valueToSum: totalPrice,
+      parameters: {
+        paramNameContentType: contentType,
+        paramNameContentId: contentId,
+        paramNameNumItems: numItems,
+        paramNameCurrency: currency,
+        paramNamePaymentInfoAvailable:
+            paymentInfoAvailable ? paramValueYes : paramValueNo,
+      },
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  //
+  // PRIVATE METHODS BELOW HERE
+
+  /// Creates a new map containing all of the key/value pairs from [parameters]
+  /// except those whose value is `null`.
+  Map<String, dynamic> _filterOutNulls(Map<String, dynamic> parameters) {
+    final Map<String, dynamic> filtered = <String, dynamic>{};
+    parameters.forEach((String key, dynamic value) {
+      if (value != null) {
+        filtered[key] = value;
+      }
+    });
+    return filtered;
   }
 }

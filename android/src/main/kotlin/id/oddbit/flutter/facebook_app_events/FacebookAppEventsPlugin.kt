@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.util.Log
 import com.facebook.FacebookSdk
 import com.facebook.appevents.AppEventsLogger
+import com.facebook.GraphRequest
+import com.facebook.GraphResponse
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel

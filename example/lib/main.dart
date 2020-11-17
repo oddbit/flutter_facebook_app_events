@@ -16,6 +16,13 @@ class MyApp extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              FutureBuilder(
+                future: facebookAppEvents.getAnonymousId(),
+                builder: (context, snapshot) {
+                  final id = snapshot.data ?? '???';
+                  return Text('Anonymous ID: $id');
+                },
+              ),
               MaterialButton(
                 child: Text("Click me!"),
                 onPressed: () {

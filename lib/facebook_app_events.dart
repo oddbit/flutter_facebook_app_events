@@ -53,6 +53,10 @@ class FacebookAppEvents {
     return _channel.invokeMethod<String>('getApplicationId');
   }
 
+  Future<String> getAnonymousId() {
+    return _channel.invokeMethod<String>('getAnonymousId');
+  }
+
   /// Log an app event with the specified [name] and the supplied [parameters] value.
   Future<void> logEvent({
     @required String name,

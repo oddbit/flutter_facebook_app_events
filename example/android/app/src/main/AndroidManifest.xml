@@ -1,10 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="id.oddbit.flutter.facebook_app_events_example">
+    <uses-permission android:name="android.permission.INTERNET"/>
+
    <application
         android:label="facebook_app_events_example"
         android:icon="@mipmap/ic_launcher">
-
-        <uses-permission android:name="android.permission.INTERNET"/>
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"

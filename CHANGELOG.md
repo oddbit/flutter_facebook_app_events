@@ -1,4 +1,9 @@
+## 0.7.2
+
+Updating Android and iOS integration native code
+
 ## 0.7.1
+
 Refining documentation and code formatting.
 
 ## 0.7.0

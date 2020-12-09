@@ -1,3 +1,8 @@
+## 0.8.2
+
+- Upgrading FBSDKCoreKit to 8.2.0 as described in [issue #56](https://github.com/oddbit/flutter_facebook_app_events/issues/56) 
+and closed in [PR #65](https://github.com/oddbit/flutter_facebook_app_events/issues/56)
+
 ## 0.8.1
 
 - Fixing missing Android imports

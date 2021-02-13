@@ -40,6 +40,18 @@ class MyApp extends StatelessWidget {
                   facebookAppEvents.logPurchase(amount: 1, currency: "USD");
                 },
               ),
+              MaterialButton(
+                child: Text("Enable advertise tracking!"),
+                onPressed: () {
+                  facebookAppEvents.setAdvertiserTracking(enabled: true);
+                },
+              ),
+              MaterialButton(
+                child: Text("Disabled advertise tracking!"),
+                onPressed: () {
+                  facebookAppEvents.setAdvertiserTracking(enabled: false);
+                },
+              ),
             ],
           ),
         ),

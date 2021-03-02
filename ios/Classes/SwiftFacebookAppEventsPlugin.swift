@@ -108,7 +108,7 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         result(nil)
     }
 
-    private func handleSetUserData (_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    private func handleSetUserData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let arguments = call.arguments as? [String: Any] ?? [String: Any]()
         AppEvents.setUserData(arguments["email"] as? String, forType: AppEvents.UserDataType.email)
         AppEvents.setUserData(arguments["firstName"] as? String, forType: AppEvents.UserDataType.firstName)

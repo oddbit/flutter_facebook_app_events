@@ -169,10 +169,11 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
 
         result(nil)
     }
-     private func handleSetAdvertiserTracking(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+
+    private func handleSetAdvertiserTracking(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let arguments = call.arguments as? [String: Any] ?? [String: Any]()
         let enabled = arguments["enabled"] as! Bool
-        Settings.setAdvertiserTrackingEnabled(enabled)
+        Settings.setAdvertiserTrackingEnabled(enabled)        
         result(nil)
     }
 }

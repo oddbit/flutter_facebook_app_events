@@ -1,4 +1,4 @@
-## 0.9.0
+## 0.10.0
 
 - Adding support for setAdvertiserTrackingEnabled solved in [PR #82](https://github.com/oddbit/flutter_facebook_app_events/pull/82)
 

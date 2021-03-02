@@ -1,5 +1,9 @@
 ## 0.9.0
 
+- Adding support for setAdvertiserTrackingEnabled solved in [PR #82](https://github.com/oddbit/flutter_facebook_app_events/pull/82)
+
+## 0.9.0
+
 - Updating iOS deployment target to `9.0` as described in [issue #74](https://github.com/oddbit/flutter_facebook_app_events/issues/74)
 
 ## 0.8.2

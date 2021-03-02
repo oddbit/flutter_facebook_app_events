@@ -262,6 +262,19 @@ class FacebookAppEvents {
     );
   }
 
+   /// Sets the Advert Tracking propeety for iOS advert tracking 
+   /// an iOS 14+ feature, android should just return a success. 
+  Future<void> setAdvertiserTracking({
+    @required bool enabled,
+  }) {
+    final args = <String, dynamic>{
+      'enabled': enabled
+    };
+
+    return _channel.invokeMethod<void>('setAdvertiserTracking', args);
+  }
+
+
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
   //

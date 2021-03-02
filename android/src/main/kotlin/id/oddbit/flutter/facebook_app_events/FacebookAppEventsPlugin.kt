@@ -54,6 +54,8 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
       "setDataProcessingOptions" -> handleSetDataProcessingOptions(call, result)
       "getAnonymousId" -> handleGetAnonymousId(call, result)
       "logPurchase" -> handlePurchased(call, result)
+      "setAdvertiserTracking" -> handleSetAdvertiserTracking(call, result)
+
       else -> result.notImplemented()
     }
   }
@@ -76,9 +78,12 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   private fun handleGetApplicationId(call: MethodCall, result: Result) {
     result.success(appEventsLogger.getApplicationId())
   }
-
-  private fun handleGetAnonymousId(call: MethodCall, result: Result) {
+ private fun handleGetAnonymousId(call: MethodCall, result: Result) {
     result.success(anonymousId)
+  }
+  //not an android implementation as of yet
+  private fun handleSetAdvertiserTracking(call: MethodCall, result: Result) {
+    result.success(null);
   }
 
   private fun handleLogEvent(call: MethodCall, result: Result) {

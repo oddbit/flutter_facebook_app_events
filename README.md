@@ -81,12 +81,18 @@ if you find anything that is not working according to official documentation.
 ## Getting involved
 First of all, thank you for even considering to get involved. You are a real super :star:  and we :heart:  you!
 
-Please do not use the Github issues for discussions or questions about usage. Send an email to opensource@oddbit.id if you have a great 
-idea or something that that can't be helped by the community.
+### Reporting bugs and issues
+Use the configured [Github issue report template](https://github.com/oddbit/flutter_facebook_app_events/issues/new?assignees=&labels=&template=bug_report.md&title=) when reporting an issue. Make sure to state your observations and expectations
+as objectively and informative as possible so that we can understand your need and be able to troubleshoot. 
 
-Try asking the community on [StackOverflow](https://stackoverflow.com/search?q=facebook+app+events+flutter) if it is general questions 
-on how to use either the Facebook App Events as a reporting tool itself 
-or even on how to use this plugin. 
+### Discussions and ideas
+We're happy to discuss and talk about ideas in the 
+[repository discussions](https://github.com/oddbit/flutter_facebook_app_events/discussions) and/or post your 
+question to [StackOverflow](https://stackoverflow.com/search?q=facebook+app+events+flutter).
+
+Feel free to open a thread if you are having any questions on how to use either the Facebook App Events as a reporting tool 
+itself or even on how to use this plugin. 
+
 
 ## Facebook Analytics
 

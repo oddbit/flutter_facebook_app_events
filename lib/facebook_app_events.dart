@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -190,14 +191,18 @@ class FacebookAppEvents {
     Map<String, dynamic> content,
     String id,
     String type,
+    String currency,
+    double price,
   }) {
     return logEvent(
       name: eventNameViewedContent,
       parameters: {
-        paramNameContent: content,
+        paramNameContent: content != null ? json.encode(content) : null,
         paramNameContentId: id,
         paramNameContentType: type,
+        paramNameCurrency: currency,
       },
+      valueToSum: price,
     );
   }
 
@@ -262,18 +267,15 @@ class FacebookAppEvents {
     );
   }
 
-   /// Sets the Advert Tracking propeety for iOS advert tracking 
-   /// an iOS 14+ feature, android should just return a success. 
+  /// Sets the Advert Tracking propeety for iOS advert tracking
+  /// an iOS 14+ feature, android should just return a success.
   Future<void> setAdvertiserTracking({
     @required bool enabled,
   }) {
-    final args = <String, dynamic>{
-      'enabled': enabled
-    };
+    final args = <String, dynamic>{'enabled': enabled};
 
     return _channel.invokeMethod<void>('setAdvertiserTracking', args);
   }
-
 
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------

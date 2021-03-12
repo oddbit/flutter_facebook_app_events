@@ -3,9 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:facebook_app_events/facebook_app_events.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   const channel = MethodChannel(channelName);
   final facebookAppEvents = FacebookAppEvents();
-  MethodCall methodCall;
+  MethodCall? methodCall;
 
   setUp(() async {
     channel.setMockMethodCallHandler((MethodCall m) async {

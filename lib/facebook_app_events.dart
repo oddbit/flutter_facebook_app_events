@@ -17,7 +17,7 @@ class FacebookAppEvents {
   static const eventNameViewedContent = 'fb_mobile_content_view';
   static const eventNameRated = 'fb_mobile_rate';
   static const eventNameInitiatedCheckout = 'fb_mobile_initiated_checkout';
-
+  static const evanetNameAddToCart = 'fb_mobile_add_to_cart';
   static const _paramNameValueToSum = "_valueToSum";
   static const paramNameCurrency = "fb_currency";
   static const paramNameRegistrationMethod = "fb_registration_method";
@@ -39,6 +39,9 @@ class FacebookAppEvents {
   /// Parameter key used to specify an ID for the specific piece of content being logged about.
   /// This could be an EAN, article identifier, etc., depending on the nature of the app.
   static const paramNameContentId = "fb_content_id";
+
+  /// Parameter key used to specify data of cart this could be some Items ids etc.
+  static const paramNameContentData = "fb_content_data";
 
   /// Clears the current user data
   Future<void> clearUserData() {
@@ -263,6 +266,26 @@ class FacebookAppEvents {
         paramNameCurrency: currency,
         paramNamePaymentInfoAvailable:
             paymentInfoAvailable ? paramValueYes : paramValueNo,
+      },
+    );
+  }
+
+  // Standard Add to cart Event.
+  Future<void> logAddToCart({
+    @required double totalPrice,
+    @required String currency,
+    @required String contentType,
+    @required String contentId,
+    @required String contentData,
+  }) {
+    return logEvent(
+      name: evanetNameAddToCart,
+      valueToSum: totalPrice,
+      parameters: {
+        paramNameContentType: contentType,
+        paramNameContentId: contentId,
+        paramNameContentData: contentData,
+        paramNameCurrency: currency,
       },
     );
   }

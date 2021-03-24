@@ -1,3 +1,7 @@
+## 0.11.1
+- Adding `logAddToCart` event log
+- Adding `logAddToWishlist` event log
+
 ## 0.11.0
 
 - Fixing `logViewContent` as described in [issue #73](https://github.com/oddbit/flutter_facebook_app_events/issues/73)

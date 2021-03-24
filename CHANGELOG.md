@@ -1,5 +1,6 @@
-## 0.11.X
+## 0.11.1
 - Adding `logAddToCart` event log
+- Adding `logAddToWishlist` event log
 
 ## 0.11.0
 

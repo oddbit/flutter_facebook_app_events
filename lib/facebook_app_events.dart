@@ -18,6 +18,7 @@ class FacebookAppEvents {
   static const eventNameRated = 'fb_mobile_rate';
   static const eventNameInitiatedCheckout = 'fb_mobile_initiated_checkout';
   static const eventNameAddedToCart = 'fb_mobile_add_to_cart';
+  static const eventNameAddedToWishlist = 'fb_mobile_add_to_wishlist';
 
   static const _paramNameValueToSum = "_valueToSum";
   static const paramNameCurrency = "fb_currency";
@@ -219,6 +220,28 @@ class FacebookAppEvents {
   }) {
     return logEvent(
       name: eventNameAddedToCart,
+      parameters: {
+        paramNameContent: content != null ? json.encode(content) : null,
+        paramNameContentId: id,
+        paramNameContentType: type,
+        paramNameCurrency: currency,
+      },
+      valueToSum: price,
+    );
+  }
+
+  /// Log this event when the user has added item to cart
+  ///
+  /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnameaddedtowishlist
+  Future<void> logAddToWishlist({
+    Map<String, dynamic> content,
+    @required String id,
+    @required String type,
+    @required String currency,
+    @required double price,
+  }) {
+    return logEvent(
+      name: eventNameAddedToWishlist,
       parameters: {
         paramNameContent: content != null ? json.encode(content) : null,
         paramNameContentId: id,

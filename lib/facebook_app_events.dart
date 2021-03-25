@@ -17,7 +17,7 @@ class FacebookAppEvents {
   static const eventNameViewedContent = 'fb_mobile_content_view';
   static const eventNameRated = 'fb_mobile_rate';
   static const eventNameInitiatedCheckout = 'fb_mobile_initiated_checkout';
-  static const evanetNameAddToCart = 'fb_mobile_add_to_cart';
+  static const eventNameAddToCart = 'fb_mobile_add_to_cart';
   static const _paramNameValueToSum = "_valueToSum";
   static const paramNameCurrency = "fb_currency";
   static const paramNameRegistrationMethod = "fb_registration_method";
@@ -279,7 +279,7 @@ class FacebookAppEvents {
     @required String contentData,
   }) {
     return logEvent(
-      name: evanetNameAddToCart,
+      name: eventNameAddToCart,
       valueToSum: totalPrice,
       parameters: {
         paramNameContentType: contentType,

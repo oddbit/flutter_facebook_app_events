@@ -6,6 +6,12 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "flutter.oddbit.id/facebook_app_events", binaryMessenger: registrar.messenger())
         let instance = SwiftFacebookAppEventsPlugin()
+
+        // Required for FB SDK 9.0, as it does not initialize the SDK automatically any more.
+        // See: https://developers.facebook.com/blog/post/2021/01/19/introducing-facebook-platform-sdk-version-9/
+        // "Removal of Auto Initialization of SDK" section
+        instance.initializeSDK()
+
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
 
@@ -175,5 +181,9 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         let enabled = arguments["enabled"] as! Bool
         Settings.setAdvertiserTrackingEnabled(enabled)        
         result(nil)
+    }
+
+    public func initializeSDK() {
+        ApplicationDelegate.initializeSDK(nil)
     }
 }

@@ -232,8 +232,8 @@ class FacebookAppEvents {
   }
 
   Future<void> logPurchase({
-    required double amount,
-    required String currency,
+    double? amount,
+    String? currency,
     Map<String, dynamic>? parameters,
   }) {
     final args = <String, dynamic>{
@@ -245,11 +245,11 @@ class FacebookAppEvents {
   }
 
   Future<void> logInitiatedCheckout({
-    required double totalPrice,
-    required String currency,
-    required String contentType,
-    required String contentId,
-    required int numItems,
+    double? totalPrice,
+    String? currency,
+    String? contentType,
+    String? contentId,
+    int? numItems,
     bool paymentInfoAvailable = false,
   }) {
     return logEvent(

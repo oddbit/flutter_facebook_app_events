@@ -211,11 +211,11 @@ class FacebookAppEvents {
   ///
   /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnameaddedtocart
   Future<void> logAddToCart({
-    Map<String, dynamic> content,
-    @required String id,
-    @required String type,
-    @required String currency,
-    @required double price,
+    Map<String, dynamic>? content,
+    required String id,
+    required String type,
+    required String currency,
+    required double price,
   }) {
     return logEvent(
       name: eventNameAddedToCart,
@@ -233,11 +233,11 @@ class FacebookAppEvents {
   ///
   /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnameaddedtowishlist
   Future<void> logAddToWishlist({
-    Map<String, dynamic> content,
-    @required String id,
-    @required String type,
-    @required String currency,
-    @required double price,
+    Map<String, dynamic>? content,
+    required String id,
+    required String type,
+    required String currency,
+    required double price,
   }) {
     return logEvent(
       name: eventNameAddedToWishlist,

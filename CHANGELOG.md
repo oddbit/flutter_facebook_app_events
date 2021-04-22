@@ -1,5 +1,12 @@
+## 0.12.0
+**Breaking changes:** Starting from this release, the plugin require Flutter 2.0 with support for 
+[null safety](https://flutter.dev/docs/null-safety)
+
+- Updating to Flutter 2.0 and null safety in [PR #90](https://github.com/oddbit/flutter_facebook_app_events/pull/90)
+- Updating Facebook SDK to v9.1.0 in [PR #102](https://github.com/oddbit/flutter_facebook_app_events/pull/102)
+
 ## 0.11.2
--  Auto initializing Facebook SDK on iOS (fixed in [PR #99](https://github.com/oddbit/flutter_facebook_app_events/pull/99)) and reported in issues [#86](https://github.com/oddbit/flutter_facebook_app_events/issues/86) and [#89](https://github.com/oddbit/flutter_facebook_app_events/issues/89)
+- Auto initializing Facebook SDK on iOS (fixed in [PR #99](https://github.com/oddbit/flutter_facebook_app_events/pull/99)) and reported in issues [#86](https://github.com/oddbit/flutter_facebook_app_events/issues/86) and [#89](https://github.com/oddbit/flutter_facebook_app_events/issues/89)
 ## 0.11.1
 - Adding `logAddToCart` event log
 - Adding `logAddToWishlist` event log

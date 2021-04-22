@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 const channelName = 'flutter.oddbit.id/facebook_app_events';
@@ -58,19 +57,19 @@ class FacebookAppEvents {
   }
 
   /// Returns the app ID this logger was configured to log to.
-  Future<String> getApplicationId() {
+  Future<String?> getApplicationId() {
     return _channel.invokeMethod<String>('getApplicationId');
   }
 
-  Future<String> getAnonymousId() {
+  Future<String?> getAnonymousId() {
     return _channel.invokeMethod<String>('getAnonymousId');
   }
 
   /// Log an app event with the specified [name] and the supplied [parameters] value.
   Future<void> logEvent({
-    @required String name,
-    Map<String, dynamic> parameters,
-    double valueToSum,
+    required String name,
+    Map<String, dynamic>? parameters,
+    double? valueToSum,
   }) {
     final args = <String, dynamic>{
       'name': name,
@@ -86,16 +85,16 @@ class FacebookAppEvents {
   /// instance of an application. The user data will be persisted between
   /// application instances.
   Future<void> setUserData({
-    String email,
-    String firstName,
-    String lastName,
-    String phone,
-    String dateOfBirth,
-    String gender,
-    String city,
-    String state,
-    String zip,
-    String country,
+    String? email,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    String? dateOfBirth,
+    String? gender,
+    String? city,
+    String? state,
+    String? zip,
+    String? country,
   }) {
     final args = <String, dynamic>{
       'email': email,
@@ -115,8 +114,8 @@ class FacebookAppEvents {
 
   /// Logs an app event that tracks that the application was open via Push Notification.
   Future<void> logPushNotificationOpen({
-    @required Map<String, dynamic> payload,
-    String action,
+    required Map<String, dynamic> payload,
+    String? action,
   }) {
     final args = <String, dynamic>{
       'payload': payload,
@@ -136,8 +135,8 @@ class FacebookAppEvents {
 
   /// Update user properties as provided by a map of [parameters]
   Future<void> updateUserProperties({
-    @required Map<String, dynamic> parameters,
-    String applicationId,
+    required Map<String, dynamic> parameters,
+    String? applicationId,
   }) {
     final args = <String, dynamic>{
       'parameters': parameters,
@@ -167,7 +166,7 @@ class FacebookAppEvents {
   /// Parameter [registrationMethod] is used to specify the method the user has
   /// used to register for the app, e.g. "Facebook", "email", "Google", etc.
   /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnamecompletedregistration
-  Future<void> logCompletedRegistration({String registrationMethod}) {
+  Future<void> logCompletedRegistration({String? registrationMethod}) {
     return logEvent(
       name: eventNameCompletedRegistration,
       parameters: {
@@ -179,7 +178,7 @@ class FacebookAppEvents {
   /// Log this event when the user has rated an item in the app.
   ///
   /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnamerated
-  Future<void> logRated({double valueToSum}) {
+  Future<void> logRated({double? valueToSum}) {
     return logEvent(
       name: eventNameRated,
       valueToSum: valueToSum,
@@ -190,11 +189,11 @@ class FacebookAppEvents {
   ///
   /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnameviewedcontent
   Future<void> logViewContent({
-    Map<String, dynamic> content,
-    String id,
-    String type,
-    String currency,
-    double price,
+    Map<String, dynamic>? content,
+    String? id,
+    String? type,
+    String? currency,
+    double? price,
   }) {
     return logEvent(
       name: eventNameViewedContent,
@@ -212,11 +211,11 @@ class FacebookAppEvents {
   ///
   /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnameaddedtocart
   Future<void> logAddToCart({
-    Map<String, dynamic> content,
-    @required String id,
-    @required String type,
-    @required String currency,
-    @required double price,
+    Map<String, dynamic>? content,
+    required String id,
+    required String type,
+    required String currency,
+    required double price,
   }) {
     return logEvent(
       name: eventNameAddedToCart,
@@ -234,11 +233,11 @@ class FacebookAppEvents {
   ///
   /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnameaddedtowishlist
   Future<void> logAddToWishlist({
-    Map<String, dynamic> content,
-    @required String id,
-    @required String type,
-    @required String currency,
-    @required double price,
+    Map<String, dynamic>? content,
+    required String id,
+    required String type,
+    required String currency,
+    required double price,
   }) {
     return logEvent(
       name: eventNameAddedToWishlist,
@@ -266,8 +265,8 @@ class FacebookAppEvents {
   /// See: https://developers.facebook.com/docs/marketing-apis/data-processing-options
   Future<void> setDataProcessingOptions(
     List<String> options, {
-    int country,
-    int state,
+    int? country,
+    int? state,
   }) {
     final args = <String, dynamic>{
       'options': options,
@@ -279,9 +278,9 @@ class FacebookAppEvents {
   }
 
   Future<void> logPurchase({
-    @required double amount,
-    @required String currency,
-    Map<String, dynamic> parameters,
+    double? amount,
+    String? currency,
+    Map<String, dynamic>? parameters,
   }) {
     final args = <String, dynamic>{
       'amount': amount,
@@ -292,11 +291,11 @@ class FacebookAppEvents {
   }
 
   Future<void> logInitiatedCheckout({
-    @required double totalPrice,
-    @required String currency,
-    @required String contentType,
-    @required String contentId,
-    @required int numItems,
+    double? totalPrice,
+    String? currency,
+    String? contentType,
+    String? contentId,
+    int? numItems,
     bool paymentInfoAvailable = false,
   }) {
     return logEvent(
@@ -316,7 +315,7 @@ class FacebookAppEvents {
   /// Sets the Advert Tracking propeety for iOS advert tracking
   /// an iOS 14+ feature, android should just return a success.
   Future<void> setAdvertiserTracking({
-    @required bool enabled,
+    required bool enabled,
   }) {
     final args = <String, dynamic>{'enabled': enabled};
 

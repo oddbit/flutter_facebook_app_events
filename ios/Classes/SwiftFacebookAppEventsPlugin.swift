@@ -35,15 +35,15 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         case "logPushNotificationOpen":
             handlePushNotificationOpen(call, result: result)
             break
-        case "setUserData":
-            handleSetUserData(call, result: result)
-            break
+        //case "setUserData":
+        //    handleSetUserData(call, result: result)
+        //    break
         case "setUserID":
             handleSetUserId(call, result: result)
             break
-        case "updateUserProperties":
-            handleUpdateUserProperties(call, result: result)
-            break
+        //case "updateUserProperties":
+        //    handleUpdateUserProperties(call, result: result)
+        //    break
         case "setAutoLogAppEventsEnabled":
             handleSetAutoLogAppEventsEnabled(call, result: result)
             break
@@ -114,21 +114,21 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         result(nil)
     }
 
-    private func handleSetUserData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let arguments = call.arguments as? [String: Any] ?? [String: Any]()
-        AppEvents.setUserData(arguments["email"] as? String, forType: AppEvents.UserDataType.email)
-        AppEvents.setUserData(arguments["firstName"] as? String, forType: AppEvents.UserDataType.firstName)
-        AppEvents.setUserData(arguments["lastName"] as? String, forType: AppEvents.UserDataType.lastName)
-        AppEvents.setUserData(arguments["phone"] as? String, forType: AppEvents.UserDataType.phone)
-        AppEvents.setUserData(arguments["dateOfBirth"] as? String, forType: AppEvents.UserDataType.dateOfBirth)
-        AppEvents.setUserData(arguments["gender"] as? String, forType: AppEvents.UserDataType.gender)
-        AppEvents.setUserData(arguments["city"] as? String, forType: AppEvents.UserDataType.city)
-        AppEvents.setUserData(arguments["state"] as? String, forType: AppEvents.UserDataType.state)
-        AppEvents.setUserData(arguments["zip"] as? String, forType: AppEvents.UserDataType.zip)
-        AppEvents.setUserData(arguments["country"] as? String, forType: AppEvents.UserDataType.country)
-
-        result(nil)
-    }
+    //private func handleSetUserData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    //    let arguments = call.arguments as? [String: Any] ?? [String: Any]()
+    //    AppEvents.setUserData(arguments["email"] as? String, forType: AppEvents.UserDataType.email)
+    //    AppEvents.setUserData(arguments["firstName"] as? String, forType: AppEvents.UserDataType.firstName)
+    //    AppEvents.setUserData(arguments["lastName"] as? String, forType: AppEvents.UserDataType.lastName)
+    //    AppEvents.setUserData(arguments["phone"] as? String, forType: AppEvents.UserDataType.phone)
+    //    AppEvents.setUserData(arguments["dateOfBirth"] as? String, forType: AppEvents.UserDataType.dateOfBirth)
+    //    AppEvents.setUserData(arguments["gender"] as? String, forType: AppEvents.UserDataType.gender)
+    //    AppEvents.setUserData(arguments["city"] as? String, forType: AppEvents.UserDataType.city)
+    //    AppEvents.setUserData(arguments["state"] as? String, forType: AppEvents.UserDataType.state)
+    //    AppEvents.setUserData(arguments["zip"] as? String, forType: AppEvents.UserDataType.zip)
+    //    AppEvents.setUserData(arguments["country"] as? String, forType: AppEvents.UserDataType.country)
+//
+    //    result(nil)
+    //}
 
     private func handleSetUserId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let id = call.arguments as! String
@@ -136,18 +136,18 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         result(nil)
     }
 
-    private func handleUpdateUserProperties(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let arguments = call.arguments as? [String: Any] ?? [String: Any]()
-        let parameters =  arguments["parameters"] as! [String: Any]
-
-        AppEvents.updateUserProperties( parameters, handler: { (connection, response, error) in
-            if error != nil {
-                result(nil)
-            } else {
-                result(response)
-            }
-        })
-    }
+    //private func handleUpdateUserProperties(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    //    let arguments = call.arguments as? [String: Any] ?? [String: Any]()
+    //    let parameters =  arguments["parameters"] as! [String: Any]
+//
+    //    AppEvents.updateUserProperties( parameters, handler: { (connection, response, error) in
+    //        if error != nil {
+    //            result(nil)
+    //        } else {
+    //            result(response)
+    //        }
+    //    })
+    //}
 
     private func handleSetAutoLogAppEventsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let enabled = call.arguments as! Bool
@@ -184,6 +184,6 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     }
 
     public func initializeSDK() {
-        ApplicationDelegate.initializeSDK(nil)
+        //ApplicationDelegate.initializeSDK(nil)
     }
 }

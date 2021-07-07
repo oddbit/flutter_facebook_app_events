@@ -184,6 +184,6 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     }
 
     public func initializeSDK() {
-        ApplicationDelegate.initializeSDK(nil)
+        //ApplicationDelegate.initializeSDK(nil)
     }
 }

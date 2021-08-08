@@ -133,19 +133,6 @@ class FacebookAppEvents {
     return _channel.invokeMethod<void>('setUserID', id);
   }
 
-  /// Update user properties as provided by a map of [parameters]
-  Future<void> updateUserProperties({
-    required Map<String, dynamic> parameters,
-    String? applicationId,
-  }) {
-    final args = <String, dynamic>{
-      'parameters': parameters,
-      'applicationId': applicationId,
-    };
-
-    return _channel.invokeMethod<void>('updateUserProperties', args);
-  }
-
   // Below are shorthand implementations of the predefined app event constants
 
   /// Log this event when an app is being activated.

@@ -137,16 +137,11 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     }
 
     private func handleUpdateUserProperties(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let arguments = call.arguments as? [String: Any] ?? [String: Any]()
-        let parameters =  arguments["parameters"] as! [String: Any]
-
-        AppEvents.updateUserProperties( parameters, handler: { (connection, response, error) in
-            if error != nil {
-                result(nil)
-            } else {
-                result(response)
-            }
-        })
+        // Seems to have been removed in iOS SDK but only deprecated in the Android SDK
+        //  - iOS removal note: https://github.com/facebook/facebook-ios-sdk/blob/0e1d8774db783d85bd8fc3b53ec96444c048ae42/CHANGELOG.md#removed
+        //  - Android deprecation: https://github.com/facebook/facebook-android-sdk/blob/9da80baea0d23a82ce797e17bd4bc0e0d75b3912/facebook-core/src/main/java/com/facebook/appevents/AppEventsLogger.kt#L633 
+        // Leave this one here for until fully removed in SDK v12
+        result(nil)
     }
 
     private func handleSetAutoLogAppEventsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

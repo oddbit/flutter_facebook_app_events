@@ -19,6 +19,7 @@ class FacebookAppEvents {
   static const eventNameAddedToCart = 'fb_mobile_add_to_cart';
   static const eventNameAddedToWishlist = 'fb_mobile_add_to_wishlist';
   static const eventNameSubscribe = "Subscribe";
+  static const eventNameStartTrial = "StartTrial";
 
   static const _paramNameValueToSum = "_valueToSum";
   static const paramNameCurrency = "fb_currency";
@@ -347,6 +348,25 @@ class FacebookAppEvents {
   }) {
     return logEvent(
       name: eventNameSubscribe,
+      valueToSum: price,
+      parameters: {
+        paramNameCurrency: currency,
+        paramNameOrderId: orderId,
+      },
+    );
+  }
+
+  /// The start of a free trial of a product or service you offer (example: trial subscription).
+  /// See:
+  ///   - https://developers.facebook.com/docs/marketing-api/app-event-api/
+  ///   - https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/
+  Future<void> logStartTrial({
+    double? price,
+    String? currency,
+    required String orderId,
+  }) {
+    return logEvent(
+      name: eventNameStartTrial,
       valueToSum: price,
       parameters: {
         paramNameCurrency: currency,

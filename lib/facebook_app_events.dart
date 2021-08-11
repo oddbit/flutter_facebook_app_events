@@ -18,9 +18,11 @@ class FacebookAppEvents {
   static const eventNameInitiatedCheckout = 'fb_mobile_initiated_checkout';
   static const eventNameAddedToCart = 'fb_mobile_add_to_cart';
   static const eventNameAddedToWishlist = 'fb_mobile_add_to_wishlist';
+  static const eventNameSubscribe = "Subscribe";
 
   static const _paramNameValueToSum = "_valueToSum";
   static const paramNameCurrency = "fb_currency";
+  static const paramNameOrderId = "fb_order_id";
   static const paramNameRegistrationMethod = "fb_registration_method";
   static const paramNamePaymentInfoAvailable = "fb_payment_info_available";
   static const paramNameNumItems = "fb_num_items";
@@ -332,6 +334,25 @@ class FacebookAppEvents {
     final args = <String, dynamic>{'enabled': enabled};
 
     return _channel.invokeMethod<void>('setAdvertiserTracking', args);
+  }
+
+  /// The start of a paid subscription for a product or service you offer.
+  /// See:
+  ///   - https://developers.facebook.com/docs/marketing-api/app-event-api/
+  ///   - https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/
+  Future<void> logSubscribe({
+    double? price,
+    String? currency,
+    required String orderId,
+  }) {
+    return logEvent(
+      name: eventNameSubscribe,
+      valueToSum: price,
+      parameters: {
+        paramNameCurrency: currency,
+        paramNameOrderId: orderId,
+      },
+    );
   }
 
   // ---------------------------------------------------------------------------

@@ -1,3 +1,6 @@
+## 0.13.1
+- Emptying the handling method for iOS `updateUserProperties` as it is removed from iOS SDK but only deprecated in Android. (discovered in issue [#123](https://github.com/oddbit/flutter_facebook_app_events/issues/123))
+
 ## 0.13.0
 - Bumping Facebook SDK core kit to `11.1`
 - Adding deprecation notes for

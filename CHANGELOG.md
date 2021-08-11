@@ -1,3 +1,16 @@
+## 0.13.0
+- Bumping Facebook SDK core kit to `11.1`
+- Adding deprecation notes for
+  - `setUserData`
+  - `updateUserProperties`
+  - `logActivatedApp`
+  - `logDeactivatedApp`
+- Adding log events
+  - `logAdClick`
+  - `logAdImpression`
+  - `logStartTrial` (see discussion [#119](https://github.com/oddbit/flutter_facebook_app_events/discussions/119))
+  - `logSubscribe` (see discussion [#119](https://github.com/oddbit/flutter_facebook_app_events/discussions/119))
+
 ## 0.12.0
 **Breaking changes:** Starting from this release, the plugin require Flutter 2.0 with support for 
 [null safety](https://flutter.dev/docs/null-safety)

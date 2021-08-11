@@ -18,9 +18,15 @@ class FacebookAppEvents {
   static const eventNameInitiatedCheckout = 'fb_mobile_initiated_checkout';
   static const eventNameAddedToCart = 'fb_mobile_add_to_cart';
   static const eventNameAddedToWishlist = 'fb_mobile_add_to_wishlist';
+  static const eventNameSubscribe = "Subscribe";
+  static const eventNameStartTrial = "StartTrial";
+  static const eventNameAdImpression = "AdImpression";
+  static const eventNameAdClick = "AdClick";
 
   static const _paramNameValueToSum = "_valueToSum";
+  static const paramNameAdType = "fb_ad_type";
   static const paramNameCurrency = "fb_currency";
+  static const paramNameOrderId = "fb_order_id";
   static const paramNameRegistrationMethod = "fb_registration_method";
   static const paramNamePaymentInfoAvailable = "fb_payment_info_available";
   static const paramNameNumItems = "fb_num_items";
@@ -84,6 +90,9 @@ class FacebookAppEvents {
   /// All user data are hashed and used to match Facebook user from this
   /// instance of an application. The user data will be persisted between
   /// application instances.
+  /// See deprecation note: https://github.com/facebook/facebook-android-sdk/blob/9da80baea0d23a82ce797e17bd4bc0e0d75b3912/facebook-core/src/main/java/com/facebook/appevents/AppEventsLogger.kt#L579
+  @Deprecated(
+      'Deprecated starting v0.13.0 of this plugin and will be removed in v12 of Facebook SDK')
   Future<void> setUserData({
     String? email,
     String? firstName,
@@ -134,6 +143,9 @@ class FacebookAppEvents {
   }
 
   /// Update user properties as provided by a map of [parameters]
+  /// See deprecation note: https://github.com/facebook/facebook-android-sdk/blob/9da80baea0d23a82ce797e17bd4bc0e0d75b3912/facebook-core/src/main/java/com/facebook/appevents/AppEventsLogger.kt#L639
+  @Deprecated(
+      'Deprecated starting v0.13.0 of this plugin and will be removed in v12 of Facebook SDK')
   Future<void> updateUserProperties({
     required Map<String, dynamic> parameters,
     String? applicationId,
@@ -151,6 +163,9 @@ class FacebookAppEvents {
   /// Log this event when an app is being activated.
   ///
   /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnameactivatedapp
+  /// See deprecation note: https://github.com/facebook/facebook-android-sdk/blob/9da80baea0d23a82ce797e17bd4bc0e0d75b3912/facebook-core/src/main/java/com/facebook/appevents/AppEventsLogger.kt#L381
+  @Deprecated(
+      'Deprecated starting v0.13.0 of this plugin and will be removed in v12 of Facebook SDK')
   Future<void> logActivatedApp() {
     return logEvent(name: eventNameActivatedApp);
   }
@@ -158,6 +173,9 @@ class FacebookAppEvents {
   /// Log this event when an app is being deactivated.
   ///
   /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnamedeactivatedapp
+  /// See deprecation note: https://github.com/facebook/facebook-android-sdk/blob/9da80baea0d23a82ce797e17bd4bc0e0d75b3912/facebook-core/src/main/java/com/facebook/appevents/AppEventsLogger.kt#L391
+  @Deprecated(
+      'Deprecated starting v0.13.0 of this plugin and will be removed in v12 of Facebook SDK')
   Future<void> logDeactivatedApp() {
     return logEvent(name: eventNameDeactivatedApp);
   }
@@ -320,6 +338,68 @@ class FacebookAppEvents {
     final args = <String, dynamic>{'enabled': enabled};
 
     return _channel.invokeMethod<void>('setAdvertiserTracking', args);
+  }
+
+  /// The start of a paid subscription for a product or service you offer.
+  /// See:
+  ///   - https://developers.facebook.com/docs/marketing-api/app-event-api/
+  ///   - https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/
+  Future<void> logSubscribe({
+    double? price,
+    String? currency,
+    required String orderId,
+  }) {
+    return logEvent(
+      name: eventNameSubscribe,
+      valueToSum: price,
+      parameters: {
+        paramNameCurrency: currency,
+        paramNameOrderId: orderId,
+      },
+    );
+  }
+
+  /// The start of a free trial of a product or service you offer (example: trial subscription).
+  /// See:
+  ///   - https://developers.facebook.com/docs/marketing-api/app-event-api/
+  ///   - https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/
+  Future<void> logStartTrial({
+    double? price,
+    String? currency,
+    required String orderId,
+  }) {
+    return logEvent(
+      name: eventNameStartTrial,
+      valueToSum: price,
+      parameters: {
+        paramNameCurrency: currency,
+        paramNameOrderId: orderId,
+      },
+    );
+  }
+
+  /// Log this event when the user views an ad.
+  Future<void> logAdImpression({
+    required String adType,
+  }) {
+    return logEvent(
+      name: eventNameAdImpression,
+      parameters: {
+        paramNameAdType: adType,
+      },
+    );
+  }
+
+  /// Log this event when the user clicks an ad.
+  Future<void> logAdClick({
+    required String adType,
+  }) {
+    return logEvent(
+      name: eventNameAdClick,
+      parameters: {
+        paramNameAdType: adType,
+      },
+    );
   }
 
   // ---------------------------------------------------------------------------

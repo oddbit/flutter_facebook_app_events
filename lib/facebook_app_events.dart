@@ -20,8 +20,11 @@ class FacebookAppEvents {
   static const eventNameAddedToWishlist = 'fb_mobile_add_to_wishlist';
   static const eventNameSubscribe = "Subscribe";
   static const eventNameStartTrial = "StartTrial";
+  static const eventNameAdImpression = "AdImpression";
+  static const eventNameAdClick = "AdClick";
 
   static const _paramNameValueToSum = "_valueToSum";
+  static const paramNameAdType = "fb_ad_type";
   static const paramNameCurrency = "fb_currency";
   static const paramNameOrderId = "fb_order_id";
   static const paramNameRegistrationMethod = "fb_registration_method";
@@ -371,6 +374,30 @@ class FacebookAppEvents {
       parameters: {
         paramNameCurrency: currency,
         paramNameOrderId: orderId,
+      },
+    );
+  }
+
+  /// Log this event when the user views an ad.
+  Future<void> logAdImpression({
+    required String adType,
+  }) {
+    return logEvent(
+      name: eventNameAdImpression,
+      parameters: {
+        paramNameAdType: adType,
+      },
+    );
+  }
+
+  /// Log this event when the user clicks an ad.
+  Future<void> logAdClick({
+    required String adType,
+  }) {
+    return logEvent(
+      name: eventNameAdClick,
+      parameters: {
+        paramNameAdType: adType,
       },
     );
   }

@@ -1,3 +1,6 @@
+## 0.13.2
+- Addressing issue [#125](https://github.com/oddbit/flutter_facebook_app_events/issues/125) - iOS compilation error. See [PR #126](https://github.com/oddbit/flutter_facebook_app_events/pull/126)
+
 ## 0.13.1
 - Fixing issue [#123](https://github.com/oddbit/flutter_facebook_app_events/issues/123)
   - Emptying the handling method for iOS `updateUserProperties` as it is removed from iOS SDK but only deprecated in Android.

@@ -114,19 +114,13 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         result(nil)
     }
 
-    private func handleSetUserData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let arguments = call.arguments as? [String: Any] ?? [String: Any]()
-        AppEvents.setUserData(arguments["email"] as? String, forType: FBSDKAppEventUserDataType.email)
-        AppEvents.setUserData(arguments["firstName"] as? String, forType: FBSDKAppEventUserDataType.firstName)
-        AppEvents.setUserData(arguments["lastName"] as? String, forType: FBSDKAppEventUserDataType.lastName)
-        AppEvents.setUserData(arguments["phone"] as? String, forType: FBSDKAppEventUserDataType.phone)
-        AppEvents.setUserData(arguments["dateOfBirth"] as? String, forType: FBSDKAppEventUserDataType.dateOfBirth)
-        AppEvents.setUserData(arguments["gender"] as? String, forType: FBSDKAppEventUserDataType.gender)
-        AppEvents.setUserData(arguments["city"] as? String, forType: FBSDKAppEventUserDataType.city)
-        AppEvents.setUserData(arguments["state"] as? String, forType: FBSDKAppEventUserDataType.state)
-        AppEvents.setUserData(arguments["zip"] as? String, forType: FBSDKAppEventUserDataType.zip)
-        AppEvents.setUserData(arguments["country"] as? String, forType: FBSDKAppEventUserDataType.country)
-
+    private func handleSetUserData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {        
+        // Function body removed to work around issues reported in #127 and #129 that we couldn't find
+        // a workaround for. This function will be removed in Facebook SDK release v12 and we'll 
+        // have a non-workign deprecated function until then.
+        //  - iOS removal note: https://github.com/facebook/facebook-ios-sdk/blob/0e1d8774db783d85bd8fc3b53ec96444c048ae42/CHANGELOG.md#removed
+        //  - Android deprecation: https://github.com/facebook/facebook-android-sdk/blob/9da80baea0d23a82ce797e17bd4bc0e0d75b3912/facebook-core/src/main/java/com/facebook/appevents/AppEventsLogger.kt#L633 
+        // Leave this one here for until fully removed in SDK v12
         result(nil)
     }
 

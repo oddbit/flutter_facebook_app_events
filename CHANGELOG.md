@@ -1,3 +1,10 @@
+## 0.13.3
+**N.B. Workaround release!!**
+Removing function body for iOS handling of deprecated method `setUserData`. See issues [#127](https://github.com/oddbit/flutter_facebook_app_events/issues/127) and [#129](https://github.com/oddbit/flutter_facebook_app_events/issues/129). We 
+were unable to reproduce or successfully troubleshoot the reported problems within the team and decided that it would be 
+better to get around the compilation error with the sacrifice of the `setUserData` in the possibly short time before it
+is removed from the SDK anyway.
+
 ## 0.13.2
 - Addressing issue [#125](https://github.com/oddbit/flutter_facebook_app_events/issues/125) - iOS compilation error. See [PR #126](https://github.com/oddbit/flutter_facebook_app_events/pull/126)
 

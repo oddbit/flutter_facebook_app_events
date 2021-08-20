@@ -1,3 +1,6 @@
+## 0.13.4
+Importing `FBSDKCoreKit_Basics` as a real fix for [#127](https://github.com/oddbit/flutter_facebook_app_events/issues/127) and [#129](https://github.com/oddbit/flutter_facebook_app_events/issues/129). See PR [#131](https://github.com/oddbit/flutter_facebook_app_events/pull/131). The PR adds back support for `setUserData` in iOS during deprecation grace period.
+
 ## 0.13.3
 **N.B. Workaround release!!**
 Removing function body for iOS handling of deprecated method `setUserData`. See issues [#127](https://github.com/oddbit/flutter_facebook_app_events/issues/127) and [#129](https://github.com/oddbit/flutter_facebook_app_events/issues/129). We 

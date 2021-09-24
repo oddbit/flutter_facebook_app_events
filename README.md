@@ -2,11 +2,11 @@
 
 [![pub package](https://img.shields.io/pub/v/facebook_app_events.svg)](https://pub.dartlang.org/packages/facebook_app_events)
 
-Flutter plugin for [Facebook App Events](https://developers.facebook.com/docs/app-events) and analytics.
+Flutter plugin for [Facebook App Events](https://developers.facebook.com/docs/app-events).
 
-> An app event is an action that takes place in your app or on your web page such as a person installing your app or completing a purchase. Facebook App Events allows you to track these events to view analytics, measure ad performance, and build audiences for ad targeting.
+> An app event is an action that takes place in your app or on your web page such as a person installing your app or completing a purchase. Facebook App Events allows you to track these events to measure ad performance, and build audiences for ad targeting.
 
-Flutter plugin for Facebook App Events, an app measurement solution that provides insight on app usage and user engagement in [Facebook Analytics](https://developers.facebook.com/apps/).
+Flutter plugin for Facebook App Events, an app measurement solution that provides insight on app usage and user engagement.
 
 ## Setting things up
 
@@ -69,7 +69,7 @@ Read through the "[Getting Started with App Events for iOS](https://developers.f
 <string>[APP_NAME]</string>
 ```
 
-## About Facebook App Events and Facebook Analytics
+## About Facebook App Events
 
 Please refer to the official SDK documentation for
 [iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/fbsdkappevents.html)
@@ -92,10 +92,3 @@ question to [StackOverflow](https://stackoverflow.com/search?q=facebook+app+even
 
 Feel free to open a thread if you are having any questions on how to use either the Facebook App Events as a reporting tool 
 itself or even on how to use this plugin. 
-
-
-## Facebook Analytics
-
-The events that your app is reporting will appear in Facebook Analytics for apps. You can read more about how to configure your dashboard and best
-practices on how to report data in Facebook help resources:
-https://www.facebook.com/help/analytics/319598688400448

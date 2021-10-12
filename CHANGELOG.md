@@ -1,3 +1,7 @@
+## 0.13.5
+- Updating Facebook SDK core kit dependency to follow all `11.x` versions.
+- Removing references to Facebook Analytics in README (https://www.facebook.com/business/help/966883707418907)
+
 ## 0.13.4
 Importing `FBSDKCoreKit_Basics` as a real fix for [#127](https://github.com/oddbit/flutter_facebook_app_events/issues/127) and [#129](https://github.com/oddbit/flutter_facebook_app_events/issues/129). See PR [#131](https://github.com/oddbit/flutter_facebook_app_events/pull/131). The PR adds back support for `setUserData` in iOS during deprecation grace period.
 

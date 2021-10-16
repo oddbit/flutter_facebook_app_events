@@ -77,9 +77,12 @@ class FacebookAppEvents {
   }) {
     final args = <String, dynamic>{
       'name': name,
-      'parameters': parameters,
       _paramNameValueToSum: valueToSum,
     };
+
+    if (parameters != null) {
+      args['parameters'] = _filterOutNulls(parameters);
+    }
 
     return _channel.invokeMethod<void>('logEvent', _filterOutNulls(args));
   }

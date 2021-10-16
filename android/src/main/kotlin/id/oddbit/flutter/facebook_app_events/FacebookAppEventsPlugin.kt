@@ -47,9 +47,7 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
       "getApplicationId" -> handleGetApplicationId(call, result)
       "logEvent" -> handleLogEvent(call, result)
       "logPushNotificationOpen" -> handlePushNotificationOpen(call, result)
-      "setUserData" -> handleSetUserData(call, result)
       "setUserID" -> handleSetUserId(call, result)
-      "updateUserProperties" -> handleUpdateUserProperties(call, result)
       "setAutoLogAppEventsEnabled" -> handleSetAutoLogAppEventsEnabled(call, result)
       "setDataProcessingOptions" -> handleSetDataProcessingOptions(call, result)
       "getAnonymousId" -> handleGetAnonymousId(call, result)
@@ -116,48 +114,6 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     } else {
       appEventsLogger.logPushNotificationOpen(payloadBundle)
     }
-
-    result.success(null)
-  }
-
-  private fun handleSetUserData(call: MethodCall, result: Result) {
-    val parameters = call.argument("parameters") as? Map<String, Object>
-    val parameterBundle = createBundleFromMap(parameters)
-
-    AppEventsLogger.setUserData(
-      parameterBundle?.getString("email"),
-      parameterBundle?.getString("firstName"),
-      parameterBundle?.getString("lastName"),
-      parameterBundle?.getString("phone"),
-      parameterBundle?.getString("dateOfBirth"),
-      parameterBundle?.getString("gender"),
-      parameterBundle?.getString("city"),
-      parameterBundle?.getString("state"),
-      parameterBundle?.getString("zip"),
-      parameterBundle?.getString("country")
-    )
-
-    result.success(null)
-  }
-
-  private fun handleUpdateUserProperties(call: MethodCall, result: Result) {
-    val applicationId = call.argument("applicationId") as? String
-    val parameters = call.argument("parameters") as? Map<String, Object>
-    val parameterBundle = createBundleFromMap(parameters) ?: Bundle()
-
-    val requestCallback = object : GraphRequest.Callback {
-      override fun onCompleted(response: GraphResponse) {
-        val data = response.getJSONObject()
-        result.success(data)
-      }
-    }
-
-    for (key in parameterBundle.keySet()) {
-      Log.d(logTag, "[updateUserProperties] " + key + ": " + parameterBundle.get(key))
-    }
-
-    if (applicationId == null) AppEventsLogger.updateUserProperties(parameterBundle, requestCallback)
-    else AppEventsLogger.updateUserProperties(parameterBundle, applicationId, requestCallback)
 
     result.success(null)
   }

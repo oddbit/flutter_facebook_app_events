@@ -1,3 +1,12 @@
+## 0.14.0
+- Updating Facebook SDK  dependency to follow all `12.x` versions.
+- Adding debug/dev cert for android to build and test example app
+- Removing deprecated methods
+  - `setUserData`
+  - `updateUserProperties`
+  - `logActivatedApp`
+  - `logDeactivatedApp`
+
 ## 0.13.5
 - Updating Facebook SDK core kit dependency to follow all `11.x` versions.
 - Removing references to Facebook Analytics in README (https://www.facebook.com/business/help/966883707418907)

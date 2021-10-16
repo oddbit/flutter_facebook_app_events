@@ -46,6 +46,15 @@ android {
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+    
+    signingConfigs {
+        debug {
+            storeFile file("../debug.keystore")
+            keyAlias "androiddebugkey"
+            storePassword "android"
+            keyPassword "android"
+        }
+    }
 
     buildTypes {
         release {

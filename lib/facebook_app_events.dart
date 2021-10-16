@@ -9,8 +9,6 @@ class FacebookAppEvents {
   static const _channel = MethodChannel(channelName);
 
   // See: https://github.com/facebook/facebook-android-sdk/blob/master/facebook-core/src/main/java/com/facebook/appevents/AppEventsConstants.java
-  static const eventNameActivatedApp = 'fb_mobile_activate_app';
-  static const eventNameDeactivatedApp = 'fb_mobile_deactivate_app';
   static const eventNameCompletedRegistration =
       'fb_mobile_complete_registration';
   static const eventNameViewedContent = 'fb_mobile_content_view';
@@ -86,41 +84,6 @@ class FacebookAppEvents {
     return _channel.invokeMethod<void>('logEvent', _filterOutNulls(args));
   }
 
-  /// Sets user data to associate with all app events.
-  /// All user data are hashed and used to match Facebook user from this
-  /// instance of an application. The user data will be persisted between
-  /// application instances.
-  /// See deprecation note: https://github.com/facebook/facebook-android-sdk/blob/9da80baea0d23a82ce797e17bd4bc0e0d75b3912/facebook-core/src/main/java/com/facebook/appevents/AppEventsLogger.kt#L579
-  @Deprecated(
-      'Deprecated starting v0.13.0 of this plugin and will be removed in v12 of Facebook SDK')
-  Future<void> setUserData({
-    String? email,
-    String? firstName,
-    String? lastName,
-    String? phone,
-    String? dateOfBirth,
-    String? gender,
-    String? city,
-    String? state,
-    String? zip,
-    String? country,
-  }) {
-    final args = <String, dynamic>{
-      'email': email,
-      'firstName': firstName,
-      'lastName': lastName,
-      'phone': phone,
-      'dateOfBirth': dateOfBirth,
-      'gender': gender,
-      'city': city,
-      'state': state,
-      'zip': zip,
-      'country': country,
-    };
-
-    return _channel.invokeMethod<void>('setUserData', args);
-  }
-
   /// Logs an app event that tracks that the application was open via Push Notification.
   Future<void> logPushNotificationOpen({
     required Map<String, dynamic> payload,
@@ -140,44 +103,6 @@ class FacebookAppEvents {
   /// The user ID will be persisted between application instances.
   Future<void> setUserID(String id) {
     return _channel.invokeMethod<void>('setUserID', id);
-  }
-
-  /// Update user properties as provided by a map of [parameters]
-  /// See deprecation note: https://github.com/facebook/facebook-android-sdk/blob/9da80baea0d23a82ce797e17bd4bc0e0d75b3912/facebook-core/src/main/java/com/facebook/appevents/AppEventsLogger.kt#L639
-  @Deprecated(
-      'Deprecated starting v0.13.0 of this plugin and will be removed in v12 of Facebook SDK')
-  Future<void> updateUserProperties({
-    required Map<String, dynamic> parameters,
-    String? applicationId,
-  }) {
-    final args = <String, dynamic>{
-      'parameters': parameters,
-      'applicationId': applicationId,
-    };
-
-    return _channel.invokeMethod<void>('updateUserProperties', args);
-  }
-
-  // Below are shorthand implementations of the predefined app event constants
-
-  /// Log this event when an app is being activated.
-  ///
-  /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnameactivatedapp
-  /// See deprecation note: https://github.com/facebook/facebook-android-sdk/blob/9da80baea0d23a82ce797e17bd4bc0e0d75b3912/facebook-core/src/main/java/com/facebook/appevents/AppEventsLogger.kt#L381
-  @Deprecated(
-      'Deprecated starting v0.13.0 of this plugin and will be removed in v12 of Facebook SDK')
-  Future<void> logActivatedApp() {
-    return logEvent(name: eventNameActivatedApp);
-  }
-
-  /// Log this event when an app is being deactivated.
-  ///
-  /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnamedeactivatedapp
-  /// See deprecation note: https://github.com/facebook/facebook-android-sdk/blob/9da80baea0d23a82ce797e17bd4bc0e0d75b3912/facebook-core/src/main/java/com/facebook/appevents/AppEventsLogger.kt#L391
-  @Deprecated(
-      'Deprecated starting v0.13.0 of this plugin and will be removed in v12 of Facebook SDK')
-  Future<void> logDeactivatedApp() {
-    return logEvent(name: eventNameDeactivatedApp);
   }
 
   /// Log this event when the user has completed registration with the app.

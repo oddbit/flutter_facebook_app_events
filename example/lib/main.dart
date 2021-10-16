@@ -35,6 +35,17 @@ class MyApp extends StatelessWidget {
                 },
               ),
               MaterialButton(
+                child: Text("Test logAddToCart"),
+                onPressed: () {
+                  facebookAppEvents.logAddToCart(
+                    id: '1',
+                    type: 'product',
+                    price: 99.0,
+                    currency: 'TRY',
+                  );
+                },
+              ),
+              MaterialButton(
                 child: Text("Test purchase!"),
                 onPressed: () {
                   facebookAppEvents.logPurchase(amount: 1, currency: "USD");

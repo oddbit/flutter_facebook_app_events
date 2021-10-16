@@ -1,5 +1,9 @@
+## 0.14.2
+Fixing [issue 147](https://github.com/oddbit/flutter_facebook_app_events/issues/147) - `logAddToCart()` throws PlatformException
+
 ## 0.14.1
 See [PR 149](https://github.com/oddbit/flutter_facebook_app_events/pull/149)
+
 - Updating Facebook SDK  dependency to follow all `12.x` versions.
 - Adding debug/dev cert for android to build and test example app
 - Removing deprecated methods

@@ -1,4 +1,5 @@
 ## 0.14.0
+See [PR 149](https://github.com/oddbit/flutter_facebook_app_events/pull/149)
 - Updating Facebook SDK  dependency to follow all `12.x` versions.
 - Adding debug/dev cert for android to build and test example app
 - Removing deprecated methods

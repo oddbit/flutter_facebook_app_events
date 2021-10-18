@@ -13,13 +13,13 @@ body:
   - type: textarea
     attributes:
       label: Current Behavior
-      description: A concise description of what you're experiencing.
+      description: A concise and **objective** description of what you're experiencing.
     validations:
       required: true
   - type: textarea
     attributes:
       label: Expected Behavior
-      description: A concise description of what you're experiencing.
+      description: A description of what you were **expecting** to happen or how you **expected** it to work
     validations:
       required: true
   - type: textarea
@@ -50,4 +50,4 @@ body:
       description: Please copy and paste the output from `flutter doctor -v`
       render: shell
     validations:
-      required: false
+      required: true

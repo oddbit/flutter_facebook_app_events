@@ -37,7 +37,8 @@ body:
     id: platform
     attributes:
       label: Platform
-      description: What platform did you identify the issue on
+      description: What platform(s) did you identify the issue on
+      multiple: true
       options:
         - Android
         - iOS

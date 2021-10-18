@@ -1,0 +1,53 @@
+name: Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["bug🐞"]
+body:
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the bug you encountered.
+      options:
+      - label: I have searched the existing issues
+        required: true
+  - type: textarea
+    attributes:
+      label: Current Behavior
+      description: A concise description of what you're experiencing.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: A concise description of what you're experiencing.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps To Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. In this environment...
+        2. With this config...
+        3. Run '...'
+        4. See error...
+    validations:
+      required: false
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: What platform did you identify the issue on
+      options:
+        - Android
+        - iOS
+    validations:
+      required: false
+  - type: textarea
+    id: flutter_doctor
+    attributes:
+      label: Flutter Doctor
+      description: Please copy and paste the output from `flutter doctor -v`
+      render: shell
+    validations:
+      required: false

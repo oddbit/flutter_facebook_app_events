@@ -1,3 +1,6 @@
+## 0.14.3
+Fixing [issue 156](https://github.com/oddbit/flutter_facebook_app_events/issues/156) - iOS Compilation error 
+
 ## 0.14.2
 Fixing [issue 147](https://github.com/oddbit/flutter_facebook_app_events/issues/147) - `logAddToCart()` throws PlatformException
 

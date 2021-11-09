@@ -2,6 +2,7 @@ import Flutter
 import UIKit
 import FBSDKCoreKit
 import FBSDKCoreKit_Basics
+import FBAudienceNetwork
 
 public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -145,7 +146,9 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     private func handleSetAdvertiserTracking(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let arguments = call.arguments as? [String: Any] ?? [String: Any]()
         let enabled = arguments["enabled"] as! Bool
-        Settings.setAdvertiserTrackingEnabled(enabled)        
+        let collectId = arguments["collectId"] as! Bool
+        Settings.setAdvertiserTrackingEnabled(enabled)
+        Settings.isAdvertiserIDCollectionEnabled = collectId
         result(nil)
     }
 }

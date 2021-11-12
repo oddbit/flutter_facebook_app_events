@@ -1,3 +1,7 @@
+## 0.14.4
+Fixing [issue 161](https://github.com/oddbit/flutter_facebook_app_events/issues/161) - Adding configuration option for
+`isAdvertiserIDCollectionEnabled` in the `setAdvertiserTracking()` method.
+
 ## 0.14.3
 Fixing [issue 156](https://github.com/oddbit/flutter_facebook_app_events/issues/156) - iOS Compilation error 
 

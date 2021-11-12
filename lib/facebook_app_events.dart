@@ -262,8 +262,12 @@ class FacebookAppEvents {
   /// an iOS 14+ feature, android should just return a success.
   Future<void> setAdvertiserTracking({
     required bool enabled,
+    bool collectId = true,
   }) {
-    final args = <String, dynamic>{'enabled': enabled};
+    final args = <String, dynamic>{
+      'enabled': enabled,
+      'collectId': collectId,
+    };
 
     return _channel.invokeMethod<void>('setAdvertiserTracking', args);
   }

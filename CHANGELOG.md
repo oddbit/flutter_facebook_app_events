@@ -1,3 +1,6 @@
+## 0.14.5
+Fixing [issue 165](https://github.com/oddbit/flutter_facebook_app_events/issues/165) - Pod install Error
+
 ## 0.14.4
 Fixing [issue 161](https://github.com/oddbit/flutter_facebook_app_events/issues/161) - Adding configuration option for
 `isAdvertiserIDCollectionEnabled` in the `setAdvertiserTracking()` method.

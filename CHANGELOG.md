@@ -1,3 +1,6 @@
+## 0.14.6
+Fixing [issue 159](https://github.com/oddbit/flutter_facebook_app_events/issues/159) - iOS compilation error
+
 ## 0.14.5
 Fixing [issue 165](https://github.com/oddbit/flutter_facebook_app_events/issues/165) - Pod install Error
 

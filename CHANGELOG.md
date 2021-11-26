@@ -1,3 +1,8 @@
+## 0.14.7
+Narrowing down the Facebook SDK version for iOS due to the trouble it seems to cause with different developer
+environments and setups. See discussion in issue [#159](https://github.com/oddbit/flutter_facebook_app_events/issues/159) 
+and [#171](https://github.com/oddbit/flutter_facebook_app_events/issues/171).
+
 ## 0.14.6
 Fixing [issue 159](https://github.com/oddbit/flutter_facebook_app_events/issues/159) - iOS compilation error
 

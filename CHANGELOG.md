@@ -1,3 +1,7 @@
+## 0.14.8
+- Making parameters to `logPurchase()` mandatory ([issue #182](https://github.com/oddbit/flutter_facebook_app_events/issues/159))
+- Updating gradle config for [`jcenter` deprecation](https://blog.gradle.org/jcenter-shutdown#:~:text=The%20jcenter()%20method%20will,may%20only%20publish%20new%20versions.).
+
 ## 0.14.7
 Narrowing down the Facebook SDK version for iOS due to the trouble it seems to cause with different developer
 environments and setups. See discussion in issue [#159](https://github.com/oddbit/flutter_facebook_app_events/issues/159) 

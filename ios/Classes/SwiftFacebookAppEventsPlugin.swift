@@ -22,6 +22,9 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         case "clearUserData":
             handleClearUserData(call, result: result)
             break
+        case "setUserData":
+            handleSetUserData(call, result: result)
+            break
         case "clearUserID":
             handleClearUserID(call, result: result)
             break
@@ -62,6 +65,23 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
 
     private func handleClearUserData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         AppEvents.clearUserData()
+        result(nil)
+    }
+
+    private func handleSetUserData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {        
+        let arguments = call.arguments as? [String: Any] ?? [String: Any]()
+
+        AppEvents.setUserData(arguments["email"] as? String, forType: FBSDKAppEventUserDataType.email)
+        AppEvents.setUserData(arguments["firstName"] as? String, forType: FBSDKAppEventUserDataType.firstName)
+        AppEvents.setUserData(arguments["lastName"] as? String, forType: FBSDKAppEventUserDataType.lastName)
+        AppEvents.setUserData(arguments["phone"] as? String, forType: FBSDKAppEventUserDataType.phone)
+        AppEvents.setUserData(arguments["dateOfBirth"] as? String, forType: FBSDKAppEventUserDataType.dateOfBirth)
+        AppEvents.setUserData(arguments["gender"] as? String, forType: FBSDKAppEventUserDataType.gender)
+        AppEvents.setUserData(arguments["city"] as? String, forType: FBSDKAppEventUserDataType.city)
+        AppEvents.setUserData(arguments["state"] as? String, forType: FBSDKAppEventUserDataType.state)
+        AppEvents.setUserData(arguments["zip"] as? String, forType: FBSDKAppEventUserDataType.zip)
+        AppEvents.setUserData(arguments["country"] as? String, forType: FBSDKAppEventUserDataType.country)
+
         result(nil)
     }
 

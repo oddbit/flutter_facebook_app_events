@@ -42,6 +42,7 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   override fun onMethodCall(call: MethodCall, result: Result) {
     when (call.method) {
       "clearUserData" -> handleClearUserData(call, result)
+      "setUserData" -> handleSetUserData(call, result)
       "clearUserID" -> handleClearUserId(call, result)
       "flush" -> handleFlush(call, result)
       "getApplicationId" -> handleGetApplicationId(call, result)
@@ -60,6 +61,26 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
 
   private fun handleClearUserData(call: MethodCall, result: Result) {
     AppEventsLogger.clearUserData()
+    result.success(null)
+  }
+
+ private fun handleSetUserData(call: MethodCall, result: Result) {
+    val parameters = call.argument("parameters") as? Map<String, Object>
+    val parameterBundle = createBundleFromMap(parameters)
+
+    AppEventsLogger.setUserData(
+      parameterBundle?.getString("email"),
+      parameterBundle?.getString("firstName"),
+      parameterBundle?.getString("lastName"),
+      parameterBundle?.getString("phone"),
+      parameterBundle?.getString("dateOfBirth"),
+      parameterBundle?.getString("gender"),
+      parameterBundle?.getString("city"),
+      parameterBundle?.getString("state"),
+      parameterBundle?.getString("zip"),
+      parameterBundle?.getString("country")
+    )
+
     result.success(null)
   }
 

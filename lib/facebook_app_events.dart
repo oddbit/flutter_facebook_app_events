@@ -50,6 +50,38 @@ class FacebookAppEvents {
     return _channel.invokeMethod<void>('clearUserData');
   }
 
+  /// Sets user data to associate with all app events.
+  /// All user data are hashed and used to match Facebook user from this
+  /// instance of an application. The user data will be persisted between
+  /// application instances.
+  Future<void> setUserData({
+    String? email,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    String? dateOfBirth,
+    String? gender,
+    String? city,
+    String? state,
+    String? zip,
+    String? country,
+  }) {
+    final args = <String, dynamic>{
+      'email': email,
+      'firstName': firstName,
+      'lastName': lastName,
+      'phone': phone,
+      'dateOfBirth': dateOfBirth,
+      'gender': gender,
+      'city': city,
+      'state': state,
+      'zip': zip,
+      'country': country,
+    };
+
+    return _channel.invokeMethod<void>('setUserData', args);
+  }
+
   /// Clears the currently set user id.
   Future<void> clearUserID() {
     return _channel.invokeMethod<void>('clearUserID');

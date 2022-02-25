@@ -1,3 +1,6 @@
+## 0.15.1
+- Bumping iOS FBSDK version to `12.3.2`
+
 ## 0.15.0
 - Adding back `setUserData()` which was removed by mistake. It's not completely deprecated.
 - Bumping iOS FBSDK version to `12.3`

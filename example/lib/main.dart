@@ -35,6 +35,18 @@ class MyApp extends StatelessWidget {
                 },
               ),
               MaterialButton(
+                child: Text("Set user data"),
+                onPressed: () {
+                  facebookAppEvents.setUserData(
+                    email: 'opensource@oddbit.id',
+                    firstName: 'Oddbit',
+                    dateOfBirth: '2019-10-19',
+                    city: 'Denpasar',
+                    country: 'Indonesia',
+                  );
+                },
+              ),
+              MaterialButton(
                 child: Text("Test logAddToCart"),
                 onPressed: () {
                   facebookAppEvents.logAddToCart(

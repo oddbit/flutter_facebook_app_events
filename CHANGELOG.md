@@ -1,3 +1,7 @@
+## 0.15.0
+- Adding back `setUserData()` which was removed by mistake. It's not completely deprecated.
+- Bumping iOS FBSDK version to `12.3`
+
 ## 0.14.8
 - Making parameters to `logPurchase()` mandatory ([issue #182](https://github.com/oddbit/flutter_facebook_app_events/issues/159))
 - Updating gradle config for [`jcenter` deprecation](https://blog.gradle.org/jcenter-shutdown#:~:text=The%20jcenter()%20method%20will,may%20only%20publish%20new%20versions.).

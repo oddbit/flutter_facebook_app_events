@@ -92,13 +92,18 @@ class FacebookAppEvents {
     return _channel.invokeMethod<void>('flush');
   }
 
+  /// Set the app ID.
+  Future<void> setApplicationId(String? applicationId) {
+    return _channel.invokeMethod<String?>('setApplicationId', applicationId);
+  }
+
   /// Returns the app ID this logger was configured to log to.
   Future<String?> getApplicationId() {
-    return _channel.invokeMethod<String>('getApplicationId');
+    return _channel.invokeMethod<String?>('getApplicationId');
   }
 
   Future<String?> getAnonymousId() {
-    return _channel.invokeMethod<String>('getAnonymousId');
+    return _channel.invokeMethod<String?>('getAnonymousId');
   }
 
   /// Log an app event with the specified [name] and the supplied [parameters] value.

@@ -3,8 +3,14 @@ import 'package:facebook_app_events/facebook_app_events.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   static final facebookAppEvents = FacebookAppEvents();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,6 +22,37 @@ class MyApp extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              MaterialButton(
+                child: Text("Set Application Id = null"),
+                onPressed: () async {
+                  await facebookAppEvents.setApplicationId(null);
+                  setState(() => {});
+                },
+              ),
+              MaterialButton(
+                child: Text("Set Application Id = a"),
+                onPressed: () async {
+                  await facebookAppEvents.setApplicationId("a");
+                  setState(() => {});
+                },
+              ),
+              MaterialButton(
+                child: Text("Set Application Id = b"),
+                onPressed: () async {
+                  await facebookAppEvents.setApplicationId("b");
+                  setState(() => {});
+                },
+              ),
+              FutureBuilder(
+                future: facebookAppEvents.getApplicationId(),
+                builder: (context, snapshot) {
+                  final id = snapshot.data ?? '???';
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: Text('Application ID: $id'),
+                  );
+                },
+              ),
               FutureBuilder(
                 future: facebookAppEvents.getAnonymousId(),
                 builder: (context, snapshot) {
@@ -60,7 +97,8 @@ class MyApp extends StatelessWidget {
               MaterialButton(
                 child: Text("Test purchase!"),
                 onPressed: () {
-                  facebookAppEvents.logPurchase(amount: 1, currency: "USD");
+                  facebookAppEvents
+                      .logPurchase(amount: 1, currency: "USD");
                 },
               ),
               MaterialButton(

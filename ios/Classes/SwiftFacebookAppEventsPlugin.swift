@@ -13,12 +13,14 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         // See: https://developers.facebook.com/blog/post/2021/01/19/introducing-facebook-platform-sdk-version-9/
         // "Removal of Auto Initialization of SDK" section
         ApplicationDelegate.shared.initializeSDK()
-
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
+        case "setApplicationId":
+            handleSetApplicationId(call, result: result)
+            break
         case "clearUserData":
             handleClearUserData(call, result: result)
             break
@@ -61,6 +63,30 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         default:
             result(FlutterMethodNotImplemented)
         }
+    }
+
+    private func handleSetApplicationId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let newApplicationId = call.arguments as? String
+
+        if (newApplicationId?.compare(Settings.shared.appID ?? "", options: .literal) == .orderedSame) {
+            print("facebook_app_events :: setApplicationId :: application id didn't change, nothing to do here")
+            result(nil)
+            return
+        }
+        
+        AppEvents.shared.flush()
+        
+        if (newApplicationId == nil) {
+            print("facebook_app_events :: setApplicationId :: applicationId = null")
+            Settings.shared.appID = nil
+            result(nil)
+            return
+        }
+        
+        // initialize a new logger with the requested application id
+        print("facebook_app_events :: setApplicationId :: applicationId = \(newApplicationId!)")
+        Settings.shared.appID = newApplicationId
+        result(nil)
     }
 
     private func handleClearUserData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

@@ -10,6 +10,11 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   static final facebookAppEvents = FacebookAppEvents();
+  String _error;
+
+  _handleError(dynamic err, StackTrace stack) {
+    print("error catched: $err $stack");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,21 +30,27 @@ class _MyAppState extends State<MyApp> {
               MaterialButton(
                 child: Text("Set Application Id = null"),
                 onPressed: () async {
-                  await facebookAppEvents.setApplicationId(null);
+                  await facebookAppEvents
+                      .setApplicationId(null)
+                      .catchError(_handleError);
                   setState(() => {});
                 },
               ),
               MaterialButton(
                 child: Text("Set Application Id = a"),
                 onPressed: () async {
-                  await facebookAppEvents.setApplicationId("a");
+                  await facebookAppEvents
+                      .setApplicationId("a")
+                      .catchError(_handleError);
                   setState(() => {});
                 },
               ),
               MaterialButton(
                 child: Text("Set Application Id = b"),
                 onPressed: () async {
-                  await facebookAppEvents.setApplicationId("b");
+                  await facebookAppEvents
+                      .setApplicationId("b")
+                      .catchError(_handleError);
                   setState(() => {});
                 },
               ),
@@ -47,6 +58,11 @@ class _MyAppState extends State<MyApp> {
                 future: facebookAppEvents.getApplicationId(),
                 builder: (context, snapshot) {
                   final id = snapshot.data ?? '???';
+
+                  if (snapshot.hasError) {
+                    _handleError(snapshot.error, snapshot.stackTrace);
+                  }
+
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: Text('Application ID: $id'),
@@ -57,6 +73,11 @@ class _MyAppState extends State<MyApp> {
                 future: facebookAppEvents.getAnonymousId(),
                 builder: (context, snapshot) {
                   final id = snapshot.data ?? '???';
+
+                  if (snapshot.hasError) {
+                    _handleError(snapshot.error, snapshot.stackTrace);
+                  }
+
                   return Text('Anonymous ID: $id');
                 },
               ),
@@ -68,49 +89,58 @@ class _MyAppState extends State<MyApp> {
                     parameters: {
                       'button_id': 'the_clickme_button',
                     },
-                  );
+                  ).catchError(_handleError);
                 },
               ),
               MaterialButton(
                 child: Text("Set user data"),
                 onPressed: () {
-                  facebookAppEvents.setUserData(
-                    email: 'opensource@oddbit.id',
-                    firstName: 'Oddbit',
-                    dateOfBirth: '2019-10-19',
-                    city: 'Denpasar',
-                    country: 'Indonesia',
-                  );
+                  facebookAppEvents
+                      .setUserData(
+                        email: 'opensource@oddbit.id',
+                        firstName: 'Oddbit',
+                        dateOfBirth: '2019-10-19',
+                        city: 'Denpasar',
+                        country: 'Indonesia',
+                      )
+                      .catchError(_handleError);
                 },
               ),
               MaterialButton(
                 child: Text("Test logAddToCart"),
                 onPressed: () {
-                  facebookAppEvents.logAddToCart(
-                    id: '1',
-                    type: 'product',
-                    price: 99.0,
-                    currency: 'TRY',
-                  );
+                  facebookAppEvents
+                      .logAddToCart(
+                        id: '1',
+                        type: 'product',
+                        price: 99.0,
+                        currency: 'TRY',
+                      )
+                      .catchError(_handleError);
                 },
               ),
               MaterialButton(
                 child: Text("Test purchase!"),
                 onPressed: () {
                   facebookAppEvents
-                      .logPurchase(amount: 1, currency: "USD");
+                      .logPurchase(amount: 1, currency: "USD")
+                      .catchError(_handleError);
                 },
               ),
               MaterialButton(
                 child: Text("Enable advertise tracking!"),
                 onPressed: () {
-                  facebookAppEvents.setAdvertiserTracking(enabled: true);
+                  facebookAppEvents
+                      .setAdvertiserTracking(enabled: true)
+                      .catchError(_handleError);
                 },
               ),
               MaterialButton(
                 child: Text("Disabled advertise tracking!"),
                 onPressed: () {
-                  facebookAppEvents.setAdvertiserTracking(enabled: false);
+                  facebookAppEvents
+                      .setAdvertiserTracking(enabled: false)
+                      .catchError(_handleError);
                 },
               ),
             ],

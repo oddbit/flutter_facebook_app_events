@@ -41,7 +41,21 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     channel.setMethodCallHandler(null)
   }
 
+  val isInitialised: Boolean
+    get() {
+       return appEventsLogger?.applicationId !== null
+    }
+
   override fun onMethodCall(call: MethodCall, result: Result) {
+    if (!isInitialised && !listOf("setApplicationId", "getApplicationId").contains(call.method)) {
+        result.error(
+            "FB_APP_ID_NOT_SET",
+            "Cannot call method " + call.method + " before setApplicationId",
+            "You need to initialise the SDK with a valid Facebook Application Id. Use the setApplicationId SDK method."
+        )
+        return
+    }
+
     when (call.method) {
       "setApplicationId" -> handleSetApplicationId(call, result)
       "clearUserData" -> handleClearUserData(call, result)

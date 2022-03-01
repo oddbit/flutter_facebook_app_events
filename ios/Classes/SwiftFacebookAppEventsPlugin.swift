@@ -17,6 +17,17 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        if (Settings.shared.appID == nil && !["setApplicationId", "getApplicationId"].contains(call.method)) {
+            result(
+                FlutterError(
+                    code: "FB_APP_ID_NOT_SET", 
+                    message: "Cannot call method \(call.method) before setApplicationId",
+                    details: "You need to initialise the SDK with a valid Facebook Application Id. Use the setApplicationId SDK method."
+                )
+            )
+            return
+        }
+
         switch call.method {
         case "setApplicationId":
             handleSetApplicationId(call, result: result)

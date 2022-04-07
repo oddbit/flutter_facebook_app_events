@@ -1,3 +1,9 @@
+## 0.16.0
+See [PR 224](https://github.com/oddbit/flutter_facebook_app_events/pull/224)
+
+- Updating Facebook SDK  dependency to follow all `13.x` versions.
+- Updating deprecated ios methods and propeties according https://github.com/facebook/facebook-ios-sdk/blob/main/CHANGELOG.md
+
 ## 0.15.0
 - Adding back `setUserData()` which was removed by mistake. It's not completely deprecated.
 - Bumping iOS FBSDK version to `12.3`

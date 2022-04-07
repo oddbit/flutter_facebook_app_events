@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="facebook_app_id">391810292537784</string>
+    <string name="facebook_client_token">0e7f593f9847ba94bb65ec68d1bed96c</string>
     <string name="fb_login_protocol_scheme">fb391810292537784</string>
     <string name="app_name">Flutter App Events Example</string>
 </resources>

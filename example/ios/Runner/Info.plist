@@ -44,15 +44,17 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
-		<key>CFBundleURLSchemes</key>
-		<array>
-			<string>fb391810292537784</string>
-		</array>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb391810292537784</string>
+			</array>
 		</dict>
 	</array>
 	<key>FacebookAppID</key>
 	<string>391810292537784</string>
 	<key>FacebookDisplayName</key>
 	<string>Flutter App Events Plugin</string>
+	<key>FacebookClientToken</key>
+	<string>0e7f593f9847ba94bb65ec68d1bed96c</string>
 </dict>
 </plist>

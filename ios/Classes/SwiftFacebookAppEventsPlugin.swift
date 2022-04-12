@@ -64,43 +64,43 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     }
 
     private func handleClearUserData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        AppEvents.clearUserData()
+        AppEvents.shared.clearUserData()
         result(nil)
     }
 
     private func handleSetUserData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {        
         let arguments = call.arguments as? [String: Any] ?? [String: Any]()
 
-        AppEvents.setUserData(arguments["email"] as? String, forType: FBSDKAppEventUserDataType.email)
-        AppEvents.setUserData(arguments["firstName"] as? String, forType: FBSDKAppEventUserDataType.firstName)
-        AppEvents.setUserData(arguments["lastName"] as? String, forType: FBSDKAppEventUserDataType.lastName)
-        AppEvents.setUserData(arguments["phone"] as? String, forType: FBSDKAppEventUserDataType.phone)
-        AppEvents.setUserData(arguments["dateOfBirth"] as? String, forType: FBSDKAppEventUserDataType.dateOfBirth)
-        AppEvents.setUserData(arguments["gender"] as? String, forType: FBSDKAppEventUserDataType.gender)
-        AppEvents.setUserData(arguments["city"] as? String, forType: FBSDKAppEventUserDataType.city)
-        AppEvents.setUserData(arguments["state"] as? String, forType: FBSDKAppEventUserDataType.state)
-        AppEvents.setUserData(arguments["zip"] as? String, forType: FBSDKAppEventUserDataType.zip)
-        AppEvents.setUserData(arguments["country"] as? String, forType: FBSDKAppEventUserDataType.country)
+        AppEvents.shared.setUserData(arguments["email"] as? String, forType: FBSDKAppEventUserDataType.email)
+        AppEvents.shared.setUserData(arguments["firstName"] as? String, forType: FBSDKAppEventUserDataType.firstName)
+        AppEvents.shared.setUserData(arguments["lastName"] as? String, forType: FBSDKAppEventUserDataType.lastName)
+        AppEvents.shared.setUserData(arguments["phone"] as? String, forType: FBSDKAppEventUserDataType.phone)
+        AppEvents.shared.setUserData(arguments["dateOfBirth"] as? String, forType: FBSDKAppEventUserDataType.dateOfBirth)
+        AppEvents.shared.setUserData(arguments["gender"] as? String, forType: FBSDKAppEventUserDataType.gender)
+        AppEvents.shared.setUserData(arguments["city"] as? String, forType: FBSDKAppEventUserDataType.city)
+        AppEvents.shared.setUserData(arguments["state"] as? String, forType: FBSDKAppEventUserDataType.state)
+        AppEvents.shared.setUserData(arguments["zip"] as? String, forType: FBSDKAppEventUserDataType.zip)
+        AppEvents.shared.setUserData(arguments["country"] as? String, forType: FBSDKAppEventUserDataType.country)
 
         result(nil)
     }
 
     private func handleClearUserID(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        AppEvents.clearUserID()
+        AppEvents.shared.userID = nil
         result(nil)
     }
 
     private func handleFlush(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        AppEvents.flush()
+        AppEvents.shared.flush()
         result(nil)
     }
 
     private func handleGetApplicationId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(Settings.appID)
+        result(Settings.shared.appID)
     }
 
     private func handleHandleGetAnonymousId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(AppEvents.anonymousID)
+        result(AppEvents.shared.anonymousID)
     }
 
     private func handleLogEvent(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -109,9 +109,9 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         let parameters = arguments["parameters"] as? [AppEvents.ParameterName: Any] ?? [AppEvents.ParameterName: Any]()
         if arguments["_valueToSum"] != nil && !(arguments["_valueToSum"] is NSNull) {
             let valueToDouble = arguments["_valueToSum"] as! Double
-            AppEvents.logEvent(AppEvents.Name(eventName), valueToSum: valueToDouble, parameters: parameters)
+            AppEvents.shared.logEvent(AppEvents.Name(eventName), valueToSum: valueToDouble, parameters: parameters)
         } else {
-            AppEvents.logEvent(AppEvents.Name(eventName), parameters: parameters)
+            AppEvents.shared.logEvent(AppEvents.Name(eventName), parameters: parameters)
         }
 
         result(nil)
@@ -122,9 +122,9 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         let payload = arguments["payload"] as? [String: Any]
         if let action = arguments["action"] {
             let actionString = action as! String
-            AppEvents.logPushNotificationOpen(payload!, action: actionString)
+            AppEvents.shared.logPushNotificationOpen(payload: payload!, action: actionString)
         } else {
-            AppEvents.logPushNotificationOpen(payload!)
+            AppEvents.shared.logPushNotificationOpen(payload: payload!)
         }
 
         result(nil)
@@ -132,13 +132,13 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
 
     private func handleSetUserId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let id = call.arguments as! String
-        AppEvents.userID = id
+        AppEvents.shared.userID = id
         result(nil)
     }
 
     private func handleSetAutoLogAppEventsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let enabled = call.arguments as! Bool
-        Settings.isAutoLogAppEventsEnabled = enabled
+        Settings.shared.isAutoLogAppEventsEnabled = enabled
         result(nil)
     }
 
@@ -148,7 +148,7 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         let state = arguments["state"] as? Int32 ?? 0
         let country = arguments["country"] as? Int32 ?? 0
 
-        Settings.setDataProcessingOptions(modes, country: country, state: state)
+        Settings.shared.setDataProcessingOptions(modes, country: country, state: state)
 
         result(nil)
     }
@@ -157,8 +157,8 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         let arguments = call.arguments as? [String: Any] ?? [String: Any]()
         let amount = arguments["amount"] as! Double
         let currency = arguments["currency"] as! String
-        let parameters = arguments["parameters"] as? [String: Any] ?? [String: Any]()
-        AppEvents.logPurchase(amount, currency: currency, parameters: parameters)
+        let parameters = arguments["parameters"] as? [AppEvents.ParameterName: Any] ?? [AppEvents.ParameterName: Any]()
+        AppEvents.shared.logPurchase(amount: amount, currency: currency, parameters: parameters)
 
         result(nil)
     }
@@ -167,8 +167,8 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         let arguments = call.arguments as? [String: Any] ?? [String: Any]()
         let enabled = arguments["enabled"] as! Bool
         let collectId = arguments["collectId"] as! Bool
-        Settings.setAdvertiserTrackingEnabled(enabled)
-        Settings.isAdvertiserIDCollectionEnabled = collectId
+        Settings.shared.isAdvertiserTrackingEnabled = enabled
+        Settings.shared.isAdvertiserIDCollectionEnabled = collectId
         result(nil)
     }
 }

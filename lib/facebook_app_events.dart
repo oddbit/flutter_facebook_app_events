@@ -145,13 +145,14 @@ class FacebookAppEvents {
   /// used to register for the app, e.g. "Facebook", "email", "Google", etc.
   /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnamecompletedregistration
   Future<void> logCompletedRegistration(
-      {String? registrationMethod, String? currency}) {
+      {String? registrationMethod, String? currency, double? value}) {
     return logEvent(
       name: eventNameCompletedRegistration,
       parameters: {
         paramNameRegistrationMethod: registrationMethod,
         paramNameCurrency: currency,
       },
+      valueToSum: value,
     );
   }
 

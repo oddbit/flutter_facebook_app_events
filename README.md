@@ -20,6 +20,7 @@ Read through the "[Getting Started with App Events for Android](https://develope
 
 ```xml
 <string name="facebook_app_id">[APP_ID]</string>
+<string name="facebook_client_token">[CLIENT_TOKEN]</string>
 ```
 
 After that, add that string resource reference to your main `AndroidManifest.xml` file, directly under the `<application>` tag.
@@ -28,6 +29,9 @@ After that, add that string resource reference to your main `AndroidManifest.xml
 <meta-data
   android:name="com.facebook.sdk.ApplicationId"
   android:value="@string/facebook_app_id" />
+<meta-data 
+  android:name="com.facebook.sdk.ClientToken" 
+  android:value="@string/facebook_client_token"/>
 ```
 
 ### Configure iOS
@@ -50,6 +54,8 @@ Read through the "[Getting Started with App Events for iOS](https://developers.f
 <string>[APP_ID]</string>
 <key>FacebookDisplayName</key>
 <string>[APP_NAME]</string>
+<key>FacebookClientToken</key>
+<string>[CLIENT_TOKEN]</string>
 ```
 
 - If your code already contains `CFBundleURLTypes`, insert the following:
@@ -67,6 +73,8 @@ Read through the "[Getting Started with App Events for iOS](https://developers.f
 <string>[APP_ID]</string>
 <key>FacebookDisplayName</key>
 <string>[APP_NAME]</string>
+<key>FacebookClientToken</key>
+<string>[CLIENT_TOKEN]</string>
 ```
 
 ## About Facebook App Events

@@ -50,6 +50,8 @@ Read through the "[Getting Started with App Events for iOS](https://developers.f
 <string>[APP_ID]</string>
 <key>FacebookDisplayName</key>
 <string>[APP_NAME]</string>
+<key>FacebookClientToken</key>
+<string>[APP_CLIENT_TOKEN]</string>
 ```
 
 - If your code already contains `CFBundleURLTypes`, insert the following:
@@ -67,6 +69,8 @@ Read through the "[Getting Started with App Events for iOS](https://developers.f
 <string>[APP_ID]</string>
 <key>FacebookDisplayName</key>
 <string>[APP_NAME]</string>
+<key>FacebookClientToken</key>
+<string>[APP_CLIENT_TOKEN]</string>
 ```
 
 ## About Facebook App Events

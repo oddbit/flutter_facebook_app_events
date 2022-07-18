@@ -12,27 +12,34 @@ Flutter plugin for Facebook App Events, an app measurement solution that provide
 
 You must first create an app at Facebook for developers: https://developers.facebook.com/
 
-Get your app id (referred to as `[APP_ID]` below)
+1. Get your app id (referred to as `[APP_ID]` below)
+2. Get your client token (referred to as `[CLIENT_TOKEN]` below).
+   See "[Facebook Doc: Client Tokens](https://developers.facebook.com/docs/facebook-login/guides/access-tokens#clienttokens)" for more information and how to obtain it.
+
 
 ### Configure Android
 
-Read through the "[Getting Started with App Events for Android](https://developers.facebook.com/docs/app-events/getting-started-app-events-android)" tutuorial and in particular, follow [step 2](https://developers.facebook.com/docs/app-events/getting-started-app-events-android#2--add-your-facebook-app-id) by adding the following into `/app/res/values/strings.xml` (or into respective `debug` or `release` build flavor)
+Read through the "[Getting Started with App Events for Android](https://developers.facebook.com/docs/app-events/getting-started-app-events-android)" tutorial and in particular, follow [step 3](https://developers.facebook.com/docs/app-events/getting-started-app-events-android#step-3--integrate-the-facebook-sdk-in-your-android-app) by adding the following into `/app/res/values/strings.xml` (or into respective `debug` or `release` build flavor)
 
 ```xml
 <string name="facebook_app_id">[APP_ID]</string>
+<string name="facebook_client_token">[CLIENT_TOKEN]</string>
 ```
 
 After that, add that string resource reference to your main `AndroidManifest.xml` file, directly under the `<application>` tag.
 
 ```xml
-<meta-data
-  android:name="com.facebook.sdk.ApplicationId"
-  android:value="@string/facebook_app_id" />
+<application android:label="@string/app_name" ...>
+    ...
+   	<meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
+   	<meta-data android:name="com.facebook.sdk.ClientToken" android:value="@string/facebook_client_token"/>
+    ...
+</application>
 ```
 
 ### Configure iOS
 
-Read through the "[Getting Started with App Events for iOS](https://developers.facebook.com/docs/app-events/getting-started-app-events-ios)" tutuorial and in particular, follow [step 4](https://developers.facebook.com/docs/app-events/getting-started-app-events-ios#plist-config) by opening `info.plist` "As Source Code" and add the following
+Read through the "[Getting Started with App Events for iOS](https://developers.facebook.com/docs/app-events/getting-started-app-events-ios)" tutuorial and in particular, follow [step 5](https://developers.facebook.com/docs/app-events/getting-started-app-events-ios#step-5--configure-your-project) by opening `info.plist` "As Source Code" and add the following
 
 - If your code does not have `CFBundleURLTypes`, add the following just before the final `</dict>` element:
 
@@ -48,6 +55,8 @@ Read through the "[Getting Started with App Events for iOS](https://developers.f
 </array>
 <key>FacebookAppID</key>
 <string>[APP_ID]</string>
+<key>FacebookClientToken</key>
+<string>[CLIENT_TOKEN]</string>
 <key>FacebookDisplayName</key>
 <string>[APP_NAME]</string>
 ```
@@ -65,6 +74,8 @@ Read through the "[Getting Started with App Events for iOS](https://developers.f
 </array>
 <key>FacebookAppID</key>
 <string>[APP_ID]</string>
+<key>FacebookClientToken</key>
+<string>[CLIENT_TOKEN]</string>
 <key>FacebookDisplayName</key>
 <string>[APP_NAME]</string>
 ```
@@ -83,12 +94,12 @@ First of all, thank you for even considering to get involved. You are a real sup
 
 ### Reporting bugs and issues
 Use the configured [Github issue report template](https://github.com/oddbit/flutter_facebook_app_events/issues/new?assignees=&labels=&template=bug_report.md&title=) when reporting an issue. Make sure to state your observations and expectations
-as objectively and informative as possible so that we can understand your need and be able to troubleshoot. 
+as objectively and informative as possible so that we can understand your need and be able to troubleshoot.
 
 ### Discussions and ideas
-We're happy to discuss and talk about ideas in the 
-[repository discussions](https://github.com/oddbit/flutter_facebook_app_events/discussions) and/or post your 
+We're happy to discuss and talk about ideas in the
+[repository discussions](https://github.com/oddbit/flutter_facebook_app_events/discussions) and/or post your
 question to [StackOverflow](https://stackoverflow.com/search?q=facebook+app+events+flutter).
 
-Feel free to open a thread if you are having any questions on how to use either the Facebook App Events as a reporting tool 
+Feel free to open a thread if you are having any questions on how to use either the Facebook App Events as a reporting tool
 itself or even on how to use this plugin. 

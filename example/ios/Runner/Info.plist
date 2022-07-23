@@ -56,5 +56,7 @@
 	<string>Flutter App Events Plugin</string>
 	<key>FacebookClientToken</key>
 	<string>0e7f593f9847ba94bb65ec68d1bed96c</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 </dict>
 </plist>

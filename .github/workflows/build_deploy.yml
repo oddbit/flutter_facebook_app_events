@@ -6,8 +6,7 @@ on:
       - develop
 jobs:
   build_example:
-    name: Build Example App
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+    name: Build Example App    
     needs: test
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60

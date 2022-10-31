@@ -1,0 +1,106 @@
+name: Publish package to pub.dev
+on:
+  push:
+    branches:   
+      - master
+jobs:
+  build_example:
+    name: Build Example App
+    if: github.event_name == 'push'
+    needs: test
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: true
+      matrix:
+        platform:
+          - apk
+          - ios
+        os:
+          - ubuntu-latest
+          - macos-latest
+        exclude:
+          # Skip build combinations where Android is attempted to build on MacOS
+          # and iOS attempt to build on Ubuntu.
+          - os: macos-latest
+            platform: apk
+          - os: ubuntu-latest
+            platform: ios
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+
+      - name: Get Flutter cache directory path
+        id: pub-cache-dir-path
+        run: |
+          echo "::set-output name=dir::$FLUTTER_HOME/.pub-cache"
+
+      - name: Activate Flutter Pub Packages Cache
+        uses: actions/cache@v3
+        id: pub-cache
+        with:
+          path: ${{ steps.pub-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - run: flutter pub get
+
+      - name: Configure iOS build environment
+        if: matrix.platform == 'ios'
+        run: |
+          echo "FLUTTER_EXTRA_PARAMS=--no-codesign" >> $GITHUB_ENV
+          echo "FASTLANE_BUILD_LANE=build_${{ env.FLAVOR }}" >> $GITHUB_ENV
+
+      - name: Activate iOS Pods Cache
+        uses: actions/cache@v3
+        if: matrix.platform == 'ios'
+        with:
+          path: ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
+      - run: flutter doctor
+
+      - name: Build Flutter
+        working-directory: ./example
+        run: >-
+          flutter
+          build ${{ matrix.platform }}
+          ${{ env.FLUTTER_EXTRA_PARAMS }}
+
+      - name: Build iOS IPA with Fastlane
+        if: matrix.platform == 'ios'
+        uses: maierj/fastlane-action@v2.0.1
+        with:
+          lane: ${{ env.FASTLANE_BUILD_LANE }}
+          subdirectory: "ios"
+
+  publish:
+    name: Publish Plugin
+    runs-on: ubuntu-latest
+    container:
+      image:  google/dart:latest
+    needs: build_example
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup credentials
+      run: | 
+        mkdir -p ~/.pub-cache 
+        cat <<EOF > ~/.pub-cache/credentials.json
+        {
+          "accessToken":"${{ secrets.OAUTH_ACCESS_TOKEN }}",
+          "refreshToken":"${{ secrets.OAUTH_REFRESH_TOKEN }}",
+          "tokenEndpoint":"https://accounts.google.com/o/oauth2/token",
+          "scopes": [ "openid", "https://www.googleapis.com/auth/userinfo.email" ],
+          "expiration": 1570721159347
+        }
+        EOF
+    - name: Publish package
+      run: pub publish -f

@@ -1,12 +1,13 @@
 name: Publish package to pub.dev
 on:
   push:
-    branches:   
+    branches:
       - master
+      - develop
 jobs:
   build_example:
     name: Build Example App
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
     needs: test
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
@@ -88,6 +89,7 @@ jobs:
     container:
       image:  google/dart:latest
     needs: build_example
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
     - uses: actions/checkout@v3
     - name: Setup credentials

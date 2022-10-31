@@ -1,3 +1,6 @@
+## 0.18.1
+- Change SDK version in `build.gradle` to be use concrete one rather than `15.+`.
+
 ## 0.18.0
 - Updating Facebook SDK  dependency to follow all `15.x` versions.
 

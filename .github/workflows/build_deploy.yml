@@ -39,18 +39,12 @@ jobs:
         with:
           channel: "stable"
 
-      - name: Configure cache path
-        run: |
-          echo "FLUTTER_CACHE=$FLUTTER_HOME/.pub-cache" >> $GITHUB_ENV
-
-      - name: Activate Flutter Pub Packages Cache
+      - name: Cache packages
         uses: actions/cache@v3
-        id: pub-cache
         with:
-          path: ${{ env.FLUTTER_CACHE }}
+          path: ${{ env.PUB_CACHE }}
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
+          restore-keys: ${{ runner.os }}-pub-
 
       - run: flutter pub get
 
@@ -65,8 +59,7 @@ jobs:
         with:
           path: example/ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
+          restore-keys: ${{ runner.os }}-pods-
 
       - run: flutter doctor
 

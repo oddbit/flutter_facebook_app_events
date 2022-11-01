@@ -39,16 +39,15 @@ jobs:
         with:
           channel: "stable"
 
-      - name: Get Flutter cache directory path
-        id: pub-cache-dir-path
+      - name: Configure cache path
         run: |
-          echo "::set-output name=dir::$FLUTTER_HOME/.pub-cache"
+          echo "FLUTTER_CACHE=$FLUTTER_HOME/.pub-cache" >> $GITHUB_ENV
 
       - name: Activate Flutter Pub Packages Cache
         uses: actions/cache@v3
         id: pub-cache
         with:
-          path: ${{ steps.pub-cache-dir-path.outputs.dir }}
+          path: ${{ env.FLUTTER_CACHE }}
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
             ${{ runner.os }}-pub-
@@ -59,13 +58,12 @@ jobs:
         if: matrix.platform == 'ios'
         run: |
           echo "FLUTTER_EXTRA_PARAMS=--no-codesign" >> $GITHUB_ENV
-          echo "FASTLANE_BUILD_LANE=build_${{ env.FLAVOR }}" >> $GITHUB_ENV
 
       - name: Activate iOS Pods Cache
         uses: actions/cache@v3
         if: matrix.platform == 'ios'
         with:
-          path: ios/Pods
+          path: example/ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pods-

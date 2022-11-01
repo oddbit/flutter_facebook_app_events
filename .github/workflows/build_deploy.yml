@@ -7,7 +7,6 @@ on:
 jobs:
   build_example:
     name: Build Example App    
-    needs: test
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:

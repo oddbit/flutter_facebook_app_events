@@ -1,3 +1,6 @@
+## 0.18.1
+- Fixing version syntax in gradle.
+
 ## 0.18.0
 - Updating Facebook SDK  dependency to follow all `15.x` versions.
 

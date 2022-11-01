@@ -41,5 +41,15 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.facebook.android:facebook-android-sdk:15.+'
+    // # READ THIS
+    // When updating the Facebook SDK. Please note these guidelines to avoid
+    // conflicts with other plugins that also rely on the FBSDK.
+    //
+    // - Only specify the major version of the SDK. 
+    // - Do **not** specify the `minor` or `patch` version.
+    //
+    // About the version syntax:
+    //  - https://github.com/oddbit/flutter_facebook_app_events/pull/189#discussion_r768267841
+    //  - https://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm#MAVEN402
+    implementation 'com.facebook.android:facebook-android-sdk:[15.0,16.0)'
 }

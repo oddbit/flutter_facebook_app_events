@@ -26,6 +26,11 @@ jobs:
           - os: ubuntu-latest
             platform: ios
 
+          # TODO(Dennis): iOS builds aren't properly configured yet. Fix and
+          # uncomment this exclusion
+          # https://github.com/oddbit/flutter_facebook_app_events/actions/runs/3365684172/jobs/5581387481
+          - platform: ios 
+
     steps:
       - uses: actions/checkout@v3
 

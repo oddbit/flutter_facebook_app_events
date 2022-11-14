@@ -89,6 +89,17 @@ and
 [report an issue](https://github.com/oddbit/flutter_facebook_app_events/issues)
 if you find anything that is not working according to official documentation.
 
+## Dependencies on Facebook SDK
+Every now and then it is necessary for this plugin to update the Facebook SDK dependency. We follow the major
+version of the current Facebook SDK in order to be as compatible as possible with other dependencies in your
+project. 
+
+Please do note that it means that you get "the latest version" up until next major release, and it might
+be a source of unexpected behavior for you if you are not aware of this. It is a preferred option to the
+alternative of locking into a specific MINOR version of the SDK, which might be causing incompatibilities 
+with your other plugins or dependencies.
+
+
 ## Getting involved
 First of all, thank you for even considering to get involved. You are a real super :star:  and we :heart:  you!
 

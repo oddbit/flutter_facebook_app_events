@@ -81,6 +81,9 @@ class FacebookAppEvents {
 
     return _channel.invokeMethod<void>('setUserData', args);
   }
+  
+  Future<void> setCustomUserData(Map<String,dynamic> userData) => _channel.invokeMethod<void>('setUserData', userData);
+  
 
   /// Clears the currently set user id.
   Future<void> clearUserID() {

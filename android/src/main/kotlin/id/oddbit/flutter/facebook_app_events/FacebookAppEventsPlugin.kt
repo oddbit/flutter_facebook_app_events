@@ -22,21 +22,21 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   ///
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
-  private lateinit var channel : MethodChannel
-  private lateinit var appEventsLogger: AppEventsLogger
-  private lateinit var anonymousId: String
+  private var channel : MethodChannel? = null
+  private var appEventsLogger: AppEventsLogger? = null
+  private var anonymousId: String = ""
 
   private val logTag = "FacebookAppEvents"
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter.oddbit.id/facebook_app_events")
-    channel.setMethodCallHandler(this)
+    channel?.setMethodCallHandler(this)
     appEventsLogger = AppEventsLogger.newLogger(flutterPluginBinding.applicationContext)
     anonymousId = AppEventsLogger.getAnonymousAppDeviceGUID(flutterPluginBinding.applicationContext)
   }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-    channel.setMethodCallHandler(null)
+    channel?.setMethodCallHandler(null)
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
@@ -90,12 +90,12 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   private fun handleFlush(call: MethodCall, result: Result) {
-    appEventsLogger.flush()
+    appEventsLogger?.flush()
     result.success(null)
   }
 
   private fun handleGetApplicationId(call: MethodCall, result: Result) {
-    result.success(appEventsLogger.applicationId)
+    result.success(appEventsLogger?.applicationId)
   }
  private fun handleGetAnonymousId(call: MethodCall, result: Result) {
     result.success(anonymousId)
@@ -112,14 +112,14 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
 
     if (valueToSum != null && parameters != null) {
       val parameterBundle = createBundleFromMap(parameters)
-      appEventsLogger.logEvent(eventName, valueToSum, parameterBundle)
+      appEventsLogger?.logEvent(eventName, valueToSum, parameterBundle)
     } else if (valueToSum != null) {
-      appEventsLogger.logEvent(eventName, valueToSum)
+      appEventsLogger?.logEvent(eventName, valueToSum)
     } else if (parameters != null) {
       val parameterBundle = createBundleFromMap(parameters)
-      appEventsLogger.logEvent(eventName, parameterBundle)
+      appEventsLogger?.logEvent(eventName, parameterBundle)
     } else {
-      appEventsLogger.logEvent(eventName)
+      appEventsLogger?.logEvent(eventName)
     }
 
     result.success(null)
@@ -131,9 +131,9 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     val payloadBundle = createBundleFromMap(payload)!!
 
     if (action != null) {
-      appEventsLogger.logPushNotificationOpen(payloadBundle, action)
+      appEventsLogger?.logPushNotificationOpen(payloadBundle, action)
     } else {
-      appEventsLogger.logPushNotificationOpen(payloadBundle)
+      appEventsLogger?.logPushNotificationOpen(payloadBundle)
     }
 
     result.success(null)

@@ -1,15 +1,15 @@
 PODS:
   - facebook_app_events (0.0.1):
     - FBAudienceNetwork (~> 6.12)
-    - FBSDKCoreKit (~> 15.1)
+    - FBSDKCoreKit (~> 16.0)
     - Flutter
-  - FBAEMKit (15.1.0):
-    - FBSDKCoreKit_Basics (= 15.1.0)
+  - FBAEMKit (16.0.1):
+    - FBSDKCoreKit_Basics (= 16.0.1)
   - FBAudienceNetwork (6.12.0)
-  - FBSDKCoreKit (15.1.0):
-    - FBAEMKit (= 15.1.0)
-    - FBSDKCoreKit_Basics (= 15.1.0)
-  - FBSDKCoreKit_Basics (15.1.0)
+  - FBSDKCoreKit (16.0.1):
+    - FBAEMKit (= 16.0.1)
+    - FBSDKCoreKit_Basics (= 16.0.1)
+  - FBSDKCoreKit_Basics (16.0.1)
   - Flutter (1.0.0)
 
 DEPENDENCIES:

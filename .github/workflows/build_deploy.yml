@@ -5,11 +5,85 @@ on:
       - main
       - develop
 jobs:
+  build_example:
+    name: Build Example App    
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: true
+      matrix:
+        platform:
+          - apk
+          - ios
+        os:
+          - ubuntu-latest
+          - macos-latest
+        exclude:
+          # Skip build combinations where Android is attempted to build on MacOS
+          # and iOS attempt to build on Ubuntu.
+          - os: macos-latest
+            platform: apk
+          - os: ubuntu-latest
+            platform: ios
+
+          # TODO(Dennis): iOS builds aren't properly configured yet. Fix and
+          # uncomment this exclusion
+          # https://github.com/oddbit/flutter_facebook_app_events/actions/runs/3365684172/jobs/5581387481
+          - platform: ios 
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+
+      - name: Cache packages
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.PUB_CACHE }}
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ runner.os }}-pub-
+
+      - run: flutter pub get
+
+      - name: Configure iOS build environment
+        if: matrix.platform == 'ios'
+        run: |
+          echo "FLUTTER_EXTRA_PARAMS=--no-codesign" >> $GITHUB_ENV
+
+      - name: Activate iOS Pods Cache
+        uses: actions/cache@v3
+        if: matrix.platform == 'ios'
+        with:
+          path: example/ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: ${{ runner.os }}-pods-
+
+      - run: flutter doctor
+
+      - name: Build Flutter
+        working-directory: ./example
+        run: >-
+          flutter
+          build ${{ matrix.platform }}
+          ${{ env.FLUTTER_EXTRA_PARAMS }}
+
+      - name: Build iOS IPA with Fastlane
+        if: matrix.platform == 'ios'
+        uses: maierj/fastlane-action@v2.0.1
+        with:
+          lane: ${{ env.FASTLANE_BUILD_LANE }}
+          subdirectory: "ios"
+
   publish:
     name: Publish Plugin
     runs-on: ubuntu-latest
     container:
       image:  google/dart:latest
+    needs: build_example
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
     - uses: actions/checkout@v3
     - name: Setup credentials

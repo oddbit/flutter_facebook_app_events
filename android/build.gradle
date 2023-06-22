@@ -25,6 +25,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
+    namespace 'id.oddbit.flutter.facebook_app_events'
     compileSdkVersion 28
 
     sourceSets {

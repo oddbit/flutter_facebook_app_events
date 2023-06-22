@@ -26,6 +26,7 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
+    namespace 'id.oddbit.flutter.facebook_app_events_example'
     compileSdkVersion 31
 
     sourceSets {

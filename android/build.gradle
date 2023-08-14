@@ -51,5 +51,5 @@ dependencies {
     // About the version syntax:
     //  - https://github.com/oddbit/flutter_facebook_app_events/pull/189#discussion_r768267841
     //  - https://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm#MAVEN402
-    implementation 'com.facebook.android:facebook-android-sdk:[15.0,16.0)'
+    implementation 'com.facebook.android:facebook-android-sdk:[16.0,17.0)'
 }

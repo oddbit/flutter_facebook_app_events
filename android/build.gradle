@@ -26,7 +26,7 @@ apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 28
-
+    namespace 'id.oddbit.flutter.facebook_app_events'
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }

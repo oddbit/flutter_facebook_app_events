@@ -298,6 +298,7 @@ class FacebookAppEvents {
     int? numItems,
     bool paymentInfoAvailable = false,
     String? orderId,
+    Map<String, dynamic>? content,
   }) {
     return logEvent(
       name: eventNameInitiatedCheckout,
@@ -309,6 +310,7 @@ class FacebookAppEvents {
         paramNameCurrency: currency,
         paramNamePaymentInfoAvailable: paymentInfoAvailable ? paramValueYes : paramValueNo,
         paramNameOrderId: orderId,
+        if (content?.isNotEmpty == true) paramNameContent: jsonEncode(content!)
       },
     );
   }

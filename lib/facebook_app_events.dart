@@ -9,8 +9,7 @@ class FacebookAppEvents {
   static const _channel = MethodChannel(channelName);
 
   // See: https://github.com/facebook/facebook-android-sdk/blob/master/facebook-core/src/main/java/com/facebook/appevents/AppEventsConstants.java
-  static const eventNameCompletedRegistration =
-      'fb_mobile_complete_registration';
+  static const eventNameCompletedRegistration = 'fb_mobile_complete_registration';
   static const eventNameViewedContent = 'fb_mobile_content_view';
   static const eventNameRated = 'fb_mobile_rate';
   static const eventNameInitiatedCheckout = 'fb_mobile_initiated_checkout';
@@ -20,6 +19,7 @@ class FacebookAppEvents {
   static const eventNameStartTrial = "StartTrial";
   static const eventNameAdImpression = "AdImpression";
   static const eventNameAdClick = "AdClick";
+  static const eventNameSearch = "fb_mobile_search";
 
   static const _paramNameValueToSum = "_valueToSum";
   static const paramNameAdType = "fb_ad_type";
@@ -44,6 +44,10 @@ class FacebookAppEvents {
   /// Parameter key used to specify an ID for the specific piece of content being logged about.
   /// This could be an EAN, article identifier, etc., depending on the nature of the app.
   static const paramNameContentId = "fb_content_id";
+
+  static const paramNameSearchString = "fb_search_string";
+
+  static const paramNameContentCategory = "fb_content_category";
 
   /// Clears the current user data
   Future<void> clearUserData() {
@@ -207,6 +211,24 @@ class FacebookAppEvents {
     );
   }
 
+  Future<void> logSearch({
+    required String contentCategory,
+    required String id,
+    required String contentType,
+    required String currency,
+    required String searchString,
+    Map<String, dynamic>? content,
+  }) {
+    return logEvent(name: eventNameSearch, parameters: {
+      paramNameContent: content != null ? json.encode(content) : null,
+      paramNameContentId: id,
+      paramNameContentType: contentType,
+      paramNameSearchString: searchString,
+      paramNameContentCategory: contentCategory,
+      paramNameCurrency: currency,
+    });
+  }
+
   /// Log this event when the user has added item to cart
   ///
   /// See: https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html/#eventnameaddedtowishlist
@@ -284,8 +306,7 @@ class FacebookAppEvents {
         paramNameContentId: contentId,
         paramNameNumItems: numItems,
         paramNameCurrency: currency,
-        paramNamePaymentInfoAvailable:
-            paymentInfoAvailable ? paramValueYes : paramValueNo,
+        paramNamePaymentInfoAvailable: paymentInfoAvailable ? paramValueYes : paramValueNo,
       },
     );
   }

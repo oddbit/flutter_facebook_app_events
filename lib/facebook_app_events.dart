@@ -212,15 +212,15 @@ class FacebookAppEvents {
   }
 
   Future<void> logSearch({
-    required String contentCategory,
+    String? contentCategory,
+    String? contentType,
+    String? currency,
+    String? searchString,
+    required Map<String, dynamic> content,
     required String id,
-    required String contentType,
-    required String currency,
-    required String searchString,
-    Map<String, dynamic>? content,
   }) {
     return logEvent(name: eventNameSearch, parameters: {
-      paramNameContent: content != null ? json.encode(content) : null,
+      paramNameContent: json.encode(content),
       paramNameContentId: id,
       paramNameContentType: contentType,
       paramNameSearchString: searchString,

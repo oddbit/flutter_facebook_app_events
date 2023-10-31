@@ -217,7 +217,7 @@ class FacebookAppEvents {
     String? currency,
     String? searchString,
     required Map<String, dynamic> content,
-    required String id,
+    String? id,
   }) {
     return logEvent(name: eventNameSearch, parameters: {
       paramNameContent: json.encode(content),

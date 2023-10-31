@@ -297,6 +297,7 @@ class FacebookAppEvents {
     String? contentId,
     int? numItems,
     bool paymentInfoAvailable = false,
+    String? orderId,
   }) {
     return logEvent(
       name: eventNameInitiatedCheckout,
@@ -307,6 +308,7 @@ class FacebookAppEvents {
         paramNameNumItems: numItems,
         paramNameCurrency: currency,
         paramNamePaymentInfoAvailable: paymentInfoAvailable ? paramValueYes : paramValueNo,
+        paramNameOrderId: orderId,
       },
     );
   }

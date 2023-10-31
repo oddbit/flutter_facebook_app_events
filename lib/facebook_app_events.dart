@@ -30,6 +30,7 @@ class FacebookAppEvents {
   static const paramNameNumItems = "fb_num_items";
   static const paramValueYes = "1";
   static const paramValueNo = "0";
+  static const paramNameName = "fb_content_name";
 
   /// Parameter key used to specify a generic content type/family for the logged event, e.g.
   /// "music", "photo", "video".  Options to use will vary depending on the nature of the app.
@@ -176,6 +177,7 @@ class FacebookAppEvents {
     String? type,
     String? currency,
     double? price,
+    String? contentName,
   }) {
     return logEvent(
       name: eventNameViewedContent,
@@ -184,6 +186,7 @@ class FacebookAppEvents {
         paramNameContentId: id,
         paramNameContentType: type,
         paramNameCurrency: currency,
+        paramNameName: contentName,
       },
       valueToSum: price,
     );

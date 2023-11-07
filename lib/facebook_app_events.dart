@@ -203,6 +203,8 @@ class FacebookAppEvents {
     required String type,
     required String currency,
     required double price,
+    required String contentName, 
+    required String contentCategory,
   }) {
     return logEvent(
       name: eventNameAddedToCart,
@@ -211,6 +213,8 @@ class FacebookAppEvents {
         paramNameContentId: id,
         paramNameContentType: type,
         paramNameCurrency: currency,
+        paramNameName: contentName,
+        paramNameContentCategory: contentCategory,
       },
       valueToSum: price,
     );

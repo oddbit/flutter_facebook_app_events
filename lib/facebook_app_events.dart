@@ -178,6 +178,7 @@ class FacebookAppEvents {
     String? currency,
     double? price,
     String? contentName,
+    String? contentCategory,
   }) {
     return logEvent(
       name: eventNameViewedContent,
@@ -187,6 +188,7 @@ class FacebookAppEvents {
         paramNameContentType: type,
         paramNameCurrency: currency,
         paramNameName: contentName,
+        paramNameContentCategory: contentCategory,
       },
       valueToSum: price,
     );

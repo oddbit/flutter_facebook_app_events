@@ -203,7 +203,7 @@ class FacebookAppEvents {
     required String type,
     required String currency,
     required double price,
-    required String contentName, 
+    required String contentName,
     required String contentCategory,
   }) {
     return logEvent(
@@ -225,11 +225,11 @@ class FacebookAppEvents {
     String? contentType,
     String? currency,
     String? searchString,
-    required Map<String, dynamic> content,
+    Map<String, dynamic>? content,
     String? id,
   }) {
     return logEvent(name: eventNameSearch, parameters: {
-      paramNameContent: json.encode(content),
+      if (content?.isNotEmpty == true) paramNameContent: json.encode(content),
       paramNameContentId: id,
       paramNameContentType: contentType,
       paramNameSearchString: searchString,

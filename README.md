@@ -19,11 +19,14 @@ You must first create an app at Facebook for developers: https://developers.face
 
 ### Configure Android
 
-Read through the "[Getting Started with App Events for Android](https://developers.facebook.com/docs/app-events/getting-started-app-events-android)" tutorial and in particular, follow [step 3](https://developers.facebook.com/docs/app-events/getting-started-app-events-android#step-3--integrate-the-facebook-sdk-in-your-android-app) by adding the following into `/app/res/values/strings.xml` (or into respective `debug` or `release` build flavor)
+Read through the "[Getting Started with App Events for Android](https://developers.facebook.com/docs/app-events/getting-started-app-events-android)" tutorial and in particular, follow [step 3](https://developers.facebook.com/docs/app-events/getting-started-app-events-android#step-3--integrate-the-facebook-sdk-in-your-android-app) by adding the following into `android/app/src/main/res/values/strings.xml` (or into respective `debug` or `release` build flavor)
 
 ```xml
-<string name="facebook_app_id">[APP_ID]</string>
-<string name="facebook_client_token">[CLIENT_TOKEN]</string>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="facebook_app_id">[APP_ID]</string>
+  <string name="facebook_client_token">[CLIENT_TOKEN]</string>
+</resources>
 ```
 
 After that, add that string resource reference to your main `AndroidManifest.xml` file, directly under the `<application>` tag.

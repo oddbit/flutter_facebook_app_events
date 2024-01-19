@@ -140,13 +140,11 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     private func handlePushNotificationOpen(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let arguments = call.arguments as? [String: Any] ?? [String: Any]()
         let payload = arguments["payload"] as? [String: Any]
-        if let action = arguments["action"] {
-            let actionString = action as! String
-            AppEvents.shared.logPushNotificationOpen(payload: payload!, action: actionString)
+        if let action = arguments["action"] as? String {
+            AppEvents.shared.logPushNotificationOpen(payload: payload!, action: action)
         } else {
             AppEvents.shared.logPushNotificationOpen(payload: payload!)
         }
-
         result(nil)
     }
 

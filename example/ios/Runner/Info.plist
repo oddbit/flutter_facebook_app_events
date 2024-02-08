@@ -58,5 +58,7 @@
 	<string>0e7f593f9847ba94bb65ec68d1bed96c</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 </dict>
 </plist>

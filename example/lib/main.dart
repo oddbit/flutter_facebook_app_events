@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:facebook_app_events/facebook_app_events.dart';
+import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
 

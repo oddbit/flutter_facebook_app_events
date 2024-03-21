@@ -2,11 +2,11 @@ name: Publish package to pub.dev
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+*'
+      - "v[0-9]+.[0-9]+.[0-9]+*"
 
 jobs:
   build_example:
-    name: Build Example App    
+    name: Build Example App
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
@@ -29,7 +29,7 @@ jobs:
           # TODO(Dennis): iOS builds aren't properly configured yet. Fix and
           # uncomment this exclusion
           # https://github.com/oddbit/flutter_facebook_app_events/actions/runs/3365684172/jobs/5581387481
-          - platform: ios 
+          - platform: ios
 
     steps:
       - uses: actions/checkout@v4
@@ -84,10 +84,9 @@ jobs:
       id-token: write
     needs: build_example
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - uses: dart-lang/setup-dart@v1
-    
-    - name: Publish package
-      run: dart pub publish --force
-    
+      - uses: dart-lang/setup-dart@v1
+
+      - name: Publish package
+        run: flutter pub publish --force

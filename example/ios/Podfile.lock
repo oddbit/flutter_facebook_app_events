@@ -1,15 +1,15 @@
 PODS:
   - facebook_app_events (0.0.1):
-    - FBAudienceNetwork (~> 6.12)
-    - FBSDKCoreKit (~> 16.0)
+    - FBAudienceNetwork (~> 6.14)
+    - FBSDKCoreKit (~> 16.2.1)
     - Flutter
-  - FBAEMKit (16.0.1):
-    - FBSDKCoreKit_Basics (= 16.0.1)
-  - FBAudienceNetwork (6.12.0)
-  - FBSDKCoreKit (16.0.1):
-    - FBAEMKit (= 16.0.1)
-    - FBSDKCoreKit_Basics (= 16.0.1)
-  - FBSDKCoreKit_Basics (16.0.1)
+  - FBAEMKit (16.2.1):
+    - FBSDKCoreKit_Basics (= 16.2.1)
+  - FBAudienceNetwork (6.14.0)
+  - FBSDKCoreKit (16.2.1):
+    - FBAEMKit (= 16.2.1)
+    - FBSDKCoreKit_Basics (= 16.2.1)
+  - FBSDKCoreKit_Basics (16.2.1)
   - Flutter (1.0.0)
 
 DEPENDENCIES:
@@ -30,13 +30,13 @@ EXTERNAL SOURCES:
     :path: Flutter
 
 SPEC CHECKSUMS:
-  facebook_app_events: deb163f1f7fa13213192532bbc84ff0b0d798bc2
-  FBAEMKit: daac7466b918752f020345be5c7d9787f98cfc07
-  FBAudienceNetwork: e0fcc9091fced34910ed0b6da06f129db46ac9e6
-  FBSDKCoreKit: 2cb033464b2134af0138f87d20b859eb3f9be359
-  FBSDKCoreKit_Basics: d37280da2e65872f0e931d15f45d97ea324fec37
+  facebook_app_events: e190e2cbcfadb452943234abae09768fe5e7cfb1
+  FBAEMKit: 4763aa27b8f69eb9d2c274189e91388de1dbd88a
+  FBAudienceNetwork: 4d6223a9a88a22e9dca8c9e6c1829a8745b86228
+  FBSDKCoreKit: 40ae989ca1da1bbeba56acd4671dde64ad415506
+  FBSDKCoreKit_Basics: 1257d71d2d692661290bf2af4bea5f9a101387af
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
 
 PODFILE CHECKSUM: ef19549a9bc3046e7bb7d2fab4d021637c0c58a3
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.13.0

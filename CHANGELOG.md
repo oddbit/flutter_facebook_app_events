@@ -1,5 +1,12 @@
+## 0.19.1
+- Updating `FBSDKCoreKit` to `16.1` (PR [#309](https://github.com/oddbit/flutter_facebook_app_events/pull/309))
+- Bump up android gradle version (PR [#310](https://github.com/oddbit/flutter_facebook_app_events/pull/310))
+- Handle open push notification issue (PR [#334](https://github.com/oddbit/flutter_facebook_app_events/pull/334))
+- Add compileOption and kotlinOption (PR [#321](https://github.com/oddbit/flutter_facebook_app_events/pull/321))
+
 ## 0.19.0
 - Updating `FBSDKCoreKit` to `16` (PR [#296](https://github.com/oddbit/flutter_facebook_app_events/pull/296))
+
 ## 0.18.3
 - Fixing issues [#270](https://github.com/oddbit/flutter_facebook_app_events/issues/270) and [#272](https://github.com/oddbit/flutter_facebook_app_events/issues/272)
 - Updating `FBSDKCoreKit` to `15.1`

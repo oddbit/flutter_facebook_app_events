@@ -1,9 +1,9 @@
 name: Publish package to pub.dev
 on:
   push:
-    branches:
-      - main
-      - develop
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
 jobs:
   build_example:
     name: Build Example App    
@@ -32,7 +32,7 @@ jobs:
           - platform: ios 
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -40,7 +40,7 @@ jobs:
           channel: "stable"
 
       - name: Cache packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.PUB_CACHE }}
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
@@ -54,7 +54,7 @@ jobs:
           echo "FLUTTER_EXTRA_PARAMS=--no-codesign" >> $GITHUB_ENV
 
       - name: Activate iOS Pods Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         if: matrix.platform == 'ios'
         with:
           path: example/ios/Pods
@@ -79,24 +79,16 @@ jobs:
 
   publish:
     name: Publish Plugin
-    runs-on: ubuntu-latest
-    container:
-      image:  google/dart:latest
-    needs: build_example
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    needs: build_example
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup credentials
-      run: | 
-        mkdir -p ~/.pub-cache 
-        cat <<EOF > ~/.pub-cache/credentials.json
-        {
-          "accessToken":"${{ secrets.OAUTH_ACCESS_TOKEN }}",
-          "refreshToken":"${{ secrets.OAUTH_REFRESH_TOKEN }}",
-          "tokenEndpoint":"https://accounts.google.com/o/oauth2/token",
-          "scopes": [ "openid", "https://www.googleapis.com/auth/userinfo.email" ],
-          "expiration": 1570721159347
-        }
-        EOF
+    - uses: actions/checkout@v4
+
+    - uses: dart-lang/setup-dart@v1
+    
     - name: Publish package
-      run: pub publish -f
+      run: dart pub publish --force
+    

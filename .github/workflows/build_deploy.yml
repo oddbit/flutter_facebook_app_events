@@ -82,6 +82,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
+    container:
+      image:  google/dart:latest
     needs: build_example
     steps:
       - uses: actions/checkout@v4
@@ -89,4 +91,4 @@ jobs:
       - uses: dart-lang/setup-dart@v1
 
       - name: Publish package
-        run: flutter pub publish --force
+        run: pub publish --force

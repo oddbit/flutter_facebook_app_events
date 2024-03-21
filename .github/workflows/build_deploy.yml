@@ -82,8 +82,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-    container:
-      image:  google/dart:latest
     needs: build_example
     steps:
       - uses: actions/checkout@v4

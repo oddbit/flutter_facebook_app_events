@@ -1,3 +1,8 @@
+## 0.19.2
+- Updating `FBSDKCoreKit` to `17.0` that include Privacy Manifest
+- Updating `FBAudienceNetwork` to `6.15`
+- Update iOS deployment target to `12.0`
+
 ## 0.19.1
 - Updating `FBSDKCoreKit` to `16.1` (PR [#309](https://github.com/oddbit/flutter_facebook_app_events/pull/309))
 - Bump up android gradle version (PR [#310](https://github.com/oddbit/flutter_facebook_app_events/pull/310))

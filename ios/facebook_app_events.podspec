@@ -18,9 +18,9 @@ Flutter plugin for Facebook Analytics and App Events
 
   # Do not specify PATCH version of FBSDKCoreKit. See README file for explanation
   # https://github.com/oddbit/flutter_facebook_app_events#dependencies-on-facebook-sdk
-  s.dependency 'FBSDKCoreKit', '~> 17.0'
+  s.dependency 'FBSDKCoreKit', '~> 17.0.2'
   
   # See docs on FBAudienceNetwork
   # https://developers.facebook.com/docs/audience-network/setting-up/platform-setup/ios/add-sdk/
-  s.dependency 'FBAudienceNetwork', '~> 6.15'
+  s.dependency 'FBAudienceNetwork', '~> 6.15.1'
 end

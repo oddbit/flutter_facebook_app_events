@@ -1,6 +1,7 @@
 ## 0.19.3
 - Bump up `FBSDKCoreKit` android gradle version to `17.0` to `18.0`
 - Update ios example minimum deployment target to `12.0`
+- Update target compile sdk in android gradle example to `34`
 
 ## 0.19.2
 - Updating `FBSDKCoreKit` to `17.0` that include Privacy Manifest

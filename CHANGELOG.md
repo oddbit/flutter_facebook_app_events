@@ -1,6 +1,6 @@
 ## 0.19.4
-- Set `FBAudienceNetwork` iOS exact version `6.15.0` due to stability issue
-- Update iOS properties
+- Updating `FBAudienceNetwork`to version `6.16`
+- Updating iOS properties
 
 ## 0.19.3
 - Bump up `FBSDKCoreKit` android gradle version to `17.0` to `18.0`

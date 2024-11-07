@@ -1,3 +1,6 @@
+## 0.19.5
+- Removes references to Flutter v1 android embedding classes.
+
 ## 0.19.4
 - Updating `FBAudienceNetwork`to version `6.16`
 - Updating iOS properties

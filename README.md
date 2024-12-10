@@ -26,6 +26,8 @@ Read through the "[Getting Started with App Events for Android](https://develope
 <resources>
   <string name="facebook_app_id">[APP_ID]</string>
   <string name="facebook_client_token">[CLIENT_TOKEN]</string>
+  <string name="fb_login_protocol_scheme">fb[APP_ID]</string>
+  <string name="app_name">[APP_NAME]</string>
 </resources>
 ```
 

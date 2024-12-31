@@ -10,16 +10,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Verify Platform version', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('App renders correctly with all components',
+      (WidgetTester tester) async {
     await tester.pumpWidget(MyApp());
+    await tester.pumpAndSettle();
 
-    // Verify that platform version is retrieved.
+    // Verify app bar
+    expect(find.text('Plugin example app'), findsOneWidget);
+
+    // Verify Anonymous ID text
+    expect(find.textContaining('Anonymous ID:'), findsOneWidget);
+
+    // Verify all buttons exist
+    expect(find.text('Click me!'), findsOneWidget);
+    expect(find.text('Set user data'), findsOneWidget);
+    expect(find.text('Test logAddToCart'), findsOneWidget);
+    expect(find.text('Test purchase!'), findsOneWidget);
+    expect(find.text('Enable advertise tracking!'), findsOneWidget);
+    expect(find.text('Disabled advertise tracking!'), findsOneWidget);
+  });
+
+  testWidgets('Button text content', (WidgetTester tester) async {
+    await tester.pumpWidget(MyApp());
+    await tester.pumpAndSettle();
+
+    // Verify button texts
+    expect(find.widgetWithText(MaterialButton, 'Click me!'), findsOneWidget);
     expect(
-      find.byWidgetPredicate(
-        (Widget widget) => widget is Text && widget.data!.startsWith('Running on:'),
-      ),
-      findsOneWidget,
-    );
+        find.widgetWithText(MaterialButton, 'Set user data'), findsOneWidget);
+    expect(find.widgetWithText(MaterialButton, 'Test logAddToCart'),
+        findsOneWidget);
+    expect(
+        find.widgetWithText(MaterialButton, 'Test purchase!'), findsOneWidget);
+    expect(find.widgetWithText(MaterialButton, 'Enable advertise tracking!'),
+        findsOneWidget);
+    expect(find.widgetWithText(MaterialButton, 'Disabled advertise tracking!'),
+        findsOneWidget);
   });
 }

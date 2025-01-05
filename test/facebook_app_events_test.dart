@@ -1,6 +1,6 @@
+import 'package:facebook_app_events/facebook_app_events.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:facebook_app_events/facebook_app_events.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -8,17 +8,22 @@ void main() {
   const channel = MethodChannel(channelName);
   final facebookAppEvents = FacebookAppEvents();
 
-
   MethodCall? methodCall;
 
   setUp(() async {
-    channel.setMockMethodCallHandler((MethodCall m) async {
-      methodCall = m;
-    });
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      channel,
+      (MethodCall m) async {
+        methodCall = m;
+        return null;
+      },
+    );
   });
 
   tearDown(() {
-    channel.setMockMethodCallHandler(null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, null);
     methodCall = null;
   });
 

@@ -1,3 +1,9 @@
+## 0.19.5
+- Bump up android gradle version to `8.11.1`
+- Update gradle syntax to use declarative style
+- Update Facebook app events unit tests from using deprecated setMockMethodCallHandler method
+- Enhance widget tests to verify example app rendering and button text content
+
 ## 0.19.4
 - Updating `FBAudienceNetwork`to version `6.16`
 - Updating iOS properties

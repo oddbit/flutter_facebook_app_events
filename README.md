@@ -19,13 +19,15 @@ You must first create an app at Facebook for developers: https://developers.face
 
 ### Configure Android
 
-Read through the "[Getting Started with App Events for Android](https://developers.facebook.com/docs/app-events/getting-started-app-events-android)" tutorial and in particular, follow [step 3](https://developers.facebook.com/docs/app-events/getting-started-app-events-android#step-3--integrate-the-facebook-sdk-in-your-android-app) by adding the following into `android/app/src/main/res/values/strings.xml` (or into respective `debug` or `release` build flavor)
+Read through the "[Get Started with App Events (Android)](https://developers.facebook.com/docs/app-events/getting-started-app-events-android)" and "[Getting Started with the Facebook SDK for Android](https://developers.facebook.com/docs/android/getting-started)" tutorial. In particular, follow [Update Your Manifest](https://developers.facebook.com/docs/android/getting-started#add-app_id) step by adding the following into `android/app/src/main/res/values/strings.xml` (or into respective `debug` or `release` build flavor)  
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="facebook_app_id">[APP_ID]</string>
   <string name="facebook_client_token">[CLIENT_TOKEN]</string>
+  <string name="fb_login_protocol_scheme">fb[APP_ID]</string>
+  <string name="app_name">[APP_NAME]</string>
 </resources>
 ```
 

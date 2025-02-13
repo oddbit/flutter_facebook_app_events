@@ -1,3 +1,6 @@
+## 0.19.6
+- Removed "import io.flutter.plugin.common.PluginRegistry.Registrar"
+
 ## 0.19.5
 - Bump up android gradle version to `8.11.1`
 - Update gradle syntax to use declarative style

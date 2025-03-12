@@ -61,6 +61,6 @@ android {
         // About the version syntax:
         //  - https://github.com/oddbit/flutter_facebook_app_events/pull/189#discussion_r768267841
         //  - https://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm#MAVEN402
-        implementation("com.facebook.android:facebook-android-sdk:[17.0,18.0)")
+        implementation("com.facebook.android:facebook-android-sdk:[18.0,19.0)")
     }
 }

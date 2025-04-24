@@ -1,3 +1,6 @@
+## 0.19.7
+- Update iOS `FBSDKCoreKit` to `18.0`
+
 ## 0.19.6
 - Removed "import io.flutter.plugin.common.PluginRegistry.Registrar"
 

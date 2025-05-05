@@ -1,3 +1,8 @@
+## 0.20.0
+- Upgrade Facebook SDK to v21.0.0
+  - Updated iOS FBSDKCoreKit to 21.0.0
+  - Updated Android Facebook Core SDK to 21.0.0
+
 ## 0.19.7
 - Update iOS `FBSDKCoreKit` to `18.0`
 

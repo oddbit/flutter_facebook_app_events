@@ -1,6 +1,6 @@
 PODS:
   - facebook_app_events (0.0.1):
-    - FBAudienceNetwork (= 6.16)
+    - FBAudienceNetwork (~> 6.16)
     - FBSDKCoreKit (~> 18.0)
     - Flutter
   - FBAEMKit (18.0.0):
@@ -30,7 +30,7 @@ EXTERNAL SOURCES:
     :path: Flutter
 
 SPEC CHECKSUMS:
-  facebook_app_events: 015d0181fcb1bf667ada2b8f02d0f53b9ea296dc
+  facebook_app_events: 9699d8bc86de1a27e30b3d7a074d7324bfcdb026
   FBAEMKit: e34530df538b8eb8aeb53c35867715ba6c63ef0c
   FBAudienceNetwork: d1670939884e3a2e0ad98dca98d7e0c841417228
   FBSDKCoreKit: d3f479a69127acebb1c6aad91c1a33907bcf6c2f

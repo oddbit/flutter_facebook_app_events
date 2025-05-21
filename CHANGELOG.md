@@ -1,5 +1,5 @@
 ## 0.19.8
-- Update Android `FBSDKCoreKit` to minimal version `18.0` to `19.0`
+- Update Android `FBSDKCoreKit` to version `18.0` to `19.0`
 - Update FBAudienceNetwork to optimistic `6.17`
 - Merge option to set debug enabled feature
 

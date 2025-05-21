@@ -14,6 +14,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.util.Currency
+import com.facebook.LoggingBehavior
 
 /** FacebookAppEventsPlugin */
 class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
@@ -99,8 +100,16 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
  private fun handleGetAnonymousId(call: MethodCall, result: Result) {
     result.success(anonymousId)
   }
-  //not an android implementation as of yet
+  
   private fun handleSetAdvertiserTracking(call: MethodCall, result: Result) {
+    val enabled = call.argument("enabled") as? Boolean ?: false
+    val collectId = call.argument("collectId") as? Boolean ?: false
+    FacebookSdk.setIsDebugEnabled(enabled)
+    // Enable logging for debug builds
+    if (enabled && BuildConfig.BUILD_TYPE == "debug") {
+      FacebookSdk.addLoggingBehavior(LoggingBehavior.APP_EVENTS)
+      FacebookSdk.addLoggingBehavior(LoggingBehavior.REQUESTS)
+    }
     result.success(null);
   }
 

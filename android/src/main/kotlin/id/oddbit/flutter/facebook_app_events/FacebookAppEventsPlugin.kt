@@ -104,6 +104,7 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   private fun handleSetAdvertiserTracking(call: MethodCall, result: Result) {
     val enabled = call.argument("enabled") as? Boolean ?: false
     val collectId = call.argument("collectId") as? Boolean ?: false
+    FacebookSdk.setAdvertiserIDCollectionEnabled(collectId)
     FacebookSdk.setIsDebugEnabled(enabled)
     // Enable logging for debug builds
     if (enabled && BuildConfig.BUILD_TYPE == "debug") {

@@ -290,8 +290,7 @@ class FacebookAppEvents {
     );
   }
 
-  /// Sets the Advert Tracking propeety for iOS advert tracking
-  /// an iOS 14+ feature, android should just return a success.
+  /// Sets the Advert Tracking property
   Future<void> setAdvertiserTracking({
     required bool enabled,
     bool collectId = true,

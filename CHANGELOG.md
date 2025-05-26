@@ -1,3 +1,8 @@
+## 0.20.0
+- Update Android `FBSDKCoreKit` to version `18.0` to `19.0`
+- Update iOS FBAudienceNetwork to `~> 6.17`
+- Merge option to set debug enabled feature
+
 ## 0.19.7
 - Update iOS `FBSDKCoreKit` to `18.0`
 

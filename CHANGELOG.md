@@ -1,3 +1,6 @@
+## 0.20.1
+Updating example app 
+
 ## 0.20.0
 ### ⚠️ Breaking Changes
 - **Remove iOS FBAudienceNetwork dependency** - If your app depends on FBAudienceNetwork framework, you'll need to include it separately in your app

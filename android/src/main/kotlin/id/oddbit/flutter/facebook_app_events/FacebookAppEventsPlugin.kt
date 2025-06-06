@@ -116,6 +116,10 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
 
   private fun handleLogEvent(call: MethodCall, result: Result) {
     val eventName = call.argument<String>("name")
+    if (eventName == null) {
+      result.error("INVALID_ARGUMENT", "Event name is required and cannot be null.", null)
+      return
+    }
     val parameters = call.argument<Map<String, Any>>("parameters")
     val valueToSum = call.argument<Double>("_valueToSum")
 

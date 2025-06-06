@@ -65,7 +65,7 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   }
 
  private fun handleSetUserData(call: MethodCall, result: Result) {
-    val parameters = call.argument<Map<String, Any>>("parameters")
+    val parameters = call.argument<Map<String, Any>>("parameters") ?: mapOf()
     val parameterBundle = createBundleFromMap(parameters)
 
     AppEventsLogger.setUserData(

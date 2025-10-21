@@ -22,3 +22,9 @@ allprojects {
         mavenCentral()
     }
 }
+
+// Custom clean task to ensure all build directories are deleted
+tasks.register('clean', Delete) {
+    delete rootProject.buildDir
+    subprojects.each { delete it.buildDir }
+}

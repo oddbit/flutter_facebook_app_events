@@ -1,3 +1,6 @@
+## 0.20.2
+- Add documentation for Facebook Event Manager "Please Upgrade SDK" warning (PR [#442](https://github.com/oddbit/flutter_facebook_app_events/pull/442))
+
 ## 0.20.1
 Updating example app 
 

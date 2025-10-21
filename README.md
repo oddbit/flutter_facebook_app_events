@@ -105,6 +105,44 @@ be a source of unexpected behavior for you if you are not aware of this. It is a
 alternative of locking into a specific MINOR version of the SDK, which might be causing incompatibilities 
 with your other plugins or dependencies.
 
+## Known Limitations
+
+### Facebook Event Manager "Please Upgrade SDK" Warning
+
+When setting up codeless events in Facebook Event Manager, you may encounter a warning message stating:
+> "To use the codeless event setup tool, you will need to update to Facebook SDK Version 4.34.0 or higher."
+
+**This is a known limitation of the Facebook Event Manager UI and does not indicate an actual problem with your SDK version.**
+
+#### Why This Happens
+
+- This plugin uses **Facebook SDK version 18.x** (the latest available version)
+- Facebook deprecated the umbrella pod `FacebookSDK` after version 11.2.1
+- Modern Facebook SDK uses individual component pods: `FBSDKCoreKit`, `FBSDKLoginKit`, `FBSDKShareKit`, etc.
+- The Facebook Event Manager UI was never updated to recognize this new pod structure
+- The warning message incorrectly suggests using the deprecated `FacebookSDK` umbrella pod
+
+#### What You Should Do
+
+**Do not downgrade your SDK version or try to use the deprecated `FacebookSDK` umbrella pod.** Instead:
+
+1. **Ignore the warning** - Your SDK is already up-to-date (version 18.x)
+2. **Codeless events should still work** despite the warning message
+3. Ensure your app is properly configured:
+   - iOS: Verify `FacebookAppID`, `FacebookClientToken`, and `FacebookDisplayName` are set in your `Info.plist`
+   - Android: Verify `facebook_app_id` and `facebook_client_token` are set in `strings.xml` and referenced in `AndroidManifest.xml`
+   - For codeless event debugging, enable `CodelessDebugLogEnabled` (see Facebook documentation)
+
+4. Test codeless events on a physical device by:
+   - Shaking the device to open the codeless event setup tool
+   - If the tool doesn't appear, check your app configuration and Facebook console logs
+
+**Note:** This is a cosmetic UI issue in Facebook's Event Manager tool. Your app is using the correct, up-to-date SDK version. The codeless events feature will function correctly with proper configuration, regardless of the warning message.
+
+For more details, see:
+- [GitHub Issue #402](https://github.com/oddbit/flutter_facebook_app_events/issues/402)
+- [Facebook iOS SDK Issue #2513](https://github.com/facebook/facebook-ios-sdk/issues/2513)
+
 
 ## Getting involved
 First of all, thank you for even considering to get involved. You are a real super :star: and we :heart: you! 

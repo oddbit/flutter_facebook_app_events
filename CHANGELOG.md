@@ -1,3 +1,6 @@
+## 0.21.0
+- Update plugin to support modern Flutter plugin API and Android Gradle Plugin (PR [#418](https://github.com/oddbit/flutter_facebook_app_events/pull/418))
+
 ## 0.20.2
 - Add documentation for Facebook Event Manager "Please Upgrade SDK" warning (PR [#442](https://github.com/oddbit/flutter_facebook_app_events/pull/442))
 

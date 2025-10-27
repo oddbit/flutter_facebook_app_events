@@ -36,6 +36,7 @@ jobs:
 
       # Ensure a compatible JDK for modern Android Gradle Plugin
       - name: Set up Java 17
+        if: matrix.platform == 'apk'
         uses: actions/setup-java@v4
         with:
           distribution: temurin

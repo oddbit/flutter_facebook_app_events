@@ -52,6 +52,4 @@ jobs:
         with:
           name: example-app-debug-apk
           path: |
-            example/build/app/outputs/flutter-apk/app-debug.apk
             example/build/app/outputs/apk/debug/*.apk
-            example/build/**/outputs/**/*.apk

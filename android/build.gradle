@@ -26,9 +26,6 @@ apply plugin: "kotlin-android"
 
 android {
     namespace "id.oddbit.flutter.facebook_app_events"
-    if (project.android.hasProperty("namespace")) {
-        namespace "id.oddbit.flutter.facebook_app_events"
-    }
 
     compileSdk = 34
 

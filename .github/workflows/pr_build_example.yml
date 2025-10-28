@@ -26,10 +26,6 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          api-level: 34
-          build-tools: 34.0.0
-          cache: true
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -53,19 +49,3 @@ jobs:
       - name: Build example APK (debug, verbose)
         working-directory: example
         run: flutter build apk --debug -v
-
-      - name: List Android outputs
-        working-directory: example
-        run: |
-          echo "Listing build/app/outputs:"
-          ls -R build/app/outputs || true
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: example-app-debug-apk
-          path: |
-            example/build/app/outputs/flutter-apk/app-debug.apk
-            example/build/app/outputs/apk/debug/*.apk
-            example/build/**/outputs/**/*.apk
-          if-no-files-found: warn

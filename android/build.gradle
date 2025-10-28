@@ -2,14 +2,14 @@ group = "id.oddbit.flutter.facebook_app_events"
 version = "1.0-SNAPSHOT"
 
 buildscript {
-    ext.kotlin_version = "1.8.22"
+    ext.kotlin_version = "1.9.24"
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:8.1.0")
+        classpath("com.android.tools.build:gradle:8.5.2")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
     }
 }
@@ -26,20 +26,16 @@ apply plugin: "kotlin-android"
 
 android {
     namespace "id.oddbit.flutter.facebook_app_events"
-    // Conditional for compatibility with AGP < 4.2
-    if (project.android.hasProperty("namespace")) {
-        namespace "id.oddbit.flutter.facebook_app_events"
-    }
 
     compileSdk = 34
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = "17"
     }
 
     sourceSets {
@@ -55,16 +51,7 @@ android {
     }
 
     dependencies {
-        // # READ THIS
-        // When updating the Facebook SDK. Please note these guidelines to avoid
-        // conflicts with other plugins that also rely on the FBSDK.
-        //
-        // - Only specify the major version of the SDK. 
-        // - Do **not** specify the `minor` or `patch` version.
-        //
-        // About the version syntax:
-        //  - https://github.com/oddbit/flutter_facebook_app_events/pull/189#discussion_r768267841
-        //  - https://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm#MAVEN402
+        // Keep major-only range per repo guidelines.
         implementation("com.facebook.android:facebook-android-sdk:[18.0,19.0)")
     }
 }

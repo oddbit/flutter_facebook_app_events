@@ -8,6 +8,11 @@ jobs:
     name: Android example build (debug)
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    permissions:
+      contents: read
+    env:
+      CI: true
+      GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.vfs.watch=false
 
     steps:
       - uses: actions/checkout@v4
@@ -17,6 +22,14 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: 34.0.0
+          cache: true
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -37,9 +50,9 @@ jobs:
         working-directory: example
         run: flutter clean
 
-      - name: Build example APK (debug)
+      - name: Build example APK (debug, verbose)
         working-directory: example
-        run: flutter build apk --debug
+        run: flutter build apk --debug -v
 
       - name: List Android outputs
         working-directory: example
@@ -52,4 +65,7 @@ jobs:
         with:
           name: example-app-debug-apk
           path: |
+            example/build/app/outputs/flutter-apk/app-debug.apk
             example/build/app/outputs/apk/debug/*.apk
+            example/build/**/outputs/**/*.apk
+          if-no-files-found: warn

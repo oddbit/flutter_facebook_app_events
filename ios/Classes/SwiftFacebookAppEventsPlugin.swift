@@ -33,43 +33,30 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         switch call.method {
         case "clearUserData":
             handleClearUserData(call, result: result)
-            break
         case "setUserData":
             handleSetUserData(call, result: result)
-            break
         case "clearUserID":
             handleClearUserID(call, result: result)
-            break
         case "flush":
             handleFlush(call, result: result)
-            break
         case "getApplicationId":
             handleGetApplicationId(call, result: result)
-            break
         case "logEvent":
             handleLogEvent(call, result: result)
-            break
         case "logPushNotificationOpen":
             handlePushNotificationOpen(call, result: result)
-            break
         case "setUserID":
             handleSetUserId(call, result: result)
-            break
         case "setAutoLogAppEventsEnabled":
             handleSetAutoLogAppEventsEnabled(call, result: result)
-            break
         case "setDataProcessingOptions":
             handleSetDataProcessingOptions(call, result: result)
-            break
         case "logPurchase":
             handlePurchased(call, result: result)
-            break
         case "getAnonymousId":
             handleHandleGetAnonymousId(call, result: result)
-            break
         case "setAdvertiserTracking":
             handleSetAdvertiserTracking(call, result: result)
-            break
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -80,8 +67,8 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         result(nil)
     }
 
-    private func handleSetUserData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {        
-        let arguments = call.arguments as? [String: Any] ?? [String: Any]()
+    private func handleSetUserData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let arguments = call.arguments as? [String: Any] ?? [:]
 
         AppEvents.shared.setUserData(arguments["email"] as? String, forType: FBSDKAppEventUserDataType.email)
         AppEvents.shared.setUserData(arguments["firstName"] as? String, forType: FBSDKAppEventUserDataType.firstName)
@@ -119,12 +106,14 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     }
 
     private func handleLogEvent(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let arguments = call.arguments as? [String: Any] ?? [String: Any]()
-        let eventName = arguments["name"] as! String
-        let parameters = arguments["parameters"] as? [AppEvents.ParameterName: Any] ?? [AppEvents.ParameterName: Any]()
-        if arguments["_valueToSum"] != nil && !(arguments["_valueToSum"] is NSNull) {
-            let valueToDouble = arguments["_valueToSum"] as! Double
-            AppEvents.shared.logEvent(AppEvents.Name(eventName), valueToSum: valueToDouble, parameters: parameters)
+        let arguments = call.arguments as? [String: Any] ?? [:]
+        guard let eventName = arguments["name"] as? String else {
+            result(FlutterError(code: "INVALID_ARGUMENT", message: "Event name is required and cannot be null.", details: nil))
+            return
+        }
+        let parameters = arguments["parameters"] as? [AppEvents.ParameterName: Any] ?? [:]
+        if let valueToSum = arguments["_valueToSum"] as? Double {
+            AppEvents.shared.logEvent(AppEvents.Name(eventName), valueToSum: valueToSum, parameters: parameters)
         } else {
             AppEvents.shared.logEvent(AppEvents.Name(eventName), parameters: parameters)
         }
@@ -133,24 +122,30 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     }
 
     private func handlePushNotificationOpen(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let arguments = call.arguments as? [String: Any] ?? [String: Any]()
-        let payload = arguments["payload"] as? [String: Any]
+        let arguments = call.arguments as? [String: Any] ?? [:]
+        guard let payload = arguments["payload"] as? [String: Any] else {
+            result(FlutterError(code: "INVALID_ARGUMENT", message: "Payload is required", details: nil))
+            return
+        }
         if let action = arguments["action"] as? String {
-            AppEvents.shared.logPushNotificationOpen(payload: payload!, action: action)
+            AppEvents.shared.logPushNotificationOpen(payload: payload, action: action)
         } else {
-            AppEvents.shared.logPushNotificationOpen(payload: payload!)
+            AppEvents.shared.logPushNotificationOpen(payload: payload)
         }
         result(nil)
     }
 
     private func handleSetUserId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let id = call.arguments as! String
+        guard let id = call.arguments as? String else {
+            result(FlutterError(code: "INVALID_ARGUMENT", message: "User ID is required", details: nil))
+            return
+        }
         AppEvents.shared.userID = id
         result(nil)
     }
 
     private func handleSetAutoLogAppEventsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let enabled = call.arguments as! Bool
+        let enabled = call.arguments as? Bool ?? false
         Settings.shared.isAutoLogAppEventsEnabled = enabled
         result(nil)
     }
@@ -164,10 +159,13 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     }
 
     private func handlePurchased(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let arguments = call.arguments as? [String: Any] ?? [String: Any]()
-        let amount = arguments["amount"] as! Double
-        let currency = arguments["currency"] as! String
-        let parameters = arguments["parameters"] as? [AppEvents.ParameterName: Any] ?? [AppEvents.ParameterName: Any]()
+        let arguments = call.arguments as? [String: Any] ?? [:]
+        guard let amount = arguments["amount"] as? Double,
+              let currency = arguments["currency"] as? String else {
+            result(FlutterError(code: "INVALID_ARGUMENT", message: "Amount and currency are required", details: nil))
+            return
+        }
+        let parameters = arguments["parameters"] as? [AppEvents.ParameterName: Any] ?? [:]
         AppEvents.shared.logPurchase(amount: amount, currency: currency, parameters: parameters)
 
         result(nil)
@@ -175,13 +173,11 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
 
     private func handleSetAdvertiserTracking(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let arguments = call.arguments as? [String: Any] ?? [:]
-
         let enabled = arguments["enabled"] as? Bool ?? false
         let collectId = arguments["collectId"] as? Bool ?? true
 
         Settings.shared.isAdvertiserTrackingEnabled = enabled
         Settings.shared.isAdvertiserIDCollectionEnabled = enabled && collectId
-        Settings.shared.isAutoLogAppEventsEnabled = enabled
 
         result(nil)
     }

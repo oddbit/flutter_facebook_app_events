@@ -64,8 +64,8 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     result.success(null)
   }
 
- private fun handleSetUserData(call: MethodCall, result: Result) {
-    val parameters = call.argument<Map<String, Any>>("parameters") ?: mapOf()
+  private fun handleSetUserData(call: MethodCall, result: Result) {
+    val parameters = call.arguments as? Map<String, Any> ?: mapOf<String, Any>()
     val parameterBundle = createBundleFromMap(parameters)
 
     AppEventsLogger.setUserData(
@@ -143,7 +143,11 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   private fun handlePushNotificationOpen(call: MethodCall, result: Result) {
     val action = call.argument<String>("action")
     val payload = call.argument<Map<String, Any>>("payload")
-    val payloadBundle = createBundleFromMap(payload)!!
+    val payloadBundle = createBundleFromMap(payload)
+    if (payloadBundle == null) {
+      result.error("INVALID_ARGUMENT", "Payload is required", null)
+      return
+    }
 
     if (action != null) {
       appEventsLogger.logPushNotificationOpen(payloadBundle, action)
@@ -155,7 +159,11 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   private fun handleSetUserId(call: MethodCall, result: Result) {
-    val id = call.arguments as String
+    val id = call.arguments as? String
+    if (id == null) {
+      result.error("INVALID_ARGUMENT", "User ID is required", null)
+      return
+    }
     AppEventsLogger.setUserID(id)
     result.success(null)
   }
@@ -188,7 +196,7 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   private fun handleSetAutoLogAppEventsEnabled(call: MethodCall, result: Result) {
-    val enabled = call.arguments as Boolean
+    val enabled = call.arguments as? Boolean ?: false
     FacebookSdk.setAutoLogAppEventsEnabled(enabled)
     result.success(null)
   }
@@ -203,8 +211,13 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   private fun handlePurchased(call: MethodCall, result: Result) {
-    val amount = (call.argument<Double>("amount"))?.toBigDecimal()
-    val currency = Currency.getInstance(call.argument<String>("currency"))
+    val amount = call.argument<Double>("amount")?.toBigDecimal()
+    val currencyCode = call.argument<String>("currency")
+    if (amount == null || currencyCode == null) {
+      result.error("INVALID_ARGUMENT", "Amount and currency are required", null)
+      return
+    }
+    val currency = Currency.getInstance(currencyCode)
     val parameters = call.argument<Map<String, Any>>("parameters")
     val parameterBundle = createBundleFromMap(parameters) ?: Bundle()
 

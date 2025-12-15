@@ -106,7 +106,6 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     val collectId = call.argument<Boolean>("collectId") ?: true
 
     FacebookSdk.setAdvertiserIDCollectionEnabled(enabled && collectId)
-    FacebookSdk.setAutoLogAppEventsEnabled(enabled)
 
     if (BuildConfig.DEBUG) {
       FacebookSdk.setIsDebugEnabled(true)

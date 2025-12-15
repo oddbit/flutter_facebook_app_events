@@ -184,7 +184,7 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         let collectId = arguments["collectId"] as? Bool ?? true
 
         Settings.shared.isAdvertiserTrackingEnabled = enabled
-        Settings.shared.isAdvertiserIDCollectionEnabled = collectId
+        Settings.shared.isAdvertiserIDCollectionEnabled = enabled && collectId
 
         result(nil)
     }

@@ -112,7 +112,7 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     private func handleLogEvent(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let arguments = call.arguments as? [String: Any] ?? [:]
         guard let eventName = arguments["name"] as? String else {
-            result(FlutterError(code: "INVALID_ARGUMENT", message: "Event name is required", details: nil))
+            result(FlutterError(code: "INVALID_ARGUMENT", message: "Event name is required and cannot be null.", details: nil))
             return
         }
         let parameters = arguments["parameters"] as? [AppEvents.ParameterName: Any] ?? [:]

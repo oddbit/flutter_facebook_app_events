@@ -1,3 +1,7 @@
+## 0.21.1
+- Refactor advertiser tracking logic (PR [#457](https://github.com/oddbit/flutter_facebook_app_events/pull/457))
+- Remove violating parameter in example app (PR [#459](https://github.com/oddbit/flutter_facebook_app_events/pull/459))
+
 ## 0.21.0
 - Update plugin to support modern Flutter plugin API and Android Gradle Plugin (PR [#418](https://github.com/oddbit/flutter_facebook_app_events/pull/418))
 

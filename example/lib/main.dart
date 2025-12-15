@@ -40,7 +40,6 @@ class MyApp extends StatelessWidget {
                   facebookAppEvents.setUserData(
                     email: 'opensource@oddbit.id',
                     firstName: 'Oddbit',
-                    dateOfBirth: '2019-10-19',
                     city: 'Denpasar',
                     country: 'Indonesia',
                   );

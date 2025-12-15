@@ -108,7 +108,7 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     FacebookSdk.setAdvertiserIDCollectionEnabled(enabled && collectId)
 
     if (BuildConfig.DEBUG) {
-      FacebookSdk.setIsDebugEnabled(true)
+      FacebookSdk.setIsDebugEnabled(true && enabled)
       FacebookSdk.addLoggingBehavior(LoggingBehavior.APP_EVENTS)
       FacebookSdk.addLoggingBehavior(LoggingBehavior.REQUESTS)
     }

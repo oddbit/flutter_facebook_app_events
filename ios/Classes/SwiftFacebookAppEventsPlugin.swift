@@ -40,43 +40,30 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         switch call.method {
         case "clearUserData":
             handleClearUserData(call, result: result)
-            break
         case "setUserData":
             handleSetUserData(call, result: result)
-            break
         case "clearUserID":
             handleClearUserID(call, result: result)
-            break
         case "flush":
             handleFlush(call, result: result)
-            break
         case "getApplicationId":
             handleGetApplicationId(call, result: result)
-            break
         case "logEvent":
             handleLogEvent(call, result: result)
-            break
         case "logPushNotificationOpen":
             handlePushNotificationOpen(call, result: result)
-            break
         case "setUserID":
             handleSetUserId(call, result: result)
-            break
         case "setAutoLogAppEventsEnabled":
             handleSetAutoLogAppEventsEnabled(call, result: result)
-            break
         case "setDataProcessingOptions":
             handleSetDataProcessingOptions(call, result: result)
-            break
         case "logPurchase":
             handlePurchased(call, result: result)
-            break
         case "getAnonymousId":
             handleHandleGetAnonymousId(call, result: result)
-            break
         case "setAdvertiserTracking":
             handleSetAdvertiserTracking(call, result: result)
-            break
         default:
             result(FlutterMethodNotImplemented)
         }

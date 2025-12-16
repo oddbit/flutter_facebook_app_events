@@ -45,4 +45,44 @@ void main() {
       );
     });
   });
+
+  group('Purchase logging', () {
+    test('logPurchase forwards parameters', () async {
+      await facebookAppEvents.logPurchase(
+        amount: 12.34,
+        currency: 'USD',
+        parameters: <String, dynamic>{'item': 'sku-123'},
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logPurchase',
+          arguments: <String, dynamic>{
+            'amount': 12.34,
+            'currency': 'USD',
+            'parameters': <String, dynamic>{'item': 'sku-123'},
+          },
+        ),
+      );
+    });
+
+    test('logPurchase omits parameters when null', () async {
+      await facebookAppEvents.logPurchase(
+        amount: 12.34,
+        currency: 'USD',
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logPurchase',
+          arguments: <String, dynamic>{
+            'amount': 12.34,
+            'currency': 'USD',
+          },
+        ),
+      );
+    });
+  });
 }

@@ -79,7 +79,7 @@ class FacebookAppEvents {
       'country': country,
     };
 
-    return _channel.invokeMethod<void>('setUserData', args);
+    return _channel.invokeMethod<void>('setUserData', _filterOutNulls(args));
   }
 
   /// Clears the currently set user id.

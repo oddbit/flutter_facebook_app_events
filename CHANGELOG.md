@@ -1,3 +1,6 @@
+## 0.22.1
+- Fix Android crash when `setUserData()` is called with null fields (fixes [#462](https://github.com/oddbit/flutter_facebook_app_events/issues/462))
+
 ## 0.22.0
 - iOS: Update Swift code for Facebook SDK 18.x compatibility (PR [#455](https://github.com/oddbit/flutter_facebook_app_events/pull/455), fixes [#451](https://github.com/oddbit/flutter_facebook_app_events/issues/451) and [#454](https://github.com/oddbit/flutter_facebook_app_events/issues/454))
 - iOS: Refactor parameter unpacking (PR [#461](https://github.com/oddbit/flutter_facebook_app_events/pull/461), fixes [#460](https://github.com/oddbit/flutter_facebook_app_events/issues/460))

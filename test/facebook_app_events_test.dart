@@ -85,4 +85,56 @@ void main() {
       );
     });
   });
+
+  group('User data', () {
+    test('setUserData omits null fields', () async {
+      await facebookAppEvents.setUserData(
+        email: 'user@example.com',
+        firstName: null,
+        lastName: null,
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'setUserData',
+          arguments: <String, dynamic>{
+            'email': 'user@example.com',
+          },
+        ),
+      );
+    });
+
+    test('setUserData sends empty map when all null', () async {
+      await facebookAppEvents.setUserData();
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'setUserData',
+          arguments: <String, dynamic>{},
+        ),
+      );
+    });
+
+    test('setUserData never sends null values (regression)', () async {
+      await facebookAppEvents.setUserData(
+        email: null,
+        firstName: 'First',
+        lastName: null,
+        phone: null,
+        dateOfBirth: null,
+        gender: null,
+        city: null,
+        state: null,
+        zip: null,
+        country: null,
+      );
+
+      expect(methodCall?.method, 'setUserData');
+      final args = methodCall?.arguments as Map<dynamic, dynamic>?;
+      expect(args, isNotNull);
+      expect(args!.values.any((v) => v == null), isFalse);
+    });
+  });
 }

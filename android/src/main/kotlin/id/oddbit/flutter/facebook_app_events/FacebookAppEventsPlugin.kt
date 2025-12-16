@@ -65,7 +65,7 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   private fun handleSetUserData(call: MethodCall, result: Result) {
-    val parameters = call.arguments as? Map<String, Any> ?: mapOf<String, Any>()
+    val parameters = call.arguments as? Map<String, Any?> ?: emptyMap()
     val parameterBundle = createBundleFromMap(parameters)
 
     AppEventsLogger.setUserData(
@@ -168,16 +168,19 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     result.success(null)
   }
 
-  private fun createBundleFromMap(parameterMap: Map<String, Any>?): Bundle? {
+  private fun createBundleFromMap(parameterMap: Map<String, Any?>?): Bundle? {
     if (parameterMap == null) {
       return null
     }
 
     val bundle = Bundle()
     for (jsonParam in parameterMap.entries) {
-      val value = jsonParam.value
+      val value: Any? = jsonParam.value
       val key = jsonParam.key
       when (value) {
+        null -> {
+          // Ignore null values (Dart may send keys with null values).
+        }
         is String -> bundle.putString(key, value)
         is Int -> bundle.putInt(key, value)
         is Long -> bundle.putLong(key, value)
@@ -185,11 +188,13 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
         is Boolean -> bundle.putBoolean(key, value)
         is Map<*, *> -> {
           @Suppress("UNCHECKED_CAST")
-          val nestedBundle = createBundleFromMap(value as Map<String, Any>)
-          bundle.putBundle(key, nestedBundle)
+          val nestedBundle = createBundleFromMap(value as? Map<String, Any?>)
+          if (nestedBundle != null) {
+            bundle.putBundle(key, nestedBundle)
+          }
         }
         else -> throw IllegalArgumentException(
-            "Unsupported value type: " + value.javaClass.kotlin)
+            "Unsupported value type: ${value::class}")
       }
     }
     return bundle

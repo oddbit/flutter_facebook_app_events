@@ -18,12 +18,6 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     }
     
     /// Connect app delegate with SDK
-    /// Note: For Facebook SDK 18.x+, didFinishLaunchingWithOptions is handled via initializeSDK()
-    public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable : Any] = [:]) -> Bool {
-        // SDK initialization is already handled in register() via initializeSDK()
-        return true
-    }
-    
     public func application( _ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
         // For Facebook SDK 18.x+, use the simplified URL handling
         return ApplicationDelegate.shared.application(app, open: url, options: options)

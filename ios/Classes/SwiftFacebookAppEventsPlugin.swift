@@ -18,22 +18,9 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     }
     
     /// Connect app delegate with SDK
-    public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable : Any] = [:]) -> Bool {
-        var options = [UIApplication.LaunchOptionsKey: Any]()
-        for (k, value) in launchOptions {
-            let key = k as! UIApplication.LaunchOptionsKey
-            options[key] = value
-        }
-        ApplicationDelegate.shared.application(application,didFinishLaunchingWithOptions: options)
-        return true
-    }
-    
     public func application( _ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
-        let processed = ApplicationDelegate.shared.application(
-            app, open: url,
-            sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String,
-            annotation: options[UIApplication.OpenURLOptionsKey.annotation])
-        return processed;
+        // For Facebook SDK 18.x+, use the simplified URL handling
+        return ApplicationDelegate.shared.application(app, open: url, options: options)
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -102,7 +89,10 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     }
 
     private func handleGetApplicationId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(Settings.shared.appID)
+        // Facebook SDK 18.x+: appID property was removed from Settings
+        // Retrieve from Info.plist FacebookAppID key as fallback
+        let appId = Bundle.main.object(forInfoDictionaryKey: "FacebookAppID") as? String
+        result(appId)
     }
 
     private func handleHandleGetAnonymousId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -155,13 +145,10 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
     }
 
     private func handleSetDataProcessingOptions(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let arguments = call.arguments as? [String: Any] ?? [:]
-        let options = arguments["options"] as? [String] ?? []
-        let country = arguments["country"] as? Int32 ?? 0
-        let state = arguments["state"] as? Int32 ?? 0
-
-        Settings.shared.setDataProcessingOptions(options, country: country, state: state)
-
+        // Facebook SDK 18.x+: setDataProcessingOptions was removed from Settings
+        // Data processing options should now be configured via Facebook's Data Use Checkup
+        // See: https://developers.facebook.com/docs/development/data-processing-options
+        print("[FacebookAppEvents] setDataProcessingOptions() is not available in Facebook SDK 18.x+. Configure data processing options via Facebook's Data Use Checkup.")
         result(nil)
     }
 

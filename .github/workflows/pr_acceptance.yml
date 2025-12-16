@@ -1,4 +1,4 @@
-name: Build example app on PR
+name: PR acceptance
 
 on:
   pull_request:
@@ -38,9 +38,16 @@ jobs:
       - name: Flutter pub get (root)
         run: flutter pub get
 
+      - name: Flutter test (root)
+        run: flutter test
+
       - name: Flutter pub get (example)
         working-directory: example
         run: flutter pub get
+
+      - name: Flutter test (example)
+        working-directory: example
+        run: flutter test
 
       - name: Flutter clean (example)
         working-directory: example

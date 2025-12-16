@@ -105,7 +105,14 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: "INVALID_ARGUMENT", message: "Event name is required and cannot be null.", details: nil))
             return
         }
-        let parameters = arguments["parameters"] as? [AppEvents.ParameterName: Any] ?? [:]
+        
+        let rawParams = arguments["parameters"] as? [String: Any] ?? [:]
+        let parameters: [AppEvents.ParameterName: Any] = Dictionary(
+            uniqueKeysWithValues: rawParams.map { key, value in
+                (AppEvents.ParameterName(key), value)
+            }
+        )
+        
         if let valueToSum = arguments["_valueToSum"] as? Double {
             AppEvents.shared.logEvent(AppEvents.Name(eventName), valueToSum: valueToSum, parameters: parameters)
         } else {
@@ -159,7 +166,14 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: "INVALID_ARGUMENT", message: "Amount and currency are required", details: nil))
             return
         }
-        let parameters = arguments["parameters"] as? [AppEvents.ParameterName: Any] ?? [:]
+        
+        let rawParams = arguments["parameters"] as? [String: Any] ?? [:]
+        let parameters: [AppEvents.ParameterName: Any] = Dictionary(
+            uniqueKeysWithValues: rawParams.map { key, value in
+                (AppEvents.ParameterName(key), value)
+            }
+        )
+        
         AppEvents.shared.logPurchase(amount: amount, currency: currency, parameters: parameters)
 
         result(nil)

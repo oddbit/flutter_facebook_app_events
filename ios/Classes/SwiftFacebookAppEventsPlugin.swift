@@ -154,7 +154,7 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         // Facebook SDK 18.x+: setDataProcessingOptions was removed from Settings
         // Data processing options should now be configured via Facebook's Data Use Checkup
         // See: https://developers.facebook.com/docs/development/data-processing-options
-        NSLog("[FacebookAppEvents] WARNING: setDataProcessingOptions() is not available in Facebook SDK 18.x+. For CCPA compliance, configure data processing options via Facebook's Data Use Checkup in your app's Facebook Developer settings.")
+        print("[FacebookAppEvents] setDataProcessingOptions() is not available in Facebook SDK 18.x+. Configure data processing options via Facebook's Data Use Checkup.")
         result(nil)
     }
 

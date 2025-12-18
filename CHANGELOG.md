@@ -1,3 +1,6 @@
+## 0.23.0
+- iOS: Add Swift Package Manager (SPM) support (fixes [#464](https://github.com/oddbit/flutter_facebook_app_events/issues/464))
+
 ## 0.22.1
 - Fix Android crash when `setUserData()` is called with null fields (fixes [#462](https://github.com/oddbit/flutter_facebook_app_events/issues/462))
 

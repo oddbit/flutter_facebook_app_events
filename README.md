@@ -86,6 +86,13 @@ Read through the "[Getting Started with App Events for iOS](https://developers.f
 <string>[APP_NAME]</string>
 ```
 
+#### Swift Package Manager (SPM)
+
+This plugin supports iOS integration via both **CocoaPods** (Flutter default) and **Swift Package Manager**.
+
+- CocoaPods (default): no additional steps beyond the configuration above.
+- Swift Package Manager: the plugin includes a Swift package manifest at [ios/facebook_app_events/Package.swift](ios/facebook_app_events/Package.swift). If your Flutter project is configured to use SPM for iOS plugins, Xcode will resolve the package dependencies automatically.
+
 ## About Facebook App Events
 
 Please refer to the official SDK documentation for

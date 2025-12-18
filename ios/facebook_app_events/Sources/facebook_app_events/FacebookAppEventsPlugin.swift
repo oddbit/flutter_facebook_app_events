@@ -3,10 +3,13 @@ import UIKit
 import FBSDKCoreKit
 import FBSDKCoreKit_Basics
 
-public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
+public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "flutter.oddbit.id/facebook_app_events", binaryMessenger: registrar.messenger())
-        let instance = SwiftFacebookAppEventsPlugin()
+        let channel = FlutterMethodChannel(
+            name: "flutter.oddbit.id/facebook_app_events",
+            binaryMessenger: registrar.messenger()
+        )
+        let instance = FacebookAppEventsPlugin()
 
         // Required for FB SDK 9.0, as it does not initialize the SDK automatically any more.
         // See: https://developers.facebook.com/blog/post/2021/01/19/introducing-facebook-platform-sdk-version-9/
@@ -16,9 +19,13 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
         registrar.addMethodCallDelegate(instance, channel: channel)
         registrar.addApplicationDelegate(instance)
     }
-    
+
     /// Connect app delegate with SDK
-    public func application( _ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
+    public func application(
+        _ app: UIApplication,
+        open url: URL,
+        options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+    ) -> Bool {
         // For Facebook SDK 18.x+, use the simplified URL handling
         return ApplicationDelegate.shared.application(app, open: url, options: options)
     }
@@ -105,14 +112,14 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: "INVALID_ARGUMENT", message: "Event name is required and cannot be null.", details: nil))
             return
         }
-        
+
         let rawParams = arguments["parameters"] as? [String: Any] ?? [:]
         let parameters: [AppEvents.ParameterName: Any] = Dictionary(
             uniqueKeysWithValues: rawParams.map { key, value in
                 (AppEvents.ParameterName(key), value)
             }
         )
-        
+
         if let valueToSum = arguments["_valueToSum"] as? Double {
             AppEvents.shared.logEvent(AppEvents.Name(eventName), valueToSum: valueToSum, parameters: parameters)
         } else {
@@ -128,6 +135,7 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: "INVALID_ARGUMENT", message: "Payload is required", details: nil))
             return
         }
+
         if let action = arguments["action"] as? String {
             AppEvents.shared.logPushNotificationOpen(payload: payload, action: action)
         } else {
@@ -166,16 +174,15 @@ public class SwiftFacebookAppEventsPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: "INVALID_ARGUMENT", message: "Amount and currency are required", details: nil))
             return
         }
-        
+
         let rawParams = arguments["parameters"] as? [String: Any] ?? [:]
         let parameters: [AppEvents.ParameterName: Any] = Dictionary(
             uniqueKeysWithValues: rawParams.map { key, value in
                 (AppEvents.ParameterName(key), value)
             }
         )
-        
-        AppEvents.shared.logPurchase(amount: amount, currency: currency, parameters: parameters)
 
+        AppEvents.shared.logPurchase(amount: amount, currency: currency, parameters: parameters)
         result(nil)
     }
 

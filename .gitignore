@@ -6,4 +6,7 @@
 
 build/
 
+.build/
+.swiftpm/
+
 **/*/Flutter/ephemeral

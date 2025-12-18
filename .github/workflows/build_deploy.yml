@@ -5,10 +5,115 @@ on:
       - "v[0-9]+.[0-9]+.[0-9]+*"
 
 jobs:
+  test:
+    name: Test (root + example)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      CI: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter --version
+
+      - name: Flutter pub get (root)
+        run: flutter pub get
+
+      - name: Flutter test (root)
+        run: flutter test
+
+      - name: Flutter pub get (example)
+        working-directory: example
+        run: flutter pub get
+
+      - name: Flutter test (example)
+        working-directory: example
+        run: flutter test
+
+  verify:
+    name: Verify (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ matrix.timeout }}
+    needs: [test]
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: android
+            os: ubuntu-latest
+            timeout: 45
+          - target: ios
+            os: macos-latest
+            timeout: 60
+    env:
+      CI: true
+      GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.vfs.watch=false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        if: matrix.target == 'android'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Set up Android SDK
+        if: matrix.target == 'android'
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter --version
+
+      - name: Install CocoaPods
+        if: matrix.target == 'ios'
+        run: sudo gem install cocoapods -N
+
+      - name: Flutter pub get (root)
+        run: flutter pub get
+
+      - name: Flutter pub get (example)
+        working-directory: example
+        run: flutter pub get
+
+      - name: Flutter clean (example)
+        working-directory: example
+        run: flutter clean
+
+      - name: Build example APK (debug, verbose)
+        if: matrix.target == 'android'
+        working-directory: example
+        run: flutter build apk --debug -v
+
+      - name: Build example iOS (no-codesign, verbose)
+        if: matrix.target == 'ios'
+        working-directory: example
+        run: flutter build ios --no-codesign -v
+
   publish:
     name: Publish Plugin
     runs-on: ubuntu-latest
+    needs: [verify]
     permissions:
+      contents: read
       id-token: write
     steps:
       - uses: actions/checkout@v4

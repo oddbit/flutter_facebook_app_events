@@ -1,3 +1,6 @@
+## 0.24.0
+- Add `activateApp()` to manually log app activation when automatic app event logging is disabled (PR [#466](https://github.com/oddbit/flutter_facebook_app_events/pull/466))
+
 ## 0.23.0
 - iOS: Add Swift Package Manager (SPM) support (fixes [#464](https://github.com/oddbit/flutter_facebook_app_events/issues/464))
 

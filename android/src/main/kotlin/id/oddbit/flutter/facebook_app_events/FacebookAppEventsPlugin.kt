@@ -9,8 +9,6 @@ import com.facebook.FacebookSdk
 import com.facebook.appevents.AppEventsLogger
 import com.facebook.GraphRequest
 import com.facebook.GraphResponse
-import io.flutter.embedding.engine.plugins.activity.ActivityAware
-import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -20,7 +18,7 @@ import java.util.Currency
 import com.facebook.LoggingBehavior
 
 /** FacebookAppEventsPlugin */
-class FacebookAppEventsPlugin: ActivityAware, FlutterPlugin, MethodCallHandler {
+class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   /// The MethodChannel that will the communication between Flutter and native Android
   ///
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
@@ -33,30 +31,17 @@ class FacebookAppEventsPlugin: ActivityAware, FlutterPlugin, MethodCallHandler {
 
   private var application: Application? = null
 
-  override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-      application = binding.activity.application;
-  }
-
-  override fun onDetachedFromActivityForConfigChanges() {
-      application = null
-  }
-
-  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-      application = binding.activity.application;
-  }
-
-  override fun onDetachedFromActivity() {
-      application = null
-  }
-
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter.oddbit.id/facebook_app_events")
     channel.setMethodCallHandler(this)
+
+    application = flutterPluginBinding.applicationContext.applicationContext as? Application
     appEventsLogger = AppEventsLogger.newLogger(flutterPluginBinding.applicationContext)
     anonymousId = AppEventsLogger.getAnonymousAppDeviceGUID(flutterPluginBinding.applicationContext)
   }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+    application = null
     channel.setMethodCallHandler(null)
   }
 

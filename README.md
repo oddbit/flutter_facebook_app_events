@@ -1,7 +1,12 @@
 # facebook_app_events
 
-[![pub package](https://img.shields.io/pub/v/facebook_app_events.svg)](https://pub.dartlang.org/packages/facebook_app_events) [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202%2E0-lightgrey.svg)](https://github.com/TheFireCo/genkit-plugins/blob/main/LICENSE)
+[![pub package](https://img.shields.io/pub/v/facebook_app_events.svg)](https://pub.dev/packages/facebook_app_events)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202%2E0-lightgrey.svg)](https://github.com/oddbit/flutter_facebook_app_events/blob/main/LICENSE)
+[![pub likes](https://img.shields.io/pub/likes/facebook_app_events)](https://pub.dev/packages/facebook_app_events/score)
+[![pub points](https://img.shields.io/pub/points/facebook_app_events)](https://pub.dev/packages/facebook_app_events/score)
 
+![Dart](https://img.shields.io/badge/Dart-%3E%3D2.12%20%3C4.0-blue)
+![Flutter](https://img.shields.io/badge/Flutter-%3E%3D2.0-blue)
 
 Flutter plugin for [Facebook App Events](https://developers.facebook.com/docs/app-events).
 
@@ -9,9 +14,14 @@ Flutter plugin for [Facebook App Events](https://developers.facebook.com/docs/ap
 
 Flutter plugin for Facebook App Events, an app measurement solution that provides insight on app usage and user engagement.
 
+## Documentation
+
+- Plugin API reference (auto-generated): https://pub.dev/documentation/facebook_app_events/latest/
+- Meta App Events overview: https://developers.facebook.com/docs/app-events
+
 ## Setting things up
 
-You must first create an app at Facebook for developers: https://developers.facebook.com/
+You must first create an app at Facebook for developers: <https://developers.facebook.com/>
 
 1. Get your app id (referred to as `[APP_ID]` below)
 2. Get your client token (referred to as `[CLIENT_TOKEN]` below).
@@ -37,15 +47,15 @@ After that, add that string resource reference to your main `AndroidManifest.xml
 ```xml
 <application android:label="@string/app_name" ...>
     ...
-   	<meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
-   	<meta-data android:name="com.facebook.sdk.ClientToken" android:value="@string/facebook_client_token"/>
+  <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
+  <meta-data android:name="com.facebook.sdk.ClientToken" android:value="@string/facebook_client_token"/>
     ...
 </application>
 ```
 
 ### Configure iOS
 
-Read through the "[Getting Started with App Events for iOS](https://developers.facebook.com/docs/app-events/getting-started-app-events-ios)" tutorial and in particular, follow [step 5](https://developers.facebook.com/docs/app-events/getting-started-app-events-ios#step-5--configure-your-project) by opening `info.plist` "As Source Code" and add the following
+Read through the "[Getting Started with App Events for iOS](https://developers.facebook.com/docs/app-events/getting-started-app-events-ios)" and "[Getting Started with the Facebook SDK for iOS](https://developers.facebook.com/docs/ios/getting-started)" guides. In particular, follow [step 5](https://developers.facebook.com/docs/app-events/getting-started-app-events-ios#step-5--configure-your-project) by opening `Info.plist` "As Source Code" and add the following
 
 - If your code does not have `CFBundleURLTypes`, add the following just before the final `</dict>` element:
 
@@ -91,14 +101,11 @@ Read through the "[Getting Started with App Events for iOS](https://developers.f
 This plugin supports iOS integration via both **CocoaPods** (Flutter default) and **Swift Package Manager**.
 
 - CocoaPods (default): no additional steps beyond the configuration above.
-- Swift Package Manager: the plugin includes a Swift package manifest at [ios/facebook_app_events/Package.swift](ios/facebook_app_events/Package.swift). If your Flutter project is configured to use SPM for iOS plugins, Xcode will resolve the package dependencies automatically.
+- Swift Package Manager: the plugin includes a Swift package manifest at [ios/facebook_app_events/Package.swift](ios/facebook_app_events/Package.swift). Facebook's official iOS SDK also documents SPM support (see [Swift Package Manager](https://github.com/facebook/facebook-ios-sdk#swift-package-manager)).
 
 ## About Facebook App Events
 
-Please refer to the official SDK documentation for
-[iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/fbsdkappevents.html)
-and
-[Android](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventslogger.html) respectively for the correct and expected behavior. Please
+Please refer to the official SDK documentation for correct and expected behavior (see documentation [iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/fbsdkappevents.html) and [Android](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventslogger.html)). Please
 [report an issue](https://github.com/oddbit/flutter_facebook_app_events/issues)
 if you find anything that is not working according to official documentation.
 
@@ -106,6 +113,8 @@ if you find anything that is not working according to official documentation.
 Every now and then it is necessary for this plugin to update the Facebook SDK dependency. We follow the major
 version of the current Facebook SDK in order to be as compatible as possible with other dependencies in your
 project. 
+
+For Facebook SDK release notes, see [iOS](https://github.com/facebook/facebook-ios-sdk/releases) and [Android](https://github.com/facebook/facebook-android-sdk/releases).
 
 Please do note that it means that you get "the latest version" up until next major release, and it might
 be a source of unexpected behavior for you if you are not aware of this. It is a preferred option to the
@@ -138,7 +147,7 @@ When setting up codeless events in Facebook Event Manager, you may encounter a w
 3. Ensure your app is properly configured:
    - iOS: Verify `FacebookAppID`, `FacebookClientToken`, and `FacebookDisplayName` are set in your `Info.plist`
    - Android: Verify `facebook_app_id` and `facebook_client_token` are set in `strings.xml` and referenced in `AndroidManifest.xml`
-   - For codeless event debugging, enable `CodelessDebugLogEnabled` (see Facebook documentation)
+  - For codeless event debugging, enable codeless debug logging (see documentation [iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/settings.html) and [Android](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/FacebookSdk.html))
 
 4. Test codeless events on a physical device by:
    - Shaking the device to open the codeless event setup tool

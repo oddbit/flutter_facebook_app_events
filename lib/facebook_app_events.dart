@@ -45,9 +45,14 @@ class FacebookAppEvents {
   /// This could be an EAN, article identifier, etc., depending on the nature of the app.
   static const paramNameContentId = "fb_content_id";
 
-  /// Notifies the events system that the app has launched.
-  /// Activation and deactivation events will then be logged automatically.
-  /// This is normally called during SDK initialization.
+  /// Notifies the Facebook SDK that the app has launched ("activate app").
+  ///
+  /// In the default configuration, App Install/App Launch events are logged
+  /// automatically by the native Facebook SDK.
+  ///
+  /// Call this method only if you have disabled or delayed automatic app event
+  /// logging (for example to obtain user consent) and want to log activation
+  /// manually after enabling/initializing the SDK.
   ///
   /// If `FacebookAutoLogAppEventsEnabled` (iOS) or
   /// `com.facebook.sdk.AutoLogAppEventsEnabled` (Android) is set to `false`,

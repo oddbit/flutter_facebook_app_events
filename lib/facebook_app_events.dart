@@ -61,13 +61,11 @@ class FacebookAppEvents {
   /// Android only: Providing an [applicationId] overrides the application ID
   /// used to initialize the SDK.
   Future<void> activateApp({String? applicationId}) {
-    final args = <String, dynamic>{};
+    final args = <String, dynamic>{
+      'applicationId': applicationId,
+    };
 
-    if (applicationId != null) {
-      args['applicationId'] = applicationId;
-    }
-
-    return _channel.invokeMethod<void>('activateApp', args);
+    return _channel.invokeMethod<void>('activateApp', _filterOutNulls(args));
   }
 
   /// Clears the current user data

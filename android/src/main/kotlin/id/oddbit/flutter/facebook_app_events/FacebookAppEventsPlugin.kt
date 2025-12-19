@@ -2,6 +2,7 @@ package id.oddbit.flutter.facebook_app_events
 
 import androidx.annotation.NonNull
 
+import android.app.Application
 import android.os.Bundle
 import android.util.Log
 import com.facebook.FacebookSdk
@@ -28,19 +29,25 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
 
   private val logTag = "FacebookAppEvents"
 
+  private var application: Application? = null
+
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter.oddbit.id/facebook_app_events")
     channel.setMethodCallHandler(this)
+
+    application = flutterPluginBinding.applicationContext.applicationContext as? Application
     appEventsLogger = AppEventsLogger.newLogger(flutterPluginBinding.applicationContext)
     anonymousId = AppEventsLogger.getAnonymousAppDeviceGUID(flutterPluginBinding.applicationContext)
   }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+    application = null
     channel.setMethodCallHandler(null)
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
     when (call.method) {
+      "activateApp" -> handleActivateApp(call, result)
       "clearUserData" -> handleClearUserData(call, result)
       "setUserData" -> handleSetUserData(call, result)
       "clearUserID" -> handleClearUserId(call, result)
@@ -57,6 +64,21 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
 
       else -> result.notImplemented()
     }
+  }
+
+  private fun handleActivateApp(call: MethodCall, result: Result) {
+      val application = this.application
+
+      if (application == null) {
+          result.error("missing_application", "could not activate app: Android application is missing", null)
+          return
+      }
+
+      val applicationId = call.argument("applicationId") as? String
+
+      AppEventsLogger.activateApp(application, applicationId)
+
+      result.success(null)
   }
 
   private fun handleClearUserData(call: MethodCall, result: Result) {

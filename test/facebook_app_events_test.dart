@@ -137,4 +137,30 @@ void main() {
       expect(args!.values.any((v) => v == null), isFalse);
     });
   });
+
+  group('Activation', () {
+    test('activateApp sends empty args when null', () async {
+      await facebookAppEvents.activateApp();
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'activateApp',
+          arguments: <String, dynamic>{},
+        ),
+      );
+    });
+
+    test('activateApp forwards applicationId when provided', () async {
+      await facebookAppEvents.activateApp(applicationId: '123');
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'activateApp',
+          arguments: <String, dynamic>{'applicationId': '123'},
+        ),
+      );
+    });
+  });
 }

@@ -66,6 +66,12 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
     }
 
     private func handleActivateApp(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let arguments = call.arguments as? [String: Any] ?? [:]
+
+        if let applicationId = arguments["applicationId"] as? String, !applicationId.isEmpty {
+            AppEvents.shared.loggingOverrideAppID = applicationId
+        }
+
         AppEvents.shared.activateApp()
         result(nil)
     }

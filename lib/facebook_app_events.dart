@@ -58,8 +58,8 @@ class FacebookAppEvents {
   /// `com.facebook.sdk.AutoLogAppEventsEnabled` (Android) is set to `false`,
   /// call this method to log activation and install events manually.
   ///
-  /// Android only: Providing an [applicationId] overrides the application ID
-  /// used to initialize the SDK.
+  /// Providing an [applicationId] overrides the application ID used by the
+  /// Facebook SDK on both Android and iOS (with platform-specific behavior).
   Future<void> activateApp({String? applicationId}) {
     final args = <String, dynamic>{
       'applicationId': applicationId,

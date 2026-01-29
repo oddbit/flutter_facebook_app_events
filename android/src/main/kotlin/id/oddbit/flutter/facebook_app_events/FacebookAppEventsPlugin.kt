@@ -16,6 +16,8 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.util.Currency
 import com.facebook.LoggingBehavior
+import com.facebook.applinks.AppLinkData
+import android.net.Uri
 
 /** FacebookAppEventsPlugin */
 class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
@@ -61,6 +63,9 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
       "getAnonymousId" -> handleGetAnonymousId(call, result)
       "logPurchase" -> handlePurchased(call, result)
       "setAdvertiserTracking" -> handleSetAdvertiserTracking(call, result)
+      "fetchDeferredAppLink" -> handleFetchDeferredAppLink(call, result)
+      "setDebugEnabled" -> handleSetDebugEnabled(call, result)
+      "recordAndUpdateAEMEvent" -> result.success(null) // AEM is iOS-only, no-op on Android
 
       else -> result.notImplemented()
     }
@@ -133,6 +138,24 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
       FacebookSdk.setIsDebugEnabled(true && enabled)
       FacebookSdk.addLoggingBehavior(LoggingBehavior.APP_EVENTS)
       FacebookSdk.addLoggingBehavior(LoggingBehavior.REQUESTS)
+    }
+
+    result.success(null)
+  }
+
+  private fun handleSetDebugEnabled(call: MethodCall, result: Result) {
+    val enabled = call.arguments as? Boolean ?: false
+
+    FacebookSdk.setIsDebugEnabled(enabled)
+
+    if (enabled) {
+      FacebookSdk.addLoggingBehavior(LoggingBehavior.APP_EVENTS)
+      FacebookSdk.addLoggingBehavior(LoggingBehavior.REQUESTS)
+      FacebookSdk.addLoggingBehavior(LoggingBehavior.INCLUDE_RAW_RESPONSES)
+    } else {
+      FacebookSdk.removeLoggingBehavior(LoggingBehavior.APP_EVENTS)
+      FacebookSdk.removeLoggingBehavior(LoggingBehavior.REQUESTS)
+      FacebookSdk.removeLoggingBehavior(LoggingBehavior.INCLUDE_RAW_RESPONSES)
     }
 
     result.success(null)
@@ -250,5 +273,58 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
 
     appEventsLogger.logPurchase(amount, currency, parameterBundle)
     result.success(null)
+  }
+
+  private fun handleFetchDeferredAppLink(call: MethodCall, result: Result) {
+    val context = application
+    if (context == null) {
+      result.success(null)
+      return
+    }
+
+    AppLinkData.fetchDeferredAppLinkData(context) { appLinkData ->
+      if (appLinkData == null) {
+        result.success(null)
+        return@fetchDeferredAppLinkData
+      }
+
+      val targetUri = appLinkData.targetUri
+      if (targetUri == null) {
+        result.success(null)
+        return@fetchDeferredAppLinkData
+      }
+
+      val data = mutableMapOf<String, Any>(
+        "targetUrl" to targetUri.toString()
+      )
+
+      // Extract query parameters from the target URI
+      val queryParams = mutableMapOf<String, String>()
+      targetUri.queryParameterNames?.forEach { paramName ->
+        targetUri.getQueryParameter(paramName)?.let { paramValue ->
+          queryParams[paramName] = paramValue
+
+          // Extract known Facebook parameters
+          if (paramName == "fb_click_time_utc") {
+            data["clickTimestamp"] = paramValue
+          }
+        }
+      }
+      if (queryParams.isNotEmpty()) {
+        data["queryParameters"] = queryParams
+      }
+
+      // Add promotion code if available
+      appLinkData.promotionCode?.let { promoCode ->
+        data["promotionCode"] = promoCode
+      }
+
+      // Add referrer data if available
+      appLinkData.ref?.let { ref ->
+        data["ref"] = ref
+      }
+
+      result.success(data)
+    }
   }
 }

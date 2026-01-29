@@ -12,3 +12,4 @@ build/
 **/Package.resolved
 
 **/*/Flutter/ephemeral
+.osgrep

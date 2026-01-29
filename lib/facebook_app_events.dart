@@ -174,11 +174,52 @@ class FacebookAppEvents {
     return _channel.invokeMethod<String>('getAnonymousId');
   }
 
+  /// Fetches deferred app link data for attribution from Facebook ad campaigns.
+  ///
+  /// This method retrieves campaign attribution data when a user installs the app
+  /// after clicking a Facebook ad. The data can be used to link app events back
+  /// to the originating ad campaign for better attribution.
+  ///
+  /// Returns a map containing:
+  /// - `targetUrl`: The deep link URL from the ad (may contain campaign parameters)
+  /// - `clickTimestamp`: UTC timestamp of when the ad was clicked (if available)
+  /// - `promotionCode`: Promotional code from the ad (if available)
+  ///
+  /// Returns `null` if no deferred app link data is available.
+  ///
+  /// **Important notes:**
+  /// - This method only returns data **once** per app install. Subsequent calls
+  ///   will return `null`.
+  /// - On iOS 14.5+, requires App Tracking Transparency (ATT) authorization.
+  ///   Call [setAdvertiserTracking] with `enabled: true` after obtaining user
+  ///   consent before calling this method.
+  ///
+  /// Example:
+  /// ```dart
+  /// final appLink = await facebookAppEvents.fetchDeferredAppLink();
+  /// if (appLink != null) {
+  ///   final targetUrl = appLink['targetUrl'] as String?;
+  ///   final clickTime = appLink['clickTimestamp'] as String?;
+  ///   // Parse campaign IDs from targetUrl query parameters
+  /// }
+  /// ```
+  ///
+  /// See documentation:
+  /// - [iOS AppLinkUtility](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/fbsdkapplink.html)
+  Future<Map<String, dynamic>?> fetchDeferredAppLink() async {
+    final result = await _channel.invokeMethod<Map<dynamic, dynamic>?>('fetchDeferredAppLink');
+    if (result == null) return null;
+    return result.cast<String, dynamic>();
+  }
+
   /// Log an app event with the specified [name] and the supplied [parameters] value.
   ///
   /// - [parameters] should contain only JSON-compatible values. On Android
   ///   these values are converted into a `Bundle`, so supported types are
   ///   limited to primitives (String/num/bool) and nested maps of the same.
+  ///
+  /// On iOS, this automatically records an AEM (Aggregated Event Measurement)
+  /// event for iOS 14.5+ ad attribution.
   ///
   /// See documentation:
   /// - [iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/fbsdkappevents.html)
@@ -370,6 +411,9 @@ class FacebookAppEvents {
   ///
   /// [currency] should be an ISO 4217 currency code (for example: `"USD"`).
   ///
+  /// On iOS, this automatically records an AEM (Aggregated Event Measurement)
+  /// event for iOS 14.5+ ad attribution.
+  ///
   /// See documentation:
   /// - [iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/fbsdkappevents.html)
   /// - [Android](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventslogger.html)
@@ -433,7 +477,92 @@ class FacebookAppEvents {
     return _channel.invokeMethod<void>('setAdvertiserTracking', args);
   }
 
+  /// Records and updates an AEM (Aggregated Event Measurement) conversion event.
+  ///
+  /// This is critical for iOS 14.5+ ad attribution. When a user arrives via a
+  /// Facebook ad deep link, AEM tracks the conversion funnel. Call this method
+  /// alongside your regular event logging (e.g. [logPurchase], [logEvent]) to
+  /// ensure Facebook can attribute conversions to ad campaigns.
+  ///
+  /// - [eventName]: The event name (e.g. `fb_mobile_purchase`, `StartTrial`).
+  /// - [value]: The monetary value of the conversion.
+  /// - [currency]: ISO 4217 currency code (e.g. `"USD"`). Required for
+  ///   revenue-based optimization.
+  /// - [parameters]: Optional additional parameters.
+  ///
+  /// **iOS only.** On Android this is a no-op since AEM is an iOS-specific
+  /// feature introduced for App Tracking Transparency compliance.
+  ///
+  /// Example:
+  /// ```dart
+  /// // After logging a purchase, also record the AEM event
+  /// await facebookAppEvents.logPurchase(amount: 9.99, currency: 'USD');
+  /// await facebookAppEvents.recordAndUpdateAEMEvent(
+  ///   eventName: 'fb_mobile_purchase',
+  ///   value: 9.99,
+  ///   currency: 'USD',
+  /// );
+  /// ```
+  ///
+  /// See documentation:
+  /// - [AEM for iOS](https://developers.facebook.com/docs/app-events/guides/aggregated-event-measurement/)
+  Future<void> recordAndUpdateAEMEvent({
+    required String eventName,
+    required double value,
+    String? currency,
+    Map<String, dynamic>? parameters,
+  }) {
+    final args = <String, dynamic>{
+      'eventName': eventName,
+      'value': value,
+      'currency': currency,
+      'parameters': parameters,
+    };
+
+    return _channel.invokeMethod<void>(
+        'recordAndUpdateAEMEvent', _filterOutNulls(args));
+  }
+
+  /// Enables or disables debug mode for Facebook SDK logging.
+  ///
+  /// When enabled, the SDK will log detailed information about events
+  /// to the device console, including:
+  /// - Event names and parameters being logged
+  /// - Network requests to Facebook servers
+  /// - Raw server responses (Android only)
+  ///
+  /// This is useful for verifying events during development since Facebook's
+  /// "Test Events" tab in Events Manager does not reliably show mobile app
+  /// events in real-time.
+  ///
+  /// **Important:** Debug mode should only be used during development.
+  /// Disable it in production builds to avoid performance overhead
+  /// and exposing sensitive information in logs.
+  ///
+  /// **Note:** This does NOT change whether events are sent to production.
+  /// All events still go to Facebook's production servers. For complete
+  /// isolation, use a separate Facebook App ID for testing via
+  /// [activateApp] with a different `applicationId`.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Enable debug logging during development
+  /// if (kDebugMode) {
+  ///   await facebookAppEvents.setDebugEnabled(true);
+  /// }
+  /// ```
+  ///
+  /// Console output examples:
+  /// - **iOS**: Look for `[FBSDKLog: FBSDKLoggingBehaviorAppEvents]` entries
+  /// - **Android**: Look for `FB4A` or `Facebook` tags in Logcat
+  Future<void> setDebugEnabled(bool enabled) {
+    return _channel.invokeMethod<void>('setDebugEnabled', enabled);
+  }
+
   /// The start of a paid subscription for a product or service you offer.
+  ///
+  /// On iOS, this automatically records an AEM (Aggregated Event Measurement)
+  /// event for iOS 14.5+ ad attribution.
   ///
   /// See documentation:
   /// - https://developers.facebook.com/docs/app-events/best-practices#standard-events
@@ -453,6 +582,9 @@ class FacebookAppEvents {
   }
 
   /// The start of a free trial of a product or service you offer (example: trial subscription).
+  ///
+  /// On iOS, this automatically records an AEM (Aggregated Event Measurement)
+  /// event for iOS 14.5+ ad attribution.
   ///
   /// See documentation:
   /// - https://developers.facebook.com/docs/app-events/best-practices#standard-events

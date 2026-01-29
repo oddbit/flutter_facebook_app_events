@@ -2,8 +2,9 @@ import Flutter
 import UIKit
 import FBSDKCoreKit
 import FBSDKCoreKit_Basics
+import FBAEMKit
 
-public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
+public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeCycleDelegate {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
             name: "flutter.oddbit.id/facebook_app_events",
@@ -18,16 +19,85 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
 
         registrar.addMethodCallDelegate(instance, channel: channel)
         registrar.addApplicationDelegate(instance)
+        registrar.addSceneDelegate(instance)
     }
 
-    /// Connect app delegate with SDK
+    /// Connect app delegate with SDK for URL schemes
     public func application(
         _ app: UIApplication,
         open url: URL,
         options: [UIApplication.OpenURLOptionsKey: Any] = [:]
     ) -> Bool {
+        // Handle AEM (Aggregated Event Measurement) for iOS 14.5+ attribution
+        // This is required for re-engagement ad campaigns to work properly
+        if let appId = Bundle.main.object(forInfoDictionaryKey: "FacebookAppID") as? String {
+            AEMReporter.configure(networker: nil, appID: appId, reporter: nil)
+            AEMReporter.enable()
+            AEMReporter.handle(url)
+        }
+
         // For Facebook SDK 18.x+, use the simplified URL handling
         return ApplicationDelegate.shared.application(app, open: url, options: options)
+    }
+
+    /// Handle Universal Links for AEM attribution
+    public func application(
+        _ application: UIApplication,
+        continue userActivity: NSUserActivity,
+        restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void
+    ) -> Bool {
+        // Handle AEM for Universal Links
+        // Note: Facebook SDK handles Universal Links internally via swizzling,
+        // but we explicitly handle AEM here to ensure attribution works
+        if userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+           let url = userActivity.webpageURL,
+           let appId = Bundle.main.object(forInfoDictionaryKey: "FacebookAppID") as? String {
+            AEMReporter.configure(networker: nil, appID: appId, reporter: nil)
+            AEMReporter.enable()
+            AEMReporter.handle(url)
+        }
+
+        // Return false to allow other handlers to process the activity
+        return false
+    }
+
+    // MARK: - UISceneDelegate (Flutter 3.38+ / UIScene lifecycle)
+
+    /// Scene-based URL handler for deep links (replaces application:open:options: on UIScene apps)
+    public func scene(
+        _ scene: UIScene,
+        openURLContexts URLContexts: Set<UIOpenURLContext>
+    ) -> Bool {
+        for context in URLContexts {
+            let url = context.url
+            if let appId = Bundle.main.object(forInfoDictionaryKey: "FacebookAppID") as? String {
+                AEMReporter.configure(networker: nil, appID: appId, reporter: nil)
+                AEMReporter.enable()
+                AEMReporter.handle(url)
+            }
+            ApplicationDelegate.shared.application(
+                UIApplication.shared,
+                open: url,
+                sourceApplication: context.options.sourceApplication,
+                annotation: context.options.annotation
+            )
+        }
+        return true
+    }
+
+    /// Scene-based Universal Links handler (replaces application:continue:restorationHandler: on UIScene apps)
+    public func scene(
+        _ scene: UIScene,
+        continue userActivity: NSUserActivity
+    ) -> Bool {
+        if userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+           let url = userActivity.webpageURL,
+           let appId = Bundle.main.object(forInfoDictionaryKey: "FacebookAppID") as? String {
+            AEMReporter.configure(networker: nil, appID: appId, reporter: nil)
+            AEMReporter.enable()
+            AEMReporter.handle(url)
+        }
+        return false
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -60,6 +130,12 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
             handleHandleGetAnonymousId(call, result: result)
         case "setAdvertiserTracking":
             handleSetAdvertiserTracking(call, result: result)
+        case "fetchDeferredAppLink":
+            handleFetchDeferredAppLink(call, result: result)
+        case "setDebugEnabled":
+            handleSetDebugEnabled(call, result: result)
+        case "recordAndUpdateAEMEvent":
+            handleRecordAndUpdateAEMEvent(call, result: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -133,11 +209,20 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
             }
         )
 
-        if let valueToSum = arguments["_valueToSum"] as? Double {
+        let valueToSum = arguments["_valueToSum"] as? Double
+
+        if let valueToSum = valueToSum {
             AppEvents.shared.logEvent(AppEvents.Name(eventName), valueToSum: valueToSum, parameters: parameters)
         } else {
             AppEvents.shared.logEvent(AppEvents.Name(eventName), parameters: parameters)
         }
+
+        // Automatically record AEM event for iOS 14.5+ attribution
+        let currency = rawParams["fb_currency"] as? String
+        AEMReporter.recordAndUpdate(event: eventName,
+                                          currency: currency,
+                                          value: valueToSum as NSNumber?,
+                                          parameters: rawParams)
 
         result(nil)
     }
@@ -196,6 +281,13 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
         )
 
         AppEvents.shared.logPurchase(amount: amount, currency: currency, parameters: parameters)
+
+        // Automatically record AEM event for iOS 14.5+ attribution
+        AEMReporter.recordAndUpdate(event: "fb_mobile_purchase",
+                                          currency: currency,
+                                          value: NSNumber(value: amount),
+                                          parameters: rawParams)
+
         result(nil)
     }
 
@@ -208,5 +300,90 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
         Settings.shared.isAdvertiserIDCollectionEnabled = enabled && collectId
 
         result(nil)
+    }
+
+    private func handleSetDebugEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let enabled = call.arguments as? Bool ?? false
+
+        if enabled {
+            Settings.shared.enableLoggingBehavior(.appEvents)
+            Settings.shared.enableLoggingBehavior(.networkRequests)
+        } else {
+            Settings.shared.disableLoggingBehavior(.appEvents)
+            Settings.shared.disableLoggingBehavior(.networkRequests)
+        }
+
+        result(nil)
+    }
+
+    private func handleRecordAndUpdateAEMEvent(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let arguments = call.arguments as? [String: Any] ?? [:]
+        let eventName = arguments["eventName"] as? String ?? ""
+        let value = arguments["value"] as? NSNumber ?? 0
+        let currency = arguments["currency"] as? String
+        let parameters = arguments["parameters"] as? [String: Any]
+
+        AEMReporter.recordAndUpdate(event: eventName,
+                                          currency: currency,
+                                          value: value,
+                                          parameters: parameters)
+        result(nil)
+    }
+
+    private func handleFetchDeferredAppLink(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        AppLinkUtility.fetchDeferredAppLink { url, error in
+            if let error = error {
+                print("[FacebookAppEvents] fetchDeferredAppLink error: \(error.localizedDescription)")
+                result(nil)
+                return
+            }
+
+            guard let url = url else {
+                result(nil)
+                return
+            }
+
+            var data: [String: Any] = [
+                "targetUrl": url.absoluteString
+            ]
+
+            // Parse URL query parameters for campaign data
+            if let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+               let queryItems = components.queryItems {
+                var queryParams: [String: String] = [:]
+                for item in queryItems {
+                    if let value = item.value {
+                        queryParams[item.name] = value
+
+                        // Extract known Facebook parameters
+                        if item.name == "fb_click_time_utc" {
+                            data["clickTimestamp"] = value
+                        }
+                        if item.name == "fb_ref" {
+                            data["ref"] = value
+                        }
+                    }
+                }
+                if !queryParams.isEmpty {
+                    data["queryParameters"] = queryParams
+                }
+            }
+
+            // Try to extract data from deeplink_context if present
+            if let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+               let deeplinkContext = components.queryItems?.first(where: { $0.name == "deeplink_context" })?.value,
+               let contextData = deeplinkContext.data(using: .utf8),
+               let contextJson = try? JSONSerialization.jsonObject(with: contextData) as? [String: Any] {
+                if let promoCode = contextJson["promo_code"] as? String {
+                    data["promotionCode"] = promoCode
+                }
+                // Also check for ref in deeplink_context if not already set from query params
+                if data["ref"] == nil, let ref = contextJson["fb_ref"] as? String {
+                    data["ref"] = ref
+                }
+            }
+
+            result(data)
+        }
     }
 }

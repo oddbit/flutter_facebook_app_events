@@ -501,6 +501,23 @@ class FacebookAppEvents {
     );
   }
 
+  /// Overrides the Graph API version used by the Facebook SDK.
+  ///
+  /// The plugin sets a default Graph API version at initialization because the
+  /// Facebook SDK v18.x ships with an outdated default that has been removed by
+  /// Meta. Call this method **before** [activateApp] if you need a specific version.
+  ///
+  /// The [version] string must be in the form `"vX.Y"` (e.g. `"v24.0"`).
+  /// Refer to Meta's [Graph API changelog](https://developers.facebook.com/docs/graph-api/changelog/)
+  /// for currently supported versions.
+  ///
+  /// See documentation:
+  /// - [iOS Settings](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/settings.html)
+  /// - [Android FacebookSdk](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/FacebookSdk.html)
+  Future<void> setGraphApiVersion(String version) {
+    return _channel.invokeMethod<void>('setGraphApiVersion', version);
+  }
+
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
   //

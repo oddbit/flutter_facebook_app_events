@@ -16,6 +16,11 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
         // "Removal of Auto Initialization of SDK" section
         ApplicationDelegate.shared.initializeSDK()
 
+        // Override the Graph API version because Facebook iOS SDK v18.x still defaults to v17.0,
+        // which was removed by Meta on September 12, 2025. This is a known upstream issue:
+        // https://github.com/facebook/facebook-ios-sdk/issues/2610
+        Settings.shared.graphAPIVersion = "v24.0"
+
         registrar.addMethodCallDelegate(instance, channel: channel)
         registrar.addApplicationDelegate(instance)
     }
@@ -60,6 +65,8 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
             handleHandleGetAnonymousId(call, result: result)
         case "setAdvertiserTracking":
             handleSetAdvertiserTracking(call, result: result)
+        case "setGraphApiVersion":
+            handleSetGraphApiVersion(call, result: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -196,6 +203,15 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
         )
 
         AppEvents.shared.logPurchase(amount: amount, currency: currency, parameters: parameters)
+        result(nil)
+    }
+
+    private func handleSetGraphApiVersion(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let version = call.arguments as? String else {
+            result(FlutterError(code: "INVALID_ARGUMENT", message: "Graph API version string is required", details: nil))
+            return
+        }
+        Settings.shared.graphAPIVersion = version
         result(nil)
     }
 

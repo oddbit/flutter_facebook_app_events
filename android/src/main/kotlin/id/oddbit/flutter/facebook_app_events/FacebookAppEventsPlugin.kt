@@ -38,6 +38,13 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     application = flutterPluginBinding.applicationContext.applicationContext as? Application
     appEventsLogger = AppEventsLogger.newLogger(flutterPluginBinding.applicationContext)
     anonymousId = AppEventsLogger.getAnonymousAppDeviceGUID(flutterPluginBinding.applicationContext)
+
+    // Override the Graph API version because Facebook Android SDK v18.x still defaults to v16.0,
+    // which was removed by Meta on May 14, 2025. This is a known upstream issue:
+    // https://github.com/facebook/facebook-android-sdk/issues/1308
+    // Note: the SDK emits a Log.w in release builds when this is called, but the version is
+    // still applied. This is intentional and correct behavior for a plugin.
+    FacebookSdk.setGraphApiVersion("v24.0")
   }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
@@ -61,6 +68,7 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
       "getAnonymousId" -> handleGetAnonymousId(call, result)
       "logPurchase" -> handlePurchased(call, result)
       "setAdvertiserTracking" -> handleSetAdvertiserTracking(call, result)
+      "setGraphApiVersion" -> handleSetGraphApiVersion(call, result)
 
       else -> result.notImplemented()
     }
@@ -123,6 +131,16 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     result.success(anonymousId)
   }
   
+  private fun handleSetGraphApiVersion(call: MethodCall, result: Result) {
+    val version = call.arguments as? String
+    if (version == null) {
+      result.error("INVALID_ARGUMENT", "Graph API version string is required", null)
+      return
+    }
+    FacebookSdk.setGraphApiVersion(version)
+    result.success(null)
+  }
+
   private fun handleSetAdvertiserTracking(call: MethodCall, result: Result) {
     val enabled = call.argument<Boolean>("enabled") ?: false
     val collectId = call.argument<Boolean>("collectId") ?: true

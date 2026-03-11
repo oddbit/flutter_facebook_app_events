@@ -123,6 +123,33 @@ with your other plugins or dependencies.
 
 ## Known Limitations
 
+### Graph API Version
+
+The Facebook SDK v18.x ships with an outdated default Graph API version that Meta has already removed:
+
+| Platform | SDK default | Removed by Meta |
+|---|---|---|
+| iOS SDK v18.x | `v17.0` | September 12, 2025 |
+| Android SDK v18.x | `v16.0` | May 14, 2025 |
+
+This plugin works around the issue by overriding the Graph API version to `v24.0` at initialization. This is transparent and requires no configuration for the vast majority of apps.
+
+If you need to target a specific Graph API version (e.g. to pin to the same version as your backend), call `setGraphApiVersion` **before** `activateApp`:
+
+```dart
+final facebookAppEvents = FacebookAppEvents();
+
+// Override the Graph API version (optional — plugin defaults to v24.0)
+await facebookAppEvents.setGraphApiVersion('v24.0');
+
+// Then activate the app as usual
+await facebookAppEvents.activateApp();
+```
+
+Refer to Meta's [Graph API changelog](https://developers.facebook.com/docs/graph-api/changelog/) for currently active versions.
+
+This is a plugin-specific workaround for a [known upstream issue in the iOS SDK](https://github.com/facebook/facebook-ios-sdk/issues/2610) and [Android SDK](https://github.com/facebook/facebook-android-sdk/issues/1308). When Meta releases SDK v19.x with a corrected default, this override will become a no-op and the method can safely be removed from your code.
+
 ### Facebook Event Manager "Please Upgrade SDK" Warning
 
 When setting up codeless events in Facebook Event Manager, you may encounter a warning message stating:

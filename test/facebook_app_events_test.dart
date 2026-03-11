@@ -163,4 +163,18 @@ void main() {
       );
     });
   });
+
+  group('Configuration', () {
+    test('setGraphApiVersion forwards version string', () async {
+      await facebookAppEvents.setGraphApiVersion('v24.0');
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'setGraphApiVersion',
+          arguments: 'v24.0',
+        ),
+      );
+    });
+  });
 }

@@ -1,3 +1,7 @@
+## 0.25.0
+- Work around stale default Graph API versions in Facebook SDK v18.x by overriding the native SDK Graph API version to `v24.0` on iOS and Android (PR [#476](https://github.com/oddbit/flutter_facebook_app_events/pull/476), fixes [#474](https://github.com/oddbit/flutter_facebook_app_events/issues/474))
+- Add `setGraphApiVersion(String version)` to forward Graph API version overrides through the plugin API (PR [#476](https://github.com/oddbit/flutter_facebook_app_events/pull/476))
+
 ## 0.24.0
 - Add `activateApp()` to manually log app activation when automatic app event logging is disabled (PR [#466](https://github.com/oddbit/flutter_facebook_app_events/pull/466))
 

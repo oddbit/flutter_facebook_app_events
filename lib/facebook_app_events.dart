@@ -505,7 +505,8 @@ class FacebookAppEvents {
   ///
   /// The plugin sets a default Graph API version at initialization because the
   /// Facebook SDK v18.x ships with an outdated default that has been removed by
-  /// Meta. Call this method **before** [activateApp] if you need a specific version.
+  /// Meta. Call this as early as possible in app startup if you need a specific
+  /// version before using plugin features that may trigger Graph API requests.
   ///
   /// The [version] string must be in the form `"vX.Y"` (e.g. `"v24.0"`).
   /// Refer to Meta's [Graph API changelog](https://developers.facebook.com/docs/graph-api/changelog/)

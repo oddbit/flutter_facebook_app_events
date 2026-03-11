@@ -132,9 +132,9 @@ The Facebook SDK v18.x ships with an outdated default Graph API version that Met
 | iOS SDK v18.x | `v17.0` | September 12, 2025 |
 | Android SDK v18.x | `v16.0` | May 14, 2025 |
 
-This plugin works around the issue by overriding the Graph API version to `v24.0` at initialization. This is transparent and requires no configuration for the vast majority of apps.
+This plugin works around the issue by overriding the Graph API version to `v24.0` during plugin initialization. This requires no extra configuration for the vast majority of apps.
 
-If you need to target a specific Graph API version (e.g. to pin to the same version as your backend), call `setGraphApiVersion` **before** `activateApp`:
+If you need to target a specific Graph API version (e.g. to pin to the same version as your backend), call `setGraphApiVersion` as early as possible in app startup before using features that may trigger Graph API requests:
 
 ```dart
 final facebookAppEvents = FacebookAppEvents();

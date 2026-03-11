@@ -12,7 +12,7 @@ jobs:
       contents: read
     env:
       CI: true
-      GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.vfs.watch=false
+      GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.vfs.watch=false -Dorg.gradle.caching=true
 
     steps:
       - uses: actions/checkout@v4
@@ -23,6 +23,10 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: gradle
+          cache-dependency-path: |
+            example/android/**/*.gradle*
+            example/android/**/gradle-wrapper.properties
+            example/android/gradle.properties
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3

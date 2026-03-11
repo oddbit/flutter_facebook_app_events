@@ -58,7 +58,7 @@ jobs:
             timeout: 60
     env:
       CI: true
-      GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.vfs.watch=false
+      GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.vfs.watch=false -Dorg.gradle.caching=true
 
     steps:
       - uses: actions/checkout@v4
@@ -70,6 +70,10 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: gradle
+          cache-dependency-path: |
+            example/android/**/*.gradle*
+            example/android/**/gradle-wrapper.properties
+            example/android/gradle.properties
 
       - name: Set up Android SDK
         if: matrix.target == 'android'
@@ -83,9 +87,32 @@ jobs:
 
       - run: flutter --version
 
+      - name: Cache CocoaPods
+        if: matrix.target == 'ios'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cocoapods
+            ~/Library/Caches/CocoaPods
+            example/ios/Pods
+          key: ${{ runner.os }}-cocoapods-${{ hashFiles('example/ios/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cocoapods-
+
+      - name: Cache CocoaPods gem
+        if: matrix.target == 'ios'
+        uses: actions/cache@v4
+        with:
+          path: ~/.gem
+          key: ${{ runner.os }}-cocoapods-gem-v1
+
+      - name: Add user gem bin to PATH
+        if: matrix.target == 'ios'
+        run: echo "$(ruby -r rubygems -e 'print Gem.user_dir')/bin" >> "$GITHUB_PATH"
+
       - name: Install CocoaPods
         if: matrix.target == 'ios'
-        run: sudo gem install cocoapods -N
+        run: gem list -i cocoapods || gem install cocoapods -N --user-install
 
       - name: Flutter pub get (root)
         run: flutter pub get

@@ -14,19 +14,6 @@ Flutter plugin for [Facebook App Events](https://developers.facebook.com/docs/ap
 
 Flutter plugin for Facebook App Events, an app measurement solution that provides insight on app usage and user engagement.
 
-## Attribution
-
-`facebook_app_events` is developed and maintained by **[Oddbit](https://oddbit.id)**.
-
-- Source repository: <https://github.com/oddbit/flutter_facebook_app_events>
-- License: [Apache License 2.0](LICENSE)
-- Attribution notices: [NOTICE](NOTICE)
-- Name and logo usage: [Trademark Policy](TRADEMARK_POLICY.md)
-
-If you publish a fork or derivative work, retain the license and notice files,
-preserve applicable copyright and attribution notices, and clearly indicate
-that your version has been modified.
-
 ## Documentation
 
 - Plugin API reference (auto-generated): https://pub.dev/documentation/facebook_app_events/latest/
@@ -199,12 +186,6 @@ For more details, see:
 - [GitHub Issue #402](https://github.com/oddbit/flutter_facebook_app_events/issues/402)
 - [Facebook iOS SDK Issue #2513](https://github.com/facebook/facebook-ios-sdk/issues/2513)
 
-
-## Getting involved
-First of all, thank you for even considering to get involved. You are a real super :star: and we :heart: you! 
-
-Please read our [contribution guideline](CONTRIBUTING.md) for more info.
-
 ### Discussions and ideas
 We're happy to discuss and talk about ideas in the
 [repository discussions](https://github.com/oddbit/flutter_facebook_app_events/discussions) and/or post your
@@ -212,3 +193,21 @@ question to [StackOverflow](https://stackoverflow.com/search?q=facebook+app+even
 
 Feel free to open a thread if you are having any questions on how to use either the Facebook App Events as a reporting tool
 itself or even on how to use this plugin. 
+
+## Getting involved
+First of all, thank you for even considering to get involved. You are a real super :star: and we :heart: you! 
+
+Please read our [contribution guideline](CONTRIBUTING.md) for more info.
+
+## Attribution
+
+`facebook_app_events` is developed and maintained by **[Oddbit](https://oddbit.id)**.
+
+- Source repository: <https://github.com/oddbit/flutter_facebook_app_events>
+- License: [Apache License 2.0](LICENSE)
+- Attribution notices: [NOTICE](NOTICE)
+- Name and logo usage: [Trademark Policy](TRADEMARK_POLICY.md)
+
+If you publish a fork or derivative work, retain the license and notice files,
+preserve applicable copyright and attribution notices, and clearly indicate
+that your version has been modified.

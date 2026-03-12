@@ -3,7 +3,7 @@
 // This source file is part of facebook_app_events.
 // Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
 
-// swift-tools-version: 5.9
+// swift-tools-version: 6.1
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -11,7 +11,7 @@ import PackageDescription
 let package = Package(
     name: "facebook_app_events",
     platforms: [
-        .iOS(.v12)
+        .iOS(.v13)
     ],
     products: [
         // If the plugin name contains "_", the library name must use "-".

@@ -18,7 +18,7 @@ let package = Package(
         .library(name: "facebook-app-events", targets: ["facebook_app_events"])
     ],
     dependencies: [
-        .package(url: "https://github.com/facebook/facebook-ios-sdk.git", from: "18.0.0")
+        .package(url: "https://github.com/facebook/facebook-ios-sdk.git", "18.0.0"..<"19.0.0")
     ],
     targets: [
         .target(

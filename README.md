@@ -14,6 +14,19 @@ Flutter plugin for [Facebook App Events](https://developers.facebook.com/docs/ap
 
 Flutter plugin for Facebook App Events, an app measurement solution that provides insight on app usage and user engagement.
 
+## Attribution
+
+`facebook_app_events` is developed and maintained by **[Oddbit](https://oddbit.id)**.
+
+- Source repository: <https://github.com/oddbit/flutter_facebook_app_events>
+- License: [Apache License 2.0](LICENSE)
+- Attribution notices: [NOTICE](NOTICE)
+- Name and logo usage: [Trademark Policy](TRADEMARK_POLICY.md)
+
+If you publish a fork or derivative work, retain the license and notice files,
+preserve applicable copyright and attribution notices, and clearly indicate
+that your version has been modified.
+
 ## Documentation
 
 - Plugin API reference (auto-generated): https://pub.dev/documentation/facebook_app_events/latest/

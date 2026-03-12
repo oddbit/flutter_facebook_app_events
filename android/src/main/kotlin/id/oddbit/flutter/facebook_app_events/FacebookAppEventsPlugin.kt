@@ -1,3 +1,8 @@
+// Copyright (c) Oddbit (https://oddbit.id)
+//
+// This source file is part of facebook_app_events.
+// Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+
 package id.oddbit.flutter.facebook_app_events
 
 import androidx.annotation.NonNull

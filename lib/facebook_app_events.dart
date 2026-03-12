@@ -1,3 +1,8 @@
+// Copyright (c) Oddbit (https://oddbit.id)
+//
+// This source file is part of facebook_app_events.
+// Licensed under the Apache License, Version 2.0. See LICENSE and NOTICE.
+
 import 'dart:async';
 import 'dart:convert';
 

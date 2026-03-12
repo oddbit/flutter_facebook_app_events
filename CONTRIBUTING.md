@@ -32,6 +32,15 @@ We appreciate your interest in contributing to the `flutter_facebook_app_events`
 
 7. **Submit a Pull Request**: Open a pull request to the main repository. Provide a detailed description of your changes and reference any related issues.
 
+## Attribution and Name Usage
+
+If you publish a fork or derivative work, retain the project's license and
+notice files and clearly identify your version as modified.
+
+Please also follow the repository's [Trademark Policy](TRADEMARK_POLICY.md)
+when referring to the Oddbit name in project names, package names,
+descriptions, or branding.
+
 ## Reporting Issues
 If you encounter any bugs or have suggestions for enhancements, please [open an issue](https://github.com/oddbit/flutter_facebook_app_events/issues). Provide as much detail as possible to help us understand and address the issue promptly.
 
@@ -54,4 +63,3 @@ git push origin v1.2.3
 You can view existing tags [here](https://github.com/oddbit/flutter_facebook_app_events/tags).
 
 Thank you for contributing to `flutter_facebook_app_events`!
-

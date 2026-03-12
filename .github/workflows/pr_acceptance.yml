@@ -53,10 +53,6 @@ jobs:
         working-directory: example
         run: flutter test
 
-      - name: Flutter clean (example)
-        working-directory: example
-        run: flutter clean
-
       - name: Build example APK (debug, verbose)
         working-directory: example
         run: flutter build apk --debug -v

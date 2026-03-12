@@ -1,3 +1,17 @@
+## 0.26.0
+
+### ⚠️ Breaking Changes
+
+- **Raise iOS minimum deployment target** from 12 to 13 — iOS 12 is EOL
+- **Tighten Dart/Flutter SDK constraints** — Dart >=3.3.0, Flutter >=3.19.0 (was unconstrained; aligns with March 2024+ ecosystem)
+
+### Changes
+
+- **Bound iOS SPM Facebook SDK version range** to `"18.0.0"..<"19.0.0"` — prevents silent acceptance of breaking major versions; consistent with podspec (`~> 18.0`) and Android (`[18.0,19.0)`) (PR [#477](https://github.com/oddbit/flutter_facebook_app_events/pull/477))
+- **Update Android toolchain** — Kotlin 2.3.10, AGP 8.9.2, Gradle 8.11.1, compileSdk 35 (PR [#477](https://github.com/oddbit/flutter_facebook_app_events/pull/477))
+- **Add Android consumer ProGuard rules** — prevents R8 in host apps with code shrinking from stripping Facebook App Events classes at runtime (PR [#477](https://github.com/oddbit/flutter_facebook_app_events/pull/477))
+- **Add `analysis_options.yaml`** with `flutter_lints` for static analysis (PR [#477](https://github.com/oddbit/flutter_facebook_app_events/pull/477))
+
 ## 0.25.0
 - Work around stale default Graph API versions in Facebook SDK v18.x by overriding the native SDK Graph API version to `v24.0` on iOS and Android (PR [#476](https://github.com/oddbit/flutter_facebook_app_events/pull/476), fixes [#474](https://github.com/oddbit/flutter_facebook_app_events/issues/474))
 - Add `setGraphApiVersion(String version)` to forward Graph API version overrides through the plugin API (PR [#476](https://github.com/oddbit/flutter_facebook_app_events/pull/476))

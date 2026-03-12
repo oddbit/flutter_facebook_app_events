@@ -67,7 +67,7 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
         case "logPurchase":
             handlePurchased(call, result: result)
         case "getAnonymousId":
-            handleHandleGetAnonymousId(call, result: result)
+            handleGetAnonymousId(call, result: result)
         case "setAdvertiserTracking":
             handleSetAdvertiserTracking(call, result: result)
         case "setGraphApiVersion":
@@ -127,7 +127,7 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
         result(appId)
     }
 
-    private func handleHandleGetAnonymousId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    private func handleGetAnonymousId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         result(AppEvents.shared.anonymousID)
     }
 

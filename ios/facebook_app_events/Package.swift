@@ -11,14 +11,14 @@ import PackageDescription
 let package = Package(
     name: "facebook_app_events",
     platforms: [
-        .iOS(.v12)
+        .iOS(.v13)
     ],
     products: [
         // If the plugin name contains "_", the library name must use "-".
         .library(name: "facebook-app-events", targets: ["facebook_app_events"])
     ],
     dependencies: [
-        .package(url: "https://github.com/facebook/facebook-ios-sdk.git", from: "18.0.0")
+        .package(url: "https://github.com/facebook/facebook-ios-sdk.git", "18.0.0"..<"19.0.0")
     ],
     targets: [
         .target(

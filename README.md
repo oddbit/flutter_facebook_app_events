@@ -5,8 +5,6 @@
 [![pub likes](https://img.shields.io/pub/likes/facebook_app_events)](https://pub.dev/packages/facebook_app_events/score)
 [![pub points](https://img.shields.io/pub/points/facebook_app_events)](https://pub.dev/packages/facebook_app_events/score)
 
-![Dart](https://img.shields.io/badge/Dart-%3E%3D2.12%20%3C4.0-blue)
-![Flutter](https://img.shields.io/badge/Flutter-%3E%3D2.0-blue)
 
 Flutter plugin for [Facebook App Events](https://developers.facebook.com/docs/app-events).
 

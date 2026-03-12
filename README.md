@@ -186,7 +186,7 @@ For more details, see:
 - [GitHub Issue #402](https://github.com/oddbit/flutter_facebook_app_events/issues/402)
 - [Facebook iOS SDK Issue #2513](https://github.com/facebook/facebook-ios-sdk/issues/2513)
 
-### Discussions and ideas
+## Discussions and ideas
 We're happy to discuss and talk about ideas in the
 [repository discussions](https://github.com/oddbit/flutter_facebook_app_events/discussions) and/or post your
 question to [StackOverflow](https://stackoverflow.com/search?q=facebook+app+events+flutter).

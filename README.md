@@ -6,7 +6,7 @@
 [![pub points](https://img.shields.io/pub/points/facebook_app_events)](https://pub.dev/packages/facebook_app_events/score)
 
 
-Flutter plugin for [Facebook App Events](https://developers.facebook.com/docs/app-events).
+Flutter plugin for [Facebook App Events](https://oddb.it/rhg).
 
 > An app event is an action that takes place in your app or on your web page such as a person installing your app or completing a purchase. Facebook App Events allows you to track these events to measure ad performance, and build audiences for ad targeting.
 
@@ -14,8 +14,8 @@ Flutter plugin for Facebook App Events, an app measurement solution that provide
 
 ## Documentation
 
-- Plugin API reference (auto-generated): https://pub.dev/documentation/facebook_app_events/latest/
-- Meta App Events overview: https://developers.facebook.com/docs/app-events
+- Plugin API reference (auto-generated): [pub.dev/documentation/facebook_app_events/latest](https://oddb.it/gie)
+- Meta App Events overview: [https://developers.facebook.com/docs/app-events](https://oddb.it/rhg)
 
 ## Setting things up
 
@@ -201,7 +201,7 @@ Please read our [contribution guideline](CONTRIBUTING.md) for more info.
 
 `facebook_app_events` is developed and maintained by **[Oddbit](https://oddbit.id)**.
 
-- Source repository: <https://github.com/oddbit/flutter_facebook_app_events>
+- Source repository: <https://oddb.it/gh-appevt-readme>
 - License: [Apache License 2.0](LICENSE)
 - Attribution notices: [NOTICE](NOTICE)
 - Name and logo usage: [Trademark Policy](TRADEMARK_POLICY.md)

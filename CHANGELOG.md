@@ -1,3 +1,7 @@
+## 0.26.1
+
+- Fix `swift-tools-version` placement — must be on the first line of `Package.swift` (PR [#479](https://github.com/oddbit/flutter_facebook_app_events/pull/479))
+
 ## 0.26.0
 
 ### ⚠️ Breaking Changes

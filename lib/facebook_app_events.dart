@@ -481,13 +481,19 @@ class FacebookAppEvents {
   /// See documentation:
   /// - https://developers.facebook.com/docs/app-events/best-practices#standard-events
   Future<void> logAdImpression({
-    required String adType,
+    String? adType,
+    String? currency,
+    double? valueToSum,
+    Map<String, dynamic>? parameters,
   }) {
     return logEvent(
       name: eventNameAdImpression,
       parameters: {
-        paramNameAdType: adType,
+        if (adType != null) paramNameAdType: adType,
+        if (currency != null) paramNameCurrency: currency,
+        if (parameters != null) ...parameters,
       },
+      valueToSum: valueToSum,
     );
   }
 
@@ -496,13 +502,19 @@ class FacebookAppEvents {
   /// See documentation:
   /// - https://developers.facebook.com/docs/app-events/best-practices#standard-events
   Future<void> logAdClick({
-    required String adType,
+    String? adType,
+    String? currency,
+    double? valueToSum,
+    Map<String, dynamic>? parameters,
   }) {
     return logEvent(
       name: eventNameAdClick,
       parameters: {
-        paramNameAdType: adType,
+        if (adType != null) paramNameAdType: adType,
+        if (currency != null) paramNameCurrency: currency,
+        if (parameters != null) ...parameters,
       },
+      valueToSum: valueToSum,
     );
   }
 

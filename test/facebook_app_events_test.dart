@@ -44,6 +44,52 @@ void main() {
         ),
       );
     });
+
+    test('logAdImpression forwards parameters', () async {
+      await facebookAppEvents.logAdImpression(
+        adType: 'interstitial',
+        currency: 'USD',
+        valueToSum: 1.23,
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'AdImpression',
+            'parameters': <String, dynamic>{
+              'fb_ad_type': 'interstitial',
+              'fb_currency': 'USD',
+            },
+            '_valueToSum': 1.23,
+          },
+        ),
+      );
+    });
+
+    test('logAdClick forwards parameters', () async {
+      await facebookAppEvents.logAdClick(
+        adType: 'rewarded_video',
+        currency: 'EUR',
+        valueToSum: 2.34,
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'AdClick',
+            'parameters': <String, dynamic>{
+              'fb_ad_type': 'rewarded_video',
+              'fb_currency': 'EUR',
+            },
+            '_valueToSum': 2.34,
+          },
+        ),
+      );
+    });
   });
 
   group('Purchase logging', () {

@@ -478,7 +478,11 @@ class FacebookAppEvents {
 
   /// Log this event when the user views an ad.
   ///
+  /// To be eligible for ad revenue optimization (ROAS), you must include the
+  /// [valueToSum] and [currency] parameters.
+  ///
   /// See documentation:
+  /// - https://developers.facebook.com/docs/app-events/guides/maximize-in-app-ad-revenue
   /// - https://developers.facebook.com/docs/app-events/best-practices#standard-events
   Future<void> logAdImpression({
     String? adType,
@@ -486,6 +490,8 @@ class FacebookAppEvents {
     double? valueToSum,
     Map<String, dynamic>? parameters,
   }) {
+    assert(valueToSum == null || currency != null,
+        'currency must be provided if valueToSum is provided');
     return logEvent(
       name: eventNameAdImpression,
       parameters: {
@@ -499,7 +505,11 @@ class FacebookAppEvents {
 
   /// Log this event when the user clicks an ad.
   ///
+  /// To be eligible for ad revenue optimization (ROAS), you must include the
+  /// [valueToSum] and [currency] parameters.
+  ///
   /// See documentation:
+  /// - https://developers.facebook.com/docs/app-events/guides/maximize-in-app-ad-revenue
   /// - https://developers.facebook.com/docs/app-events/best-practices#standard-events
   Future<void> logAdClick({
     String? adType,
@@ -507,6 +517,8 @@ class FacebookAppEvents {
     double? valueToSum,
     Map<String, dynamic>? parameters,
   }) {
+    assert(valueToSum == null || currency != null,
+        'currency must be provided if valueToSum is provided');
     return logEvent(
       name: eventNameAdClick,
       parameters: {

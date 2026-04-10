@@ -68,6 +68,30 @@ void main() {
       );
     });
 
+    test('logAdImpression handles custom parameters and overrides', () async {
+      await facebookAppEvents.logAdImpression(
+        adType: 'interstitial',
+        parameters: {
+          'fb_ad_type': 'SHOULD_BE_OVERRIDDEN',
+          'custom_param': 'value',
+        },
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'AdImpression',
+            'parameters': <String, dynamic>{
+              'fb_ad_type': 'interstitial',
+              'custom_param': 'value',
+            },
+          },
+        ),
+      );
+    });
+
     test('logAdClick forwards parameters', () async {
       await facebookAppEvents.logAdClick(
         adType: 'rewarded_video',

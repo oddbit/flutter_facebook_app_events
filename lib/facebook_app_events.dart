@@ -489,9 +489,9 @@ class FacebookAppEvents {
     return logEvent(
       name: eventNameAdImpression,
       parameters: {
+        if (parameters != null) ...parameters,
         if (adType != null) paramNameAdType: adType,
         if (currency != null) paramNameCurrency: currency,
-        if (parameters != null) ...parameters,
       },
       valueToSum: valueToSum,
     );
@@ -510,9 +510,9 @@ class FacebookAppEvents {
     return logEvent(
       name: eventNameAdClick,
       parameters: {
+        if (parameters != null) ...parameters,
         if (adType != null) paramNameAdType: adType,
         if (currency != null) paramNameCurrency: currency,
-        if (parameters != null) ...parameters,
       },
       valueToSum: valueToSum,
     );

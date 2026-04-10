@@ -45,12 +45,8 @@ void main() {
       );
     });
 
-    test('logAdImpression forwards parameters', () async {
-      await facebookAppEvents.logAdImpression(
-        adType: 'interstitial',
-        currency: 'USD',
-        valueToSum: 1.23,
-      );
+    test('logAdImpression forwards adType', () async {
+      await facebookAppEvents.logAdImpression(adType: 'interstitial');
 
       expect(
         methodCall,
@@ -60,42 +56,9 @@ void main() {
             'name': 'AdImpression',
             'parameters': <String, dynamic>{
               'fb_ad_type': 'interstitial',
-              'fb_currency': 'USD',
-            },
-            '_valueToSum': 1.23,
-          },
-        ),
-      );
-    });
-
-    test('logAdImpression handles custom parameters and overrides', () async {
-      await facebookAppEvents.logAdImpression(
-        adType: 'interstitial',
-        parameters: {
-          'fb_ad_type': 'SHOULD_BE_OVERRIDDEN',
-          'custom_param': 'value',
-        },
-      );
-
-      expect(
-        methodCall,
-        isMethodCall(
-          'logEvent',
-          arguments: <String, dynamic>{
-            'name': 'AdImpression',
-            'parameters': <String, dynamic>{
-              'fb_ad_type': 'interstitial',
-              'custom_param': 'value',
             },
           },
         ),
-      );
-    });
-
-    test('logAdImpression throws ArgumentError if valueToSum given without currency', () {
-      expect(
-        () => facebookAppEvents.logAdImpression(valueToSum: 1.23),
-        throwsArgumentError,
       );
     });
 
@@ -162,12 +125,8 @@ void main() {
       );
     });
 
-    test('logAdClick forwards parameters', () async {
-      await facebookAppEvents.logAdClick(
-        adType: 'rewarded_video',
-        currency: 'EUR',
-        valueToSum: 2.34,
-      );
+    test('logAdClick forwards adType', () async {
+      await facebookAppEvents.logAdClick(adType: 'rewarded_video');
 
       expect(
         methodCall,
@@ -177,11 +136,30 @@ void main() {
             'name': 'AdClick',
             'parameters': <String, dynamic>{
               'fb_ad_type': 'rewarded_video',
-              'fb_currency': 'EUR',
             },
-            '_valueToSum': 2.34,
           },
         ),
+      );
+    });
+
+    test('logViewContent throws ArgumentError if price given without currency', () {
+      expect(
+        () => facebookAppEvents.logViewContent(price: 9.99),
+        throwsArgumentError,
+      );
+    });
+
+    test('logSubscribe throws ArgumentError if price given without currency', () {
+      expect(
+        () => facebookAppEvents.logSubscribe(orderId: 'order123', price: 4.99),
+        throwsArgumentError,
+      );
+    });
+
+    test('logStartTrial throws ArgumentError if price given without currency', () {
+      expect(
+        () => facebookAppEvents.logStartTrial(orderId: 'order123', price: 1.99),
+        throwsArgumentError,
       );
     });
   });

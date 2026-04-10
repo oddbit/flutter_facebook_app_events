@@ -287,7 +287,8 @@ class FacebookAppEvents {
     double? price,
     Map<String, dynamic>? parameters,
   }) {
-    if (price != null && currency == null) {
+    final effectiveCurrency = currency ?? parameters?[paramNameCurrency];
+    if (price != null && effectiveCurrency == null) {
       throw ArgumentError('currency must be provided if price is provided');
     }
     return logEvent(
@@ -435,7 +436,8 @@ class FacebookAppEvents {
     bool paymentInfoAvailable = false,
     Map<String, dynamic>? parameters,
   }) {
-    if (totalPrice != null && currency == null) {
+    final effectiveCurrency = currency ?? parameters?[paramNameCurrency];
+    if (totalPrice != null && effectiveCurrency == null) {
       throw ArgumentError('currency must be provided if totalPrice is provided');
     }
     return logEvent(
@@ -486,7 +488,8 @@ class FacebookAppEvents {
     required String orderId,
     Map<String, dynamic>? parameters,
   }) {
-    if (price != null && currency == null) {
+    final effectiveCurrency = currency ?? parameters?[paramNameCurrency];
+    if (price != null && effectiveCurrency == null) {
       throw ArgumentError('currency must be provided if price is provided');
     }
     return logEvent(
@@ -513,7 +516,8 @@ class FacebookAppEvents {
     required String orderId,
     Map<String, dynamic>? parameters,
   }) {
-    if (price != null && currency == null) {
+    final effectiveCurrency = currency ?? parameters?[paramNameCurrency];
+    if (price != null && effectiveCurrency == null) {
       throw ArgumentError('currency must be provided if price is provided');
     }
     return logEvent(
@@ -529,57 +533,63 @@ class FacebookAppEvents {
 
   /// Log this event when the user views an ad.
   ///
-  /// To be eligible for ad revenue optimization (ROAS), you must include the
-  /// [valueToSum] and [currency] parameters.
+  /// To track ad revenue for ROAS optimization, use [logEvent] directly with
+  /// [eventNameAdImpression], passing [valueToSum] (the ad revenue amount) and
+  /// [paramNameCurrency] in the parameters map:
+  ///
+  /// ```dart
+  /// logEvent(
+  ///   name: FacebookAppEvents.eventNameAdImpression,
+  ///   valueToSum: revenueAmount,
+  ///   parameters: {
+  ///     FacebookAppEvents.paramNameAdType: 'interstitial',
+  ///     FacebookAppEvents.paramNameCurrency: 'USD',
+  ///   },
+  /// );
+  /// ```
   ///
   /// See documentation:
   /// - https://developers.facebook.com/docs/app-events/guides/maximize-in-app-ad-revenue
   /// - https://developers.facebook.com/docs/app-events/best-practices#standard-events
   Future<void> logAdImpression({
-    String? adType,
-    String? currency,
-    double? valueToSum,
-    Map<String, dynamic>? parameters,
+    required String adType,
   }) {
-    if (valueToSum != null && currency == null) {
-      throw ArgumentError('currency must be provided if valueToSum is provided');
-    }
     return logEvent(
       name: eventNameAdImpression,
       parameters: {
-        if (parameters != null) ...parameters,
-        if (adType != null) paramNameAdType: adType,
-        if (currency != null) paramNameCurrency: currency,
+        paramNameAdType: adType,
       },
-      valueToSum: valueToSum,
     );
   }
 
   /// Log this event when the user clicks an ad.
   ///
-  /// To be eligible for ad revenue optimization (ROAS), you must include the
-  /// [valueToSum] and [currency] parameters.
+  /// To track ad revenue for ROAS optimization, use [logEvent] directly with
+  /// [eventNameAdClick], passing [valueToSum] (the ad revenue amount) and
+  /// [paramNameCurrency] in the parameters map:
+  ///
+  /// ```dart
+  /// logEvent(
+  ///   name: FacebookAppEvents.eventNameAdClick,
+  ///   valueToSum: revenueAmount,
+  ///   parameters: {
+  ///     FacebookAppEvents.paramNameAdType: 'rewarded_video',
+  ///     FacebookAppEvents.paramNameCurrency: 'USD',
+  ///   },
+  /// );
+  /// ```
   ///
   /// See documentation:
   /// - https://developers.facebook.com/docs/app-events/guides/maximize-in-app-ad-revenue
   /// - https://developers.facebook.com/docs/app-events/best-practices#standard-events
   Future<void> logAdClick({
-    String? adType,
-    String? currency,
-    double? valueToSum,
-    Map<String, dynamic>? parameters,
+    required String adType,
   }) {
-    if (valueToSum != null && currency == null) {
-      throw ArgumentError('currency must be provided if valueToSum is provided');
-    }
     return logEvent(
       name: eventNameAdClick,
       parameters: {
-        if (parameters != null) ...parameters,
-        if (adType != null) paramNameAdType: adType,
-        if (currency != null) paramNameCurrency: currency,
+        paramNameAdType: adType,
       },
-      valueToSum: valueToSum,
     );
   }
 

@@ -44,6 +44,151 @@ void main() {
         ),
       );
     });
+
+    test('logAdImpression forwards adType', () async {
+      await facebookAppEvents.logAdImpression(adType: 'interstitial');
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'AdImpression',
+            'parameters': <String, dynamic>{
+              'fb_ad_type': 'interstitial',
+            },
+          },
+        ),
+      );
+    });
+
+    test('logViewContent handles custom parameters and overrides', () async {
+      await facebookAppEvents.logViewContent(
+        id: 'id123',
+        currency: 'USD',
+        price: 9.99,
+        parameters: {
+          'fb_content_id': 'SHOULD_BE_OVERRIDDEN',
+          'custom_param': 'value',
+        },
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'fb_mobile_content_view',
+            'parameters': <String, dynamic>{
+              'fb_content_id': 'id123',
+              'fb_currency': 'USD',
+              'custom_param': 'value',
+            },
+            '_valueToSum': 9.99,
+          },
+        ),
+      );
+    });
+
+    test('logSubscribe handles custom parameters and overrides', () async {
+      await facebookAppEvents.logSubscribe(
+        orderId: 'order123',
+        currency: 'USD',
+        price: 4.99,
+        parameters: {
+          'fb_order_id': 'SHOULD_BE_OVERRIDDEN',
+          'custom_param': 'value',
+        },
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'Subscribe',
+            'parameters': <String, dynamic>{
+              'fb_order_id': 'order123',
+              'fb_currency': 'USD',
+              'custom_param': 'value',
+            },
+            '_valueToSum': 4.99,
+          },
+        ),
+      );
+    });
+
+    test('logCompletedRegistration handles custom parameters and overrides', () async {
+      await facebookAppEvents.logCompletedRegistration(
+        registrationMethod: 'email',
+        parameters: {
+          'fb_registration_method': 'SHOULD_BE_OVERRIDDEN',
+          'custom_param': 'value',
+        },
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'fb_mobile_complete_registration',
+            'parameters': <String, dynamic>{
+              'fb_registration_method': 'email',
+              'custom_param': 'value',
+            },
+          },
+        ),
+      );
+    });
+
+    test('logAddToCart handles custom parameters and overrides', () async {
+      await facebookAppEvents.logAddToCart(
+        id: 'item-1',
+        type: 'product',
+        currency: 'USD',
+        price: 9.99,
+        parameters: {
+          'fb_content_id': 'SHOULD_BE_OVERRIDDEN',
+          'custom_param': 'value',
+        },
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'fb_mobile_add_to_cart',
+            'parameters': <String, dynamic>{
+              'fb_content_id': 'item-1',
+              'fb_content_type': 'product',
+              'fb_currency': 'USD',
+              'custom_param': 'value',
+            },
+            '_valueToSum': 9.99,
+          },
+        ),
+      );
+    });
+
+    test('logAdClick forwards adType', () async {
+      await facebookAppEvents.logAdClick(adType: 'rewarded_video');
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'AdClick',
+            'parameters': <String, dynamic>{
+              'fb_ad_type': 'rewarded_video',
+            },
+          },
+        ),
+      );
+    });
+
   });
 
   group('Purchase logging', () {

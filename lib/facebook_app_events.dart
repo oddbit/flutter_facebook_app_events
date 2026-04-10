@@ -287,10 +287,6 @@ class FacebookAppEvents {
     double? price,
     Map<String, dynamic>? parameters,
   }) {
-    final effectiveCurrency = currency ?? parameters?[paramNameCurrency];
-    if (price != null && effectiveCurrency == null) {
-      throw ArgumentError('currency must be provided if price is provided');
-    }
     return logEvent(
       name: eventNameViewedContent,
       parameters: {
@@ -436,10 +432,6 @@ class FacebookAppEvents {
     bool paymentInfoAvailable = false,
     Map<String, dynamic>? parameters,
   }) {
-    final effectiveCurrency = currency ?? parameters?[paramNameCurrency];
-    if (totalPrice != null && effectiveCurrency == null) {
-      throw ArgumentError('currency must be provided if totalPrice is provided');
-    }
     return logEvent(
       name: eventNameInitiatedCheckout,
       valueToSum: totalPrice,
@@ -488,10 +480,6 @@ class FacebookAppEvents {
     required String orderId,
     Map<String, dynamic>? parameters,
   }) {
-    final effectiveCurrency = currency ?? parameters?[paramNameCurrency];
-    if (price != null && effectiveCurrency == null) {
-      throw ArgumentError('currency must be provided if price is provided');
-    }
     return logEvent(
       name: eventNameSubscribe,
       valueToSum: price,
@@ -516,10 +504,6 @@ class FacebookAppEvents {
     required String orderId,
     Map<String, dynamic>? parameters,
   }) {
-    final effectiveCurrency = currency ?? parameters?[paramNameCurrency];
-    if (price != null && effectiveCurrency == null) {
-      throw ArgumentError('currency must be provided if price is provided');
-    }
     return logEvent(
       name: eventNameStartTrial,
       valueToSum: price,

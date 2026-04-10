@@ -118,13 +118,6 @@ void main() {
       );
     });
 
-    test('logInitiatedCheckout throws ArgumentError if totalPrice given without currency', () {
-      expect(
-        () => facebookAppEvents.logInitiatedCheckout(totalPrice: 10.0),
-        throwsArgumentError,
-      );
-    });
-
     test('logAdClick forwards adType', () async {
       await facebookAppEvents.logAdClick(adType: 'rewarded_video');
 
@@ -142,26 +135,6 @@ void main() {
       );
     });
 
-    test('logViewContent throws ArgumentError if price given without currency', () {
-      expect(
-        () => facebookAppEvents.logViewContent(price: 9.99),
-        throwsArgumentError,
-      );
-    });
-
-    test('logSubscribe throws ArgumentError if price given without currency', () {
-      expect(
-        () => facebookAppEvents.logSubscribe(orderId: 'order123', price: 4.99),
-        throwsArgumentError,
-      );
-    });
-
-    test('logStartTrial throws ArgumentError if price given without currency', () {
-      expect(
-        () => facebookAppEvents.logStartTrial(orderId: 'order123', price: 1.99),
-        throwsArgumentError,
-      );
-    });
   });
 
   group('Purchase logging', () {

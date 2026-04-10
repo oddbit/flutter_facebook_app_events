@@ -241,11 +241,16 @@ class FacebookAppEvents {
   /// See documentation:
   /// - [Standard events](https://developers.facebook.com/docs/app-events/best-practices#standard-events)
   /// - [Android constants](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html)
-  Future<void> logCompletedRegistration({String? registrationMethod}) {
+  Future<void> logCompletedRegistration({
+    String? registrationMethod,
+    Map<String, dynamic>? parameters,
+  }) {
     return logEvent(
       name: eventNameCompletedRegistration,
       parameters: {
-        paramNameRegistrationMethod: registrationMethod,
+        if (parameters != null) ...parameters,
+        if (registrationMethod != null)
+          paramNameRegistrationMethod: registrationMethod,
       },
     );
   }
@@ -255,14 +260,21 @@ class FacebookAppEvents {
   /// See documentation:
   /// - [Standard events](https://developers.facebook.com/docs/app-events/best-practices#standard-events)
   /// - [Android constants](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html)
-  Future<void> logRated({double? valueToSum}) {
+  Future<void> logRated({
+    double? valueToSum,
+    Map<String, dynamic>? parameters,
+  }) {
     return logEvent(
       name: eventNameRated,
       valueToSum: valueToSum,
+      parameters: parameters,
     );
   }
 
   /// Log this event when the user has viewed a form of content in the app.
+  ///
+  /// To be eligible for ad revenue optimization (ROAS), you should include the
+  /// [price] (as valueToSum) and [currency] parameters.
   ///
   /// See documentation:
   /// - [Standard events](https://developers.facebook.com/docs/app-events/best-practices#standard-events)
@@ -273,20 +285,28 @@ class FacebookAppEvents {
     String? type,
     String? currency,
     double? price,
+    Map<String, dynamic>? parameters,
   }) {
+    if (price != null && currency == null) {
+      throw ArgumentError('currency must be provided if price is provided');
+    }
     return logEvent(
       name: eventNameViewedContent,
       parameters: {
-        paramNameContent: content != null ? json.encode(content) : null,
-        paramNameContentId: id,
-        paramNameContentType: type,
-        paramNameCurrency: currency,
+        if (parameters != null) ...parameters,
+        if (content != null) paramNameContent: json.encode(content),
+        if (id != null) paramNameContentId: id,
+        if (type != null) paramNameContentType: type,
+        if (currency != null) paramNameCurrency: currency,
       },
       valueToSum: price,
     );
   }
 
   /// Log this event when the user has added an item to cart.
+  ///
+  /// To be eligible for ad revenue optimization (ROAS), you should include the
+  /// [price] (as valueToSum) and [currency] parameters.
   ///
   /// See documentation:
   /// - [Standard events](https://developers.facebook.com/docs/app-events/best-practices#standard-events)
@@ -297,11 +317,13 @@ class FacebookAppEvents {
     required String type,
     required String currency,
     required double price,
+    Map<String, dynamic>? parameters,
   }) {
     return logEvent(
       name: eventNameAddedToCart,
       parameters: {
-        paramNameContent: content != null ? json.encode(content) : null,
+        if (parameters != null) ...parameters,
+        if (content != null) paramNameContent: json.encode(content),
         paramNameContentId: id,
         paramNameContentType: type,
         paramNameCurrency: currency,
@@ -312,6 +334,9 @@ class FacebookAppEvents {
 
   /// Log this event when the user has added an item to wishlist.
   ///
+  /// To be eligible for ad revenue optimization (ROAS), you should include the
+  /// [price] (as valueToSum) and [currency] parameters.
+  ///
   /// See documentation:
   /// - [Standard events](https://developers.facebook.com/docs/app-events/best-practices#standard-events)
   /// - [Android constants](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventsconstants.html)
@@ -321,11 +346,13 @@ class FacebookAppEvents {
     required String type,
     required String currency,
     required double price,
+    Map<String, dynamic>? parameters,
   }) {
     return logEvent(
       name: eventNameAddedToWishlist,
       parameters: {
-        paramNameContent: content != null ? json.encode(content) : null,
+        if (parameters != null) ...parameters,
+        if (content != null) paramNameContent: json.encode(content),
         paramNameContentId: id,
         paramNameContentType: type,
         paramNameCurrency: currency,
@@ -394,6 +421,9 @@ class FacebookAppEvents {
   /// Convenience wrapper around [logEvent] for the Initiated Checkout
   /// standard event.
   ///
+  /// To be eligible for ad revenue optimization (ROAS), you should include the
+  /// [totalPrice] (as valueToSum) and [currency] parameters.
+  ///
   /// See documentation:
   /// - https://developers.facebook.com/docs/app-events/best-practices#standard-events
   Future<void> logInitiatedCheckout({
@@ -403,15 +433,20 @@ class FacebookAppEvents {
     String? contentId,
     int? numItems,
     bool paymentInfoAvailable = false,
+    Map<String, dynamic>? parameters,
   }) {
+    if (totalPrice != null && currency == null) {
+      throw ArgumentError('currency must be provided if totalPrice is provided');
+    }
     return logEvent(
       name: eventNameInitiatedCheckout,
       valueToSum: totalPrice,
       parameters: {
-        paramNameContentType: contentType,
-        paramNameContentId: contentId,
-        paramNameNumItems: numItems,
-        paramNameCurrency: currency,
+        if (parameters != null) ...parameters,
+        if (contentType != null) paramNameContentType: contentType,
+        if (contentId != null) paramNameContentId: contentId,
+        if (numItems != null) paramNameNumItems: numItems,
+        if (currency != null) paramNameCurrency: currency,
         paramNamePaymentInfoAvailable:
             paymentInfoAvailable ? paramValueYes : paramValueNo,
       },
@@ -440,18 +475,26 @@ class FacebookAppEvents {
 
   /// The start of a paid subscription for a product or service you offer.
   ///
+  /// To be eligible for ad revenue optimization (ROAS), you should include the
+  /// [price] (as valueToSum) and [currency] parameters.
+  ///
   /// See documentation:
   /// - https://developers.facebook.com/docs/app-events/best-practices#standard-events
   Future<void> logSubscribe({
     double? price,
     String? currency,
     required String orderId,
+    Map<String, dynamic>? parameters,
   }) {
+    if (price != null && currency == null) {
+      throw ArgumentError('currency must be provided if price is provided');
+    }
     return logEvent(
       name: eventNameSubscribe,
       valueToSum: price,
       parameters: {
-        paramNameCurrency: currency,
+        if (parameters != null) ...parameters,
+        if (currency != null) paramNameCurrency: currency,
         paramNameOrderId: orderId,
       },
     );
@@ -459,18 +502,26 @@ class FacebookAppEvents {
 
   /// The start of a free trial of a product or service you offer (example: trial subscription).
   ///
+  /// To be eligible for ad revenue optimization (ROAS), you should include the
+  /// [price] (as valueToSum) and [currency] parameters.
+  ///
   /// See documentation:
   /// - https://developers.facebook.com/docs/app-events/best-practices#standard-events
   Future<void> logStartTrial({
     double? price,
     String? currency,
     required String orderId,
+    Map<String, dynamic>? parameters,
   }) {
+    if (price != null && currency == null) {
+      throw ArgumentError('currency must be provided if price is provided');
+    }
     return logEvent(
       name: eventNameStartTrial,
       valueToSum: price,
       parameters: {
-        paramNameCurrency: currency,
+        if (parameters != null) ...parameters,
+        if (currency != null) paramNameCurrency: currency,
         paramNameOrderId: orderId,
       },
     );

@@ -99,6 +99,69 @@ void main() {
       );
     });
 
+    test('logViewContent handles custom parameters and overrides', () async {
+      await facebookAppEvents.logViewContent(
+        id: 'id123',
+        currency: 'USD',
+        price: 9.99,
+        parameters: {
+          'fb_content_id': 'SHOULD_BE_OVERRIDDEN',
+          'custom_param': 'value',
+        },
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'fb_mobile_content_view',
+            'parameters': <String, dynamic>{
+              'fb_content_id': 'id123',
+              'fb_currency': 'USD',
+              'custom_param': 'value',
+            },
+            '_valueToSum': 9.99,
+          },
+        ),
+      );
+    });
+
+    test('logSubscribe handles custom parameters and overrides', () async {
+      await facebookAppEvents.logSubscribe(
+        orderId: 'order123',
+        currency: 'USD',
+        price: 4.99,
+        parameters: {
+          'fb_order_id': 'SHOULD_BE_OVERRIDDEN',
+          'custom_param': 'value',
+        },
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'Subscribe',
+            'parameters': <String, dynamic>{
+              'fb_order_id': 'order123',
+              'fb_currency': 'USD',
+              'custom_param': 'value',
+            },
+            '_valueToSum': 4.99,
+          },
+        ),
+      );
+    });
+
+    test('logInitiatedCheckout throws ArgumentError if totalPrice given without currency', () {
+      expect(
+        () => facebookAppEvents.logInitiatedCheckout(totalPrice: 10.0),
+        throwsArgumentError,
+      );
+    });
+
     test('logAdClick forwards parameters', () async {
       await facebookAppEvents.logAdClick(
         adType: 'rewarded_video',

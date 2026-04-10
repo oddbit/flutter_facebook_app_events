@@ -1,3 +1,9 @@
+## 0.27.0
+
+- Added `parameters` argument to shorthand log methods (`logCompletedRegistration`, `logRated`, `logViewContent`, `logAddToCart`, `logAddedToWishlist`, `logInitiatedCheckout`, `logSubscribe`, `logStartTrial`) to support custom event parameters alongside standard ones.
+- Updated documentation for standard event methods with guidance on parameters required for ad revenue optimization (ROAS).
+- Added unit tests for the updated shorthand log methods.
+
 ## 0.26.2
 
 - Updating documentation.

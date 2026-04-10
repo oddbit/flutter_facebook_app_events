@@ -490,8 +490,9 @@ class FacebookAppEvents {
     double? valueToSum,
     Map<String, dynamic>? parameters,
   }) {
-    assert(valueToSum == null || currency != null,
-        'currency must be provided if valueToSum is provided');
+    if (valueToSum != null && currency == null) {
+      throw ArgumentError('currency must be provided if valueToSum is provided');
+    }
     return logEvent(
       name: eventNameAdImpression,
       parameters: {
@@ -517,8 +518,9 @@ class FacebookAppEvents {
     double? valueToSum,
     Map<String, dynamic>? parameters,
   }) {
-    assert(valueToSum == null || currency != null,
-        'currency must be provided if valueToSum is provided');
+    if (valueToSum != null && currency == null) {
+      throw ArgumentError('currency must be provided if valueToSum is provided');
+    }
     return logEvent(
       name: eventNameAdClick,
       parameters: {

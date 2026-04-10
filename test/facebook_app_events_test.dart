@@ -92,6 +92,13 @@ void main() {
       );
     });
 
+    test('logAdImpression throws ArgumentError if valueToSum given without currency', () {
+      expect(
+        () => facebookAppEvents.logAdImpression(valueToSum: 1.23),
+        throwsArgumentError,
+      );
+    });
+
     test('logAdClick forwards parameters', () async {
       await facebookAppEvents.logAdClick(
         adType: 'rewarded_video',

@@ -518,7 +518,7 @@ class FacebookAppEvents {
   /// Log this event when the user views an ad.
   ///
   /// To track ad revenue for ROAS optimization, use [logEvent] directly with
-  /// [eventNameAdImpression], passing [valueToSum] (the ad revenue amount) and
+  /// [eventNameAdImpression], passing `valueToSum` (the ad revenue amount) and
   /// [paramNameCurrency] in the parameters map:
   ///
   /// ```dart
@@ -549,7 +549,7 @@ class FacebookAppEvents {
   /// Log this event when the user clicks an ad.
   ///
   /// To track ad revenue for ROAS optimization, use [logEvent] directly with
-  /// [eventNameAdClick], passing [valueToSum] (the ad revenue amount) and
+  /// [eventNameAdClick], passing `valueToSum` (the ad revenue amount) and
   /// [paramNameCurrency] in the parameters map:
   ///
   /// ```dart

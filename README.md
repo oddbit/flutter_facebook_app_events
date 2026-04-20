@@ -148,6 +148,10 @@ Refer to Meta's [Graph API changelog](https://developers.facebook.com/docs/graph
 
 This is a plugin-specific workaround for a [known upstream issue in the iOS SDK](https://github.com/facebook/facebook-ios-sdk/issues/2610) and [Android SDK](https://github.com/facebook/facebook-android-sdk/issues/1308). When Meta releases SDK v19.x with a corrected default, this override will become a no-op and the method can safely be removed from your code.
 
+### `setDataProcessingOptions` on iOS
+
+`setDataProcessingOptions` is **functional on Android** but is a **no-op on iOS** (a warning is printed). Meta removed the underlying API from the Facebook iOS SDK in the 18.x series; there is no native replacement callable from the SDK. If you need to configure data use on iOS, use Meta's [Data Use Checkup](https://developers.facebook.com/docs/development/data-processing-options) tooling in the app dashboard instead.
+
 ### Facebook Event Manager "Please Upgrade SDK" Warning
 
 When setting up codeless events in Facebook Event Manager, you may encounter a warning message stating:

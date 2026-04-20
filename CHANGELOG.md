@@ -1,3 +1,7 @@
+## 0.27.1
+
+- Guard `apply plugin: "kotlin-android"` against AGP 9, which ships with built-in Kotlin support (`android.builtInKotlin=true`) and conflicts with the explicit plugin application. Keeps AGP < 9 behavior unchanged (fixes [#482](https://github.com/oddbit/flutter_facebook_app_events/issues/482)).
+
 ## 0.27.0
 
 - Added `parameters` argument to shorthand log methods (`logCompletedRegistration`, `logRated`, `logViewContent`, `logAddToCart`, `logAddedToWishlist`, `logInitiatedCheckout`, `logSubscribe`, `logStartTrial`) to support custom event parameters alongside standard ones.

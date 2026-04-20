@@ -55,7 +55,12 @@ We are committed to fostering a welcoming and respectful community. By participa
 
 ## Release Process
 
-To trigger a release deployment, create and push a tag in the format `v<major>.<minor>.<patch>`. For example:
+Before tagging a release, update the version in **both** of these files — they must match, otherwise CocoaPods consumers resolve the wrong version:
+
+- `pubspec.yaml` — `version:` field
+- `ios/facebook_app_events.podspec` — `s.version` field
+
+Then update `CHANGELOG.md` and create and push a tag in the format `v<major>.<minor>.<patch>`. For example:
 ```bash
 git tag v1.2.3
 git push origin v1.2.3

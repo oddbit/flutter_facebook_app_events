@@ -1,6 +1,10 @@
 ## 0.27.1
 
 - Guard `apply plugin: "kotlin-android"` against AGP 9, which ships with built-in Kotlin support (`android.builtInKotlin=true`) and conflicts with the explicit plugin application. Keeps AGP < 9 behavior unchanged (fixes [#482](https://github.com/oddbit/flutter_facebook_app_events/issues/482)).
+- Sync `ios/facebook_app_events.podspec` version with `pubspec.yaml`. The podspec had been stale at `0.25.0` across the v0.26.x and v0.27.0 releases, causing CocoaPods consumers to resolve the wrong plugin version. A release-process note was added to `CONTRIBUTING.md` requiring both files to be bumped together (PR [#484](https://github.com/oddbit/flutter_facebook_app_events/pull/484)).
+- Document that `setDataProcessingOptions` is a no-op on iOS since Meta removed the underlying API in Facebook iOS SDK 18.x. Use Meta's [Data Use Checkup](https://developers.facebook.com/docs/development/data-processing-options) tooling for iOS data-use configuration (PR [#484](https://github.com/oddbit/flutter_facebook_app_events/pull/484)).
+- Expand Dart unit test coverage to include previously-uncovered public methods (`clearUserData`, `clearUserID`, `flush`, `getApplicationId`, `getAnonymousId`, `setUserID`, `setAutoLogAppEventsEnabled`, `setDataProcessingOptions`, `setAdvertiserTracking`, `logPushNotificationOpen`, `logRated`, `logInitiatedCheckout`, `logStartTrial`, `logAddToWishlist`) (PR [#484](https://github.com/oddbit/flutter_facebook_app_events/pull/484)).
+- Raise example app SDK constraints to match the plugin floor (`sdk: '>=3.3.0 <4.0.0'`, `flutter: '>=3.19.0'`) and set `targetSdk = 35` explicitly in the Android module (PR [#484](https://github.com/oddbit/flutter_facebook_app_events/pull/484)).
 
 ## 0.27.0
 

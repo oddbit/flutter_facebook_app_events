@@ -23,10 +23,14 @@ allprojects {
 
 apply plugin: "com.android.library"
 
-// AGP 9 enables built-in Kotlin support by default (android.builtInKotlin=true),
-// which conflicts with applying kotlin-android explicitly. Guard for AGP < 9.
+// AGP 9 ships built-in Kotlin support (`android.builtInKotlin=true` by default). Applying
+// `kotlin-android` on top of that conflicts, so skip it in that case. Users running AGP 9 with
+// `android.builtInKotlin=false` still need `kotlin-android` applied — otherwise there's no
+// Kotlin plugin at all and the Kotlin DSL below has nothing to bind to.
 def agpMajor = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.split('\\.')[0].toInteger()
-if (agpMajor < 9) {
+def builtInKotlinEnabled = (project.findProperty("android.builtInKotlin") ?: "true").toString().toBoolean()
+def useBuiltInKotlin = (agpMajor >= 9 && builtInKotlinEnabled)
+if (!useBuiltInKotlin) {
     apply plugin: "kotlin-android"
 }
 
@@ -40,8 +44,18 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
+    if (useBuiltInKotlin) {
+        // AGP 9 built-in Kotlin uses the modern `kotlin { compilerOptions { } }` DSL inside `android { }`.
+        kotlin {
+            compilerOptions {
+                jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+            }
+        }
+    } else {
+        // Legacy KGP DSL, registered on the android extension when `kotlin-android` is applied.
+        kotlinOptions {
+            jvmTarget = "17"
+        }
     }
 
     sourceSets {

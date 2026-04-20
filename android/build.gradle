@@ -22,7 +22,13 @@ allprojects {
 }
 
 apply plugin: "com.android.library"
-apply plugin: "kotlin-android"
+
+// AGP 9 enables built-in Kotlin support by default (android.builtInKotlin=true),
+// which conflicts with applying kotlin-android explicitly. Guard for AGP < 9.
+def agpMajor = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.split('\\.')[0].toInteger()
+if (agpMajor < 9) {
+    apply plugin: "kotlin-android"
+}
 
 android {
     namespace "id.oddbit.flutter.facebook_app_events"

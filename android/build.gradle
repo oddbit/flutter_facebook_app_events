@@ -44,15 +44,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    if (useBuiltInKotlin) {
-        // AGP 9 built-in Kotlin uses the modern `kotlin { compilerOptions { } }` DSL inside `android { }`.
-        kotlin {
-            compilerOptions {
-                jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
-            }
-        }
-    } else {
-        // Legacy KGP DSL, registered on the android extension when `kotlin-android` is applied.
+    // Built-in Kotlin defaults `kotlin.compilerOptions.jvmTarget` to
+    // `android.compileOptions.targetCompatibility` (set above), so no explicit
+    // configuration is needed in that mode. The legacy `kotlinOptions` DSL is
+    // only available when `kotlin-android` is applied.
+    if (!useBuiltInKotlin) {
         kotlinOptions {
             jvmTarget = "17"
         }

@@ -1,3 +1,8 @@
+## 0.27.2
+
+- Tighten the AGP 9 Kotlin-plugin guard introduced in 0.27.1. The previous check skipped `apply plugin: "kotlin-android"` for *any* AGP 9 build, but users running AGP 9 with `android.builtInKotlin=false` (opting out of built-in Kotlin) still need the plugin applied. Now keyed on both the AGP major version and the `android.builtInKotlin` Gradle property (PR [#485](https://github.com/oddbit/flutter_facebook_app_events/pull/485)).
+- Drop the legacy `kotlinOptions { jvmTarget = "17" }` block in the built-in Kotlin branch. AGP 9 defaults `kotlin.compilerOptions.jvmTarget` to `android.compileOptions.targetCompatibility` (already JVM 17), making it redundant; the legacy DSL is only available when `kotlin-android` is applied, so it's now gated to that branch (PR [#485](https://github.com/oddbit/flutter_facebook_app_events/pull/485)).
+
 ## 0.27.1
 
 - Guard `apply plugin: "kotlin-android"` against AGP 9, which ships with built-in Kotlin support (`android.builtInKotlin=true`) and conflicts with the explicit plugin application. Keeps AGP < 9 behavior unchanged (fixes [#482](https://github.com/oddbit/flutter_facebook_app_events/issues/482)).

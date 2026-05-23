@@ -18,12 +18,14 @@ let package = Package(
         .library(name: "facebook-app-events", targets: ["facebook_app_events"])
     ],
     dependencies: [
+        .package(name: "FlutterFramework", path: "../FlutterFramework"),
         .package(url: "https://github.com/facebook/facebook-ios-sdk.git", "18.0.0"..<"19.0.0")
     ],
     targets: [
         .target(
             name: "facebook_app_events",
             dependencies: [
+                .product(name: "FlutterFramework", package: "FlutterFramework"),
                 .product(name: "FacebookCore", package: "facebook-ios-sdk"),
                 .product(name: "FacebookBasics", package: "facebook-ios-sdk")
             ]

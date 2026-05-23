@@ -124,6 +124,12 @@ class FacebookAppEvents {
     String? state,
     String? zip,
     String? country,
+
+    /// iOS-only until the Facebook Android SDK exposes public support.
+    ///
+    /// On Android this value is ignored and the native plugin prints a warning
+    /// referencing https://github.com/facebook/facebook-android-sdk/issues/1239.
+    String? externalId,
   }) {
     final args = <String, dynamic>{
       'email': email,
@@ -136,6 +142,7 @@ class FacebookAppEvents {
       'state': state,
       'zip': zip,
       'country': country,
+      'externalId': externalId,
     };
 
     return _channel.invokeMethod<void>('setUserData', _filterOutNulls(args));

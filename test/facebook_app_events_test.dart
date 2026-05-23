@@ -118,7 +118,8 @@ void main() {
       );
     });
 
-    test('logCompletedRegistration handles custom parameters and overrides', () async {
+    test('logCompletedRegistration handles custom parameters and overrides',
+        () async {
       await facebookAppEvents.logCompletedRegistration(
         registrationMethod: 'email',
         parameters: {
@@ -188,7 +189,6 @@ void main() {
         ),
       );
     });
-
   });
 
   group('Purchase logging', () {
@@ -250,6 +250,22 @@ void main() {
       );
     });
 
+    test('setUserData forwards externalId', () async {
+      await facebookAppEvents.setUserData(
+        externalId: 'external-user-123',
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'setUserData',
+          arguments: <String, dynamic>{
+            'externalId': 'external-user-123',
+          },
+        ),
+      );
+    });
+
     test('setUserData sends empty map when all null', () async {
       await facebookAppEvents.setUserData();
 
@@ -274,6 +290,7 @@ void main() {
         state: null,
         zip: null,
         country: null,
+        externalId: null,
       );
 
       expect(methodCall?.method, 'setUserData');

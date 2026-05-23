@@ -101,6 +101,13 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
 
   private fun handleSetUserData(call: MethodCall, result: Result) {
     val parameters = call.arguments as? Map<String, Any?> ?: emptyMap()
+    if (parameters["externalId"] != null) {
+      Log.w(
+        logTag,
+        "setUserData(externalId) is not supported by the Facebook Android SDK yet. " +
+          "See https://github.com/facebook/facebook-android-sdk/issues/1239."
+      )
+    }
     val parameterBundle = createBundleFromMap(parameters)
 
     AppEventsLogger.setUserData(

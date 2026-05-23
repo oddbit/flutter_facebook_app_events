@@ -106,6 +106,7 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
         AppEvents.shared.setUserData(arguments["state"] as? String, forType: FBSDKAppEventUserDataType.state)
         AppEvents.shared.setUserData(arguments["zip"] as? String, forType: FBSDKAppEventUserDataType.zip)
         AppEvents.shared.setUserData(arguments["country"] as? String, forType: FBSDKAppEventUserDataType.country)
+        AppEvents.shared.setUserData(arguments["externalId"] as? String, forType: FBSDKAppEventUserDataType.externalId)
 
         result(nil)
     }

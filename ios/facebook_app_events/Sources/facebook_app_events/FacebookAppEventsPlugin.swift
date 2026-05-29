@@ -72,6 +72,22 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
             handleSetAdvertiserTracking(call, result: result)
         case "setGraphApiVersion":
             handleSetGraphApiVersion(call, result: result)
+        case "logProductItem":
+            handleLogProductItem(call, result: result)
+        case "setPushNotificationToken":
+            handleSetPushNotificationToken(call, result: result)
+        case "setFlushBehavior":
+            handleSetFlushBehavior(call, result: result)
+        case "getFlushBehavior":
+            handleGetFlushBehavior(call, result: result)
+        case "getUserData":
+            handleGetUserData(call, result: result)
+        case "getUserID":
+            handleGetUserID(call, result: result)
+        case "clearUserDataForType":
+            handleClearUserDataForType(call, result: result)
+        case "setDebugLoggingEnabled":
+            handleSetDebugLoggingEnabled(call, result: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -228,6 +244,150 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
         Settings.shared.isAdvertiserTrackingEnabled = enabled
         Settings.shared.isAdvertiserIDCollectionEnabled = enabled && collectId
 
+        result(nil)
+    }
+
+    private func handleLogProductItem(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let arguments = call.arguments as? [String: Any] ?? [:]
+        guard let itemId = arguments["itemId"] as? String,
+              let availabilityToken = arguments["availability"] as? String,
+              let conditionToken = arguments["condition"] as? String,
+              let description = arguments["description"] as? String,
+              let imageLink = arguments["imageLink"] as? String,
+              let link = arguments["link"] as? String,
+              let title = arguments["title"] as? String,
+              let priceAmount = arguments["priceAmount"] as? Double,
+              let currency = arguments["currency"] as? String else {
+            result(FlutterError(code: "INVALID_ARGUMENT", message: "Missing required logProductItem fields", details: nil))
+            return
+        }
+
+        let gtin = arguments["gtin"] as? String
+        let mpn = arguments["mpn"] as? String
+        let brand = arguments["brand"] as? String
+        if gtin == nil && mpn == nil && brand == nil {
+            result(FlutterError(code: "INVALID_ARGUMENT", message: "At least one of gtin, mpn or brand is required", details: nil))
+            return
+        }
+
+        guard let availability = Self.productAvailability(from: availabilityToken),
+              let condition = Self.productCondition(from: conditionToken) else {
+            result(FlutterError(code: "INVALID_ARGUMENT", message: "Invalid availability or condition value", details: nil))
+            return
+        }
+
+        let rawParams = arguments["parameters"] as? [String: Any] ?? [:]
+        let parameters: [AppEvents.ParameterName: Any] = Dictionary(
+            uniqueKeysWithValues: rawParams.map { key, value in
+                (AppEvents.ParameterName(key), value)
+            }
+        )
+
+        AppEvents.shared.logProductItem(
+            itemId,
+            availability: availability,
+            condition: condition,
+            description: description,
+            imageLink: imageLink,
+            link: link,
+            title: title,
+            priceAmount: priceAmount,
+            currency: currency,
+            gtin: gtin,
+            mpn: mpn,
+            brand: brand,
+            parameters: parameters
+        )
+        result(nil)
+    }
+
+    private static func productAvailability(from token: String) -> AppEvents.ProductAvailability? {
+        switch token {
+        case "inStock": return .inStock
+        case "outOfStock": return .outOfStock
+        case "preorder": return .preOrder
+        case "availableForOrder": return .availableForOrder
+        case "discontinued": return .discontinued
+        default: return nil
+        }
+    }
+
+    private static func productCondition(from token: String) -> AppEvents.ProductCondition? {
+        switch token {
+        case "newItem": return .new
+        case "refurbished": return .refurbished
+        case "used": return .used
+        default: return nil
+        }
+    }
+
+    private func handleSetPushNotificationToken(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let token = call.arguments as? String else {
+            result(FlutterError(code: "INVALID_ARGUMENT", message: "Push notification token is required", details: nil))
+            return
+        }
+        AppEvents.shared.setPushNotificationsDeviceToken(token)
+        result(nil)
+    }
+
+    private func handleSetFlushBehavior(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let behavior: AppEvents.FlushBehavior = (call.arguments as? String) == "explicitOnly" ? .explicitOnly : .auto
+        AppEvents.shared.flushBehavior = behavior
+        result(nil)
+    }
+
+    private func handleGetFlushBehavior(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        switch AppEvents.shared.flushBehavior {
+        case .explicitOnly:
+            result("explicitOnly")
+        default:
+            result("auto")
+        }
+    }
+
+    private func handleGetUserData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        result(AppEvents.shared.getUserData())
+    }
+
+    private func handleGetUserID(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        result(AppEvents.shared.userID)
+    }
+
+    private func handleClearUserDataForType(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let token = call.arguments as? String,
+              let type = Self.userDataType(from: token) else {
+            result(FlutterError(code: "INVALID_ARGUMENT", message: "A valid user data field is required", details: nil))
+            return
+        }
+        AppEvents.shared.clearUserData(forType: type)
+        result(nil)
+    }
+
+    private static func userDataType(from token: String) -> FBSDKAppEventUserDataType? {
+        switch token {
+        case "email": return .email
+        case "firstName": return .firstName
+        case "lastName": return .lastName
+        case "phone": return .phone
+        case "dateOfBirth": return .dateOfBirth
+        case "gender": return .gender
+        case "city": return .city
+        case "state": return .state
+        case "zip": return .zip
+        case "country": return .country
+        default: return nil
+        }
+    }
+
+    private func handleSetDebugLoggingEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let enabled = call.arguments as? Bool ?? false
+        if enabled {
+            Settings.shared.enableLoggingBehavior(.appEvents)
+            Settings.shared.enableLoggingBehavior(.networkRequests)
+        } else {
+            Settings.shared.disableLoggingBehavior(.appEvents)
+            Settings.shared.disableLoggingBehavior(.networkRequests)
+        }
         result(nil)
     }
 }

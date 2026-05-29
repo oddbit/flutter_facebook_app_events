@@ -1,3 +1,29 @@
+## 0.28.0
+
+Completeness pass: the Dart API now mirrors more of the native Facebook App Events surface, keeping the 1:1 Dart ↔ Kotlin ↔ Swift mapping. Purely additive except the documented debug-logging change below.
+
+### New native-mirroring methods
+
+- Add `logProductItem(...)` for product-catalog item logging, with type-safe `ProductAvailability` and `ProductCondition` enums (iOS `logProductItem`, Android `AppEventsLogger.logProductItem`).
+- Add `setPushNotificationToken(String)` to register a push token for Meta push-campaign measurement (iOS `setPushNotificationsDeviceToken`, Android `setPushNotificationsRegistrationId`).
+- Add `setFlushBehavior(FlushBehavior)` / `getFlushBehavior()` to control auto vs explicit-only event flushing.
+- Add `getUserData()` and `getUserID()` getters.
+- Add `clearUserDataForType(FacebookUserDataField)` — functional on iOS; **no-op on Android** (the Android SDK has no per-field clear; use `clearUserData()`). Documented in the README "Known Limitations".
+
+### Behavior change
+
+- Add explicit `setDebugLoggingEnabled(bool)` (verbose SDK app-event/network logging) on both platforms, and **remove the hidden debug-logging side effect** that `setAdvertiserTracking` previously triggered on Android in debug builds. Call `setDebugLoggingEnabled` explicitly if you relied on that behavior.
+
+### Additional standard-event convenience helpers
+
+- Add Dart shorthands (routed through `logEvent`) for the remaining Meta standard events: `logAchievedLevel`, `logAddedPaymentInfo`, `logCompletedTutorial`, `logSearched`, `logSpentCredits`, `logUnlockedAchievement`, `logContact`, `logCustomizeProduct`, `logDonate`, `logFindLocation`, `logSchedule`, `logSubmitApplication`, plus their `eventName*` constants.
+
+### Internal
+
+- Move the new enums to `lib/src/enums.dart` and the standard-event helpers to `lib/src/standard_events.dart` (re-exported; no import changes for consumers).
+- Remove unused `GraphRequest`/`GraphResponse` imports from the Android plugin.
+- Add Dart unit tests for all new methods and demonstrate them in the example app.
+
 ## 0.27.2
 
 - Tighten the AGP 9 Kotlin-plugin guard introduced in 0.27.1. The previous check skipped `apply plugin: "kotlin-android"` for *any* AGP 9 build, but users running AGP 9 with `android.builtInKotlin=false` (opting out of built-in Kotlin) still need the plugin applied. Now keyed on both the AGP major version and the `android.builtInKotlin` Gradle property (PR [#485](https://github.com/oddbit/flutter_facebook_app_events/pull/485)).

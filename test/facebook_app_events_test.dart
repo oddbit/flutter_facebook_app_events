@@ -526,4 +526,237 @@ void main() {
       );
     });
   });
+
+  group('Product catalog', () {
+    test('logProductItem forwards required fields and enum tokens', () async {
+      await facebookAppEvents.logProductItem(
+        itemId: 'SKU-1',
+        availability: ProductAvailability.inStock,
+        condition: ProductCondition.newItem,
+        description: 'A product',
+        imageLink: 'https://example.com/img.png',
+        link: 'https://example.com/buy',
+        title: 'Product',
+        priceAmount: 9.99,
+        currency: 'USD',
+        gtin: '0123456789012',
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logProductItem',
+          arguments: <String, dynamic>{
+            'itemId': 'SKU-1',
+            'availability': 'inStock',
+            'condition': 'newItem',
+            'description': 'A product',
+            'imageLink': 'https://example.com/img.png',
+            'link': 'https://example.com/buy',
+            'title': 'Product',
+            'priceAmount': 9.99,
+            'currency': 'USD',
+            'gtin': '0123456789012',
+          },
+        ),
+      );
+    });
+
+    test('logProductItem maps availableForOrder/used tokens', () async {
+      await facebookAppEvents.logProductItem(
+        itemId: 'SKU-2',
+        availability: ProductAvailability.availableForOrder,
+        condition: ProductCondition.used,
+        description: 'desc',
+        imageLink: 'https://example.com/i',
+        link: 'https://example.com/l',
+        title: 'title',
+        priceAmount: 1.0,
+        currency: 'EUR',
+        brand: 'Acme',
+      );
+
+      final args = methodCall?.arguments as Map<dynamic, dynamic>;
+      expect(args['availability'], 'availableForOrder');
+      expect(args['condition'], 'used');
+      expect(args['brand'], 'Acme');
+      expect(args.containsKey('gtin'), isFalse);
+      expect(args.containsKey('mpn'), isFalse);
+    });
+  });
+
+  group('Flush behavior', () {
+    test('setFlushBehavior forwards behavior token', () async {
+      await facebookAppEvents.setFlushBehavior(FlushBehavior.explicitOnly);
+
+      expect(
+        methodCall,
+        isMethodCall('setFlushBehavior', arguments: 'explicitOnly'),
+      );
+    });
+
+    test('getFlushBehavior maps token back to enum', () async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (MethodCall m) async {
+        methodCall = m;
+        return 'explicitOnly';
+      });
+
+      final behavior = await facebookAppEvents.getFlushBehavior();
+
+      expect(methodCall, isMethodCall('getFlushBehavior', arguments: null));
+      expect(behavior, FlushBehavior.explicitOnly);
+    });
+
+    test('getFlushBehavior defaults to auto for unknown token', () async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (MethodCall m) async => null);
+
+      final behavior = await facebookAppEvents.getFlushBehavior();
+      expect(behavior, FlushBehavior.auto);
+    });
+  });
+
+  group('Getters and granular user data', () {
+    test('getUserData invokes channel method', () async {
+      await facebookAppEvents.getUserData();
+      expect(methodCall, isMethodCall('getUserData', arguments: null));
+    });
+
+    test('getUserID invokes channel method', () async {
+      await facebookAppEvents.getUserID();
+      expect(methodCall, isMethodCall('getUserID', arguments: null));
+    });
+
+    test('clearUserDataForType forwards field token', () async {
+      await facebookAppEvents
+          .clearUserDataForType(FacebookUserDataField.email);
+      expect(
+        methodCall,
+        isMethodCall('clearUserDataForType', arguments: 'email'),
+      );
+    });
+  });
+
+  group('Push token and debug logging', () {
+    test('setPushNotificationToken forwards token as scalar', () async {
+      await facebookAppEvents.setPushNotificationToken('tok-123');
+      expect(
+        methodCall,
+        isMethodCall('setPushNotificationToken', arguments: 'tok-123'),
+      );
+    });
+
+    test('setDebugLoggingEnabled forwards boolean', () async {
+      await facebookAppEvents.setDebugLoggingEnabled(true);
+      expect(
+        methodCall,
+        isMethodCall('setDebugLoggingEnabled', arguments: true),
+      );
+    });
+  });
+
+  group('Additional standard events', () {
+    test('logAchievedLevel forwards level', () async {
+      await facebookAppEvents.logAchievedLevel(level: '5');
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'fb_mobile_level_achieved',
+            'parameters': <String, dynamic>{'fb_level': '5'},
+          },
+        ),
+      );
+    });
+
+    test('logSearched forwards search string and content type', () async {
+      await facebookAppEvents.logSearched(
+        searchString: 'shoes',
+        contentType: 'product',
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'fb_mobile_search',
+            'parameters': <String, dynamic>{
+              'fb_search_string': 'shoes',
+              'fb_content_type': 'product',
+            },
+          },
+        ),
+      );
+    });
+
+    test('logUnlockedAchievement forwards description', () async {
+      await facebookAppEvents.logUnlockedAchievement(description: 'first_win');
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'fb_mobile_achievement_unlocked',
+            'parameters': <String, dynamic>{'fb_description': 'first_win'},
+          },
+        ),
+      );
+    });
+
+    test('logDonate forwards valueToSum and currency', () async {
+      await facebookAppEvents.logDonate(valueToSum: 10.0, currency: 'USD');
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'Donate',
+            'parameters': <String, dynamic>{'fb_currency': 'USD'},
+            '_valueToSum': 10.0,
+          },
+        ),
+      );
+    });
+
+    test('logSubmitApplication routes through logEvent', () async {
+      await facebookAppEvents.logSubmitApplication();
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{'name': 'SubmitApplication'},
+        ),
+      );
+    });
+
+    test('logSpentCredits forwards valueToSum and content', () async {
+      await facebookAppEvents.logSpentCredits(
+        valueToSum: 100.0,
+        contentType: 'coins',
+        contentId: 'pack-1',
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'fb_mobile_spent_credits',
+            'parameters': <String, dynamic>{
+              'fb_content_type': 'coins',
+              'fb_content_id': 'pack-1',
+            },
+            '_valueToSum': 100.0,
+          },
+        ),
+      );
+    });
+  });
 }

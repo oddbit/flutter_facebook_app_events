@@ -739,6 +739,7 @@ void main() {
     test('logSpentCredits forwards valueToSum and content', () async {
       await facebookAppEvents.logSpentCredits(
         valueToSum: 100.0,
+        currency: 'USD',
         contentType: 'coins',
         contentId: 'pack-1',
       );
@@ -750,6 +751,7 @@ void main() {
           arguments: <String, dynamic>{
             'name': 'fb_mobile_spent_credits',
             'parameters': <String, dynamic>{
+              'fb_currency': 'USD',
               'fb_content_type': 'coins',
               'fb_content_id': 'pack-1',
             },

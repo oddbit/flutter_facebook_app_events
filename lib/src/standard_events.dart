@@ -76,6 +76,7 @@ extension StandardEventLogging on FacebookAppEvents {
   /// [valueToSum] (the credits value) and [currency].
   Future<void> logSpentCredits({
     double? valueToSum,
+    String? currency,
     String? contentType,
     String? contentId,
     Map<String, dynamic>? parameters,
@@ -85,6 +86,7 @@ extension StandardEventLogging on FacebookAppEvents {
       valueToSum: valueToSum,
       parameters: {
         if (parameters != null) ...parameters,
+        if (currency != null) FacebookAppEvents.paramNameCurrency: currency,
         if (contentType != null)
           FacebookAppEvents.paramNameContentType: contentType,
         if (contentId != null) FacebookAppEvents.paramNameContentId: contentId,

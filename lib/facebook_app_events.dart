@@ -8,6 +8,12 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 
+import 'src/enums.dart';
+
+export 'src/enums.dart';
+
+part 'src/standard_events.dart';
+
 /// MethodChannel name used by the plugin.
 const channelName = 'flutter.oddbit.id/facebook_app_events';
 
@@ -42,6 +48,18 @@ class FacebookAppEvents {
   static const eventNameStartTrial = "StartTrial";
   static const eventNameAdImpression = "AdImpression";
   static const eventNameAdClick = "AdClick";
+  static const eventNameAchievedLevel = "fb_mobile_level_achieved";
+  static const eventNameAddedPaymentInfo = "fb_mobile_add_payment_info";
+  static const eventNameCompletedTutorial = "fb_mobile_tutorial_completion";
+  static const eventNameSearched = "fb_mobile_search";
+  static const eventNameSpentCredits = "fb_mobile_spent_credits";
+  static const eventNameUnlockedAchievement = "fb_mobile_achievement_unlocked";
+  static const eventNameContact = "Contact";
+  static const eventNameCustomizeProduct = "CustomizeProduct";
+  static const eventNameDonate = "Donate";
+  static const eventNameFindLocation = "FindLocation";
+  static const eventNameSchedule = "Schedule";
+  static const eventNameSubmitApplication = "SubmitApplication";
 
   static const _paramNameValueToSum = "_valueToSum";
   static const paramNameAdType = "fb_ad_type";
@@ -50,6 +68,9 @@ class FacebookAppEvents {
   static const paramNameRegistrationMethod = "fb_registration_method";
   static const paramNamePaymentInfoAvailable = "fb_payment_info_available";
   static const paramNameNumItems = "fb_num_items";
+  static const paramNameLevel = "fb_level";
+  static const paramNameSearchString = "fb_search_string";
+  static const paramNameDescription = "fb_description";
   static const paramValueYes = "1";
   static const paramValueNo = "0";
 
@@ -452,6 +473,10 @@ class FacebookAppEvents {
   /// This typically needs to be aligned with your user consent flow and the
   /// platform's privacy requirements.
   ///
+  /// Note: this method no longer toggles verbose SDK debug logging as a side
+  /// effect on Android. Use [setDebugLoggingEnabled] to control SDK logging
+  /// explicitly on both platforms.
+  ///
   /// See documentation:
   /// - [iOS Settings](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/settings.html)
   /// - [Android FacebookSdk](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/FacebookSdk.html)
@@ -593,6 +618,112 @@ class FacebookAppEvents {
   /// - [Android FacebookSdk](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/FacebookSdk.html)
   Future<void> setGraphApiVersion(String version) {
     return _channel.invokeMethod<void>('setGraphApiVersion', version);
+  }
+
+  /// Logs a product-catalog item so it can be matched for dynamic ads and
+  /// product-catalog audiences.
+  ///
+  /// At least one of [gtin], [mpn] or [brand] must be provided — this is a
+  /// requirement of the native SDK.
+  ///
+  /// See documentation:
+  /// - [iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/fbsdkappevents.html)
+  /// - [Android](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventslogger.html)
+  Future<void> logProductItem({
+    required String itemId,
+    required ProductAvailability availability,
+    required ProductCondition condition,
+    required String description,
+    required String imageLink,
+    required String link,
+    required String title,
+    required double priceAmount,
+    required String currency,
+    String? gtin,
+    String? mpn,
+    String? brand,
+    Map<String, dynamic>? parameters,
+  }) {
+    assert(
+      gtin != null || mpn != null || brand != null,
+      'logProductItem requires at least one of gtin, mpn or brand.',
+    );
+
+    final args = <String, dynamic>{
+      'itemId': itemId,
+      'availability': availability.name,
+      'condition': condition.name,
+      'description': description,
+      'imageLink': imageLink,
+      'link': link,
+      'title': title,
+      'priceAmount': priceAmount,
+      'currency': currency,
+      'gtin': gtin,
+      'mpn': mpn,
+      'brand': brand,
+      'parameters': parameters,
+    };
+
+    return _channel.invokeMethod<void>(
+      'logProductItem',
+      _filterOutNulls(args),
+    );
+  }
+
+  /// Registers a push notification [token] with the SDK so Meta can attribute
+  /// push-driven app opens and measure push campaigns.
+  ///
+  /// Platform mapping:
+  /// - iOS: `setPushNotificationsDeviceTokenString`.
+  /// - Android: `setPushNotificationsRegistrationId`.
+  Future<void> setPushNotificationToken(String token) {
+    return _channel.invokeMethod<void>('setPushNotificationToken', token);
+  }
+
+  /// Sets the [FlushBehavior] controlling when events are sent to Meta.
+  ///
+  /// Use [FlushBehavior.explicitOnly] to suppress automatic flushing and only
+  /// send events when [flush] is called.
+  Future<void> setFlushBehavior(FlushBehavior behavior) {
+    return _channel.invokeMethod<void>('setFlushBehavior', behavior.name);
+  }
+
+  /// Returns the current [FlushBehavior].
+  Future<FlushBehavior> getFlushBehavior() async {
+    final token = await _channel.invokeMethod<String>('getFlushBehavior');
+    return flushBehaviorFromWire(token);
+  }
+
+  /// Returns the JSON-encoded hashed user data currently set on the SDK, or
+  /// `null` if none has been set. See [setUserData].
+  Future<String?> getUserData() {
+    return _channel.invokeMethod<String>('getUserData');
+  }
+
+  /// Returns the user id previously set via [setUserID], or `null`.
+  Future<String?> getUserID() {
+    return _channel.invokeMethod<String>('getUserID');
+  }
+
+  /// Clears a single previously-set [field] of user data.
+  ///
+  /// Platform behavior:
+  /// - iOS: clears the given field via `clearUserDataForType`.
+  /// - Android: no-op. `AppEventsLogger` exposes no per-field clear; use
+  ///   [clearUserData] to clear all fields at once.
+  Future<void> clearUserDataForType(FacebookUserDataField field) {
+    return _channel.invokeMethod<void>('clearUserDataForType', field.name);
+  }
+
+  /// Enables or disables verbose Facebook SDK debug logging (app events and
+  /// network requests).
+  ///
+  /// This replaces the implicit debug-logging side effect that previously lived
+  /// in [setAdvertiserTracking] on Android; call this explicitly when you want
+  /// SDK logs during development.
+  Future<void> setDebugLoggingEnabled(bool enabled) {
+    return _channel.invokeMethod<void>('setDebugLoggingEnabled', enabled);
   }
 
   // ---------------------------------------------------------------------------

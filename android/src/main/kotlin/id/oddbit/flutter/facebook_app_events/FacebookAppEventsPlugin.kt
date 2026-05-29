@@ -12,13 +12,12 @@ import android.os.Bundle
 import android.util.Log
 import com.facebook.FacebookSdk
 import com.facebook.appevents.AppEventsLogger
-import com.facebook.GraphRequest
-import com.facebook.GraphResponse
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import java.math.BigDecimal
 import java.util.Currency
 import com.facebook.LoggingBehavior
 
@@ -74,6 +73,14 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
       "logPurchase" -> handlePurchased(call, result)
       "setAdvertiserTracking" -> handleSetAdvertiserTracking(call, result)
       "setGraphApiVersion" -> handleSetGraphApiVersion(call, result)
+      "logProductItem" -> handleLogProductItem(call, result)
+      "setPushNotificationToken" -> handleSetPushNotificationToken(call, result)
+      "setFlushBehavior" -> handleSetFlushBehavior(call, result)
+      "getFlushBehavior" -> handleGetFlushBehavior(call, result)
+      "getUserData" -> handleGetUserData(call, result)
+      "getUserID" -> handleGetUserId(call, result)
+      "clearUserDataForType" -> handleClearUserDataForType(call, result)
+      "setDebugLoggingEnabled" -> handleSetDebugLoggingEnabled(call, result)
 
       else -> result.notImplemented()
     }
@@ -151,12 +158,6 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     val collectId = call.argument<Boolean>("collectId") ?: true
 
     FacebookSdk.setAdvertiserIDCollectionEnabled(enabled && collectId)
-
-    if (BuildConfig.DEBUG) {
-      FacebookSdk.setIsDebugEnabled(true && enabled)
-      FacebookSdk.addLoggingBehavior(LoggingBehavior.APP_EVENTS)
-      FacebookSdk.addLoggingBehavior(LoggingBehavior.REQUESTS)
-    }
 
     result.success(null)
   }
@@ -272,6 +273,135 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     val parameterBundle = createBundleFromMap(parameters) ?: Bundle()
 
     appEventsLogger.logPurchase(amount, currency, parameterBundle)
+    result.success(null)
+  }
+
+  private fun handleLogProductItem(call: MethodCall, result: Result) {
+    val itemId = call.argument<String>("itemId")
+    val availabilityToken = call.argument<String>("availability")
+    val conditionToken = call.argument<String>("condition")
+    val description = call.argument<String>("description")
+    val imageLink = call.argument<String>("imageLink")
+    val link = call.argument<String>("link")
+    val title = call.argument<String>("title")
+    val priceAmount = call.argument<Double>("priceAmount")
+    val currencyCode = call.argument<String>("currency")
+    val gtin = call.argument<String>("gtin")
+    val mpn = call.argument<String>("mpn")
+    val brand = call.argument<String>("brand")
+
+    if (itemId == null || availabilityToken == null || conditionToken == null ||
+        description == null || imageLink == null || link == null || title == null ||
+        priceAmount == null || currencyCode == null) {
+      result.error("INVALID_ARGUMENT", "Missing required logProductItem fields", null)
+      return
+    }
+    if (gtin == null && mpn == null && brand == null) {
+      result.error("INVALID_ARGUMENT", "At least one of gtin, mpn or brand is required", null)
+      return
+    }
+
+    val availability = productAvailabilityFromToken(availabilityToken)
+    val condition = productConditionFromToken(conditionToken)
+    if (availability == null || condition == null) {
+      result.error("INVALID_ARGUMENT", "Invalid availability or condition value", null)
+      return
+    }
+
+    val parameters = call.argument<Map<String, Any>>("parameters")
+    val parameterBundle = createBundleFromMap(parameters) ?: Bundle()
+
+    appEventsLogger.logProductItem(
+      itemId,
+      availability,
+      condition,
+      description,
+      imageLink,
+      link,
+      title,
+      BigDecimal.valueOf(priceAmount),
+      Currency.getInstance(currencyCode),
+      gtin,
+      mpn,
+      brand,
+      parameterBundle
+    )
+    result.success(null)
+  }
+
+  private fun productAvailabilityFromToken(token: String): AppEventsLogger.ProductAvailability? {
+    return when (token) {
+      "inStock" -> AppEventsLogger.ProductAvailability.IN_STOCK
+      "outOfStock" -> AppEventsLogger.ProductAvailability.OUT_OF_STOCK
+      "preorder" -> AppEventsLogger.ProductAvailability.PREORDER
+      // Note: the Android SDK enum constant is historically misspelled.
+      "availableForOrder" -> AppEventsLogger.ProductAvailability.AVALIABLE_FOR_ORDER
+      "discontinued" -> AppEventsLogger.ProductAvailability.DISCONTINUED
+      else -> null
+    }
+  }
+
+  private fun productConditionFromToken(token: String): AppEventsLogger.ProductCondition? {
+    return when (token) {
+      "newItem" -> AppEventsLogger.ProductCondition.NEW
+      "refurbished" -> AppEventsLogger.ProductCondition.REFURBISHED
+      "used" -> AppEventsLogger.ProductCondition.USED
+      else -> null
+    }
+  }
+
+  private fun handleSetPushNotificationToken(call: MethodCall, result: Result) {
+    val token = call.arguments as? String
+    if (token == null) {
+      result.error("INVALID_ARGUMENT", "Push notification token is required", null)
+      return
+    }
+    AppEventsLogger.setPushNotificationsRegistrationId(token)
+    result.success(null)
+  }
+
+  private fun handleSetFlushBehavior(call: MethodCall, result: Result) {
+    val behavior = when (call.arguments as? String) {
+      "explicitOnly" -> AppEventsLogger.FlushBehavior.EXPLICIT_ONLY
+      else -> AppEventsLogger.FlushBehavior.AUTO
+    }
+    AppEventsLogger.setFlushBehavior(behavior)
+    result.success(null)
+  }
+
+  private fun handleGetFlushBehavior(call: MethodCall, result: Result) {
+    val token = when (AppEventsLogger.getFlushBehavior()) {
+      AppEventsLogger.FlushBehavior.EXPLICIT_ONLY -> "explicitOnly"
+      else -> "auto"
+    }
+    result.success(token)
+  }
+
+  private fun handleGetUserData(call: MethodCall, result: Result) {
+    result.success(AppEventsLogger.getUserData())
+  }
+
+  private fun handleGetUserId(call: MethodCall, result: Result) {
+    result.success(AppEventsLogger.getUserID())
+  }
+
+  private fun handleClearUserDataForType(call: MethodCall, result: Result) {
+    // Android's AppEventsLogger has no per-field clear; this is intentionally a
+    // no-op. Use clearUserData() to clear all fields. See README "Known Limitations".
+    Log.w(logTag, "clearUserDataForType is not supported on Android; use clearUserData() to clear all fields.")
+    result.success(null)
+  }
+
+  private fun handleSetDebugLoggingEnabled(call: MethodCall, result: Result) {
+    val enabled = call.arguments as? Boolean ?: false
+    FacebookSdk.setIsDebugEnabled(enabled)
+    if (enabled) {
+      FacebookSdk.addLoggingBehavior(LoggingBehavior.APP_EVENTS)
+      FacebookSdk.addLoggingBehavior(LoggingBehavior.REQUESTS)
+    } else {
+      FacebookSdk.removeLoggingBehavior(LoggingBehavior.APP_EVENTS)
+      FacebookSdk.removeLoggingBehavior(LoggingBehavior.REQUESTS)
+    }
     result.success(null)
   }
 }

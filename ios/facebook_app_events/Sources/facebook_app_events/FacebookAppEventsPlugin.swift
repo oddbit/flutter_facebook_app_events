@@ -281,7 +281,7 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
         let parameters = arguments["parameters"] as? [String: Any] ?? [:]
 
         AppEvents.shared.logProductItem(
-            itemId,
+            id: itemId,
             availability: availability,
             condition: condition,
             description: description,

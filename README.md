@@ -196,6 +196,20 @@ question to [StackOverflow](https://stackoverflow.com/search?q=facebook+app+even
 Feel free to open a thread if you are having any questions on how to use either the Facebook App Events as a reporting tool
 itself or even on how to use this plugin. 
 
+## Need help shipping it?
+
+This plugin is free and open source. But wiring up Meta attribution end to end —
+consent flows, iOS ATT and SKAdNetwork, and getting events to actually land in
+Events Manager — can get fiddly. If your team is integrating App Events and hits a
+wall, or you'd just like an experienced pair of hands, [Oddbit](https://oddb.it/website)
+is happy to help.
+
+We're a senior-led studio (based in Indonesia, with roots in Sweden) shipping Flutter,
+Firebase, and analytics integrations. `facebook_app_events` is one of the open-source
+tools we maintain and use ourselves.
+
+[Talk to us at oddbit.id →](https://oddb.it/website)
+
 ## Getting involved
 First of all, thank you for even considering to get involved. You are a real super :star: and we :heart: you! 
 

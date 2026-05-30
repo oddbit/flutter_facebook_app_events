@@ -152,6 +152,10 @@ This is a plugin-specific workaround for a [known upstream issue in the iOS SDK]
 
 `setDataProcessingOptions` is **functional on Android** but is a **no-op on iOS** (a warning is printed). Meta removed the underlying API from the Facebook iOS SDK in the 18.x series; there is no native replacement callable from the SDK. If you need to configure data use on iOS, use Meta's [Data Use Checkup](https://developers.facebook.com/docs/development/data-processing-options) tooling in the app dashboard instead.
 
+### `clearUserDataForType` on Android
+
+`clearUserDataForType` is **functional on iOS** but is a **no-op on Android** (a warning is logged). The Android `AppEventsLogger` exposes no per-field clear; call `clearUserData()` to clear all previously-set user data fields at once.
+
 ### Facebook Event Manager "Please Upgrade SDK" Warning
 
 When setting up codeless events in Facebook Event Manager, you may encounter a warning message stating:

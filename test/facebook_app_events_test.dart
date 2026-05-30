@@ -776,5 +776,86 @@ void main() {
         ),
       );
     });
+
+    test('logAddedPaymentInfo routes through logEvent with parameters',
+        () async {
+      await facebookAppEvents.logAddedPaymentInfo(
+        parameters: {'fb_success': '1'},
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'fb_mobile_add_payment_info',
+            'parameters': <String, dynamic>{'fb_success': '1'},
+          },
+        ),
+      );
+    });
+
+    test('logCompletedTutorial forwards contentId', () async {
+      await facebookAppEvents.logCompletedTutorial(contentId: 'intro-1');
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'fb_mobile_tutorial_completion',
+            'parameters': <String, dynamic>{'fb_content_id': 'intro-1'},
+          },
+        ),
+      );
+    });
+
+    test('logContact routes through logEvent', () async {
+      await facebookAppEvents.logContact();
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{'name': 'Contact'},
+        ),
+      );
+    });
+
+    test('logCustomizeProduct routes through logEvent', () async {
+      await facebookAppEvents.logCustomizeProduct();
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{'name': 'CustomizeProduct'},
+        ),
+      );
+    });
+
+    test('logFindLocation routes through logEvent', () async {
+      await facebookAppEvents.logFindLocation();
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{'name': 'FindLocation'},
+        ),
+      );
+    });
+
+    test('logSchedule routes through logEvent', () async {
+      await facebookAppEvents.logSchedule();
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{'name': 'Schedule'},
+        ),
+      );
+    });
   });
 }

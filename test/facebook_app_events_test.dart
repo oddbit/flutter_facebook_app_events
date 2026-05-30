@@ -618,14 +618,30 @@ void main() {
   });
 
   group('Getters and granular user data', () {
-    test('getUserData invokes channel method', () async {
-      await facebookAppEvents.getUserData();
+    test('getUserData returns the value from the platform', () async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (MethodCall m) async {
+        methodCall = m;
+        return '{"em":"hashed-email"}';
+      });
+
+      final data = await facebookAppEvents.getUserData();
+
       expect(methodCall, isMethodCall('getUserData', arguments: null));
+      expect(data, '{"em":"hashed-email"}');
     });
 
-    test('getUserID invokes channel method', () async {
-      await facebookAppEvents.getUserID();
+    test('getUserID returns the value from the platform', () async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (MethodCall m) async {
+        methodCall = m;
+        return 'user-42';
+      });
+
+      final id = await facebookAppEvents.getUserID();
+
       expect(methodCall, isMethodCall('getUserID', arguments: null));
+      expect(id, 'user-42');
     });
 
     test('clearUserDataForType forwards field token', () async {

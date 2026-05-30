@@ -675,8 +675,11 @@ class FacebookAppEvents {
   /// push-driven app opens and measure push campaigns.
   ///
   /// Platform mapping:
-  /// - iOS: `setPushNotificationsDeviceTokenString`.
-  /// - Android: `setPushNotificationsRegistrationId`.
+  /// - iOS: `AppEvents.setPushNotificationsDeviceToken(_:)` (the String overload).
+  ///   The underlying `setPushNotificationsDeviceTokenString:` Objective-C
+  ///   selector is renamed to `setPushNotificationsDeviceToken(_:)` in Swift via
+  ///   `NS_SWIFT_NAME`, so that is the symbol this plugin calls.
+  /// - Android: `AppEventsLogger.setPushNotificationsRegistrationId`.
   Future<void> setPushNotificationToken(String token) {
     return _channel.invokeMethod<void>('setPushNotificationToken', token);
   }

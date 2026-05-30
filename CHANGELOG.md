@@ -1,28 +1,12 @@
 ## 0.28.0
 
-Completeness pass: the Dart API now mirrors more of the native Facebook App Events surface, keeping the 1:1 Dart ↔ Kotlin ↔ Swift mapping. Purely additive except the documented debug-logging change below.
-
-### New native-mirroring methods
-
-- Add `logProductItem(...)` for product-catalog item logging, with type-safe `ProductAvailability` and `ProductCondition` enums (iOS `logProductItem`, Android `AppEventsLogger.logProductItem`).
-- Add `setPushNotificationToken(String)` to register a push token for Meta push-campaign measurement (iOS `setPushNotificationsDeviceToken`, Android `setPushNotificationsRegistrationId`).
-- Add `setFlushBehavior(FlushBehavior)` / `getFlushBehavior()` to control auto vs explicit-only event flushing.
-- Add `getUserData()` and `getUserID()` getters.
-- Add `clearUserDataForType(FacebookUserDataField)` — functional on iOS; **no-op on Android** (the Android SDK has no per-field clear; use `clearUserData()`). Documented in the README "Known Limitations".
-
-### Behavior change
-
-- Add explicit `setDebugLoggingEnabled(bool)` (verbose SDK app-event/network logging) on both platforms, and **remove the hidden debug-logging side effect** that `setAdvertiserTracking` previously triggered on Android in debug builds. Call `setDebugLoggingEnabled` explicitly if you relied on that behavior.
-
-### Additional standard-event convenience helpers
-
-- Add Dart shorthands (routed through `logEvent`) for the remaining Meta standard events: `logAchievedLevel`, `logAddedPaymentInfo`, `logCompletedTutorial`, `logSearched`, `logSpentCredits`, `logUnlockedAchievement`, `logContact`, `logCustomizeProduct`, `logDonate`, `logFindLocation`, `logSchedule`, `logSubmitApplication`, plus their `eventName*` constants.
-
-### Internal
-
-- Move the new enums to `lib/src/enums.dart` and the standard-event helpers to `lib/src/standard_events.dart` (re-exported; no import changes for consumers).
-- Remove unused `GraphRequest`/`GraphResponse` imports from the Android plugin.
-- Add Dart unit tests for all new methods and demonstrate them in the example app.
+- Add `logProductItem(...)` for product-catalog item logging, with type-safe `ProductAvailability` and `ProductCondition` enums (PR [#487](https://github.com/oddbit/flutter_facebook_app_events/pull/487)).
+- Add `setPushNotificationToken(String)` to register a push token for Meta push-campaign measurement.
+- Add `setFlushBehavior(FlushBehavior)` / `getFlushBehavior()` to switch between automatic and explicit-only event flushing.
+- Add `getUserData()`, `getUserID()`, and `clearUserDataForType(FacebookUserDataField)` — the last is functional on iOS and a no-op on Android (no native per-field clear; use `clearUserData()`).
+- Add convenience shorthands for the remaining Meta standard events (`logAchievedLevel`, `logAddedPaymentInfo`, `logCompletedTutorial`, `logSearched`, `logSpentCredits`, `logUnlockedAchievement`, `logContact`, `logCustomizeProduct`, `logDonate`, `logFindLocation`, `logSchedule`, `logSubmitApplication`).
+- **Behavior change (Android):** `setAdvertiserTracking` no longer toggles verbose SDK debug logging as a side effect; use the new `setDebugLoggingEnabled(bool)` instead.
+- Move the new enums and standard-event helpers into `lib/src/` (re-exported, no consumer import changes), drop unused Android imports, and add Dart tests plus example-app coverage.
 
 ## 0.27.2
 

@@ -87,6 +87,15 @@ jobs:
 
       - run: flutter --version
 
+      # The example app integrates the plugin via CocoaPods. Flutter's SPM
+      # auto-integration fails here because the checkout directory
+      # (flutter_facebook_app_events) differs from the plugin's Swift package
+      # identity (facebook_app_events); this only affects local checkouts, not
+      # pub.dev consumers (where the package dir matches). Build via CocoaPods.
+      - name: Disable Swift Package Manager (example builds via CocoaPods)
+        if: matrix.target == 'ios'
+        run: flutter config --no-enable-swift-package-manager
+
       - name: Cache CocoaPods
         if: matrix.target == 'ios'
         uses: actions/cache@v5

@@ -326,7 +326,11 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: "INVALID_ARGUMENT", message: "Push notification token is required", details: nil))
             return
         }
-        AppEvents.shared.setPushNotificationsDeviceTokenString(token)
+        // The ObjC `setPushNotificationsDeviceTokenString:` is renamed in Swift
+        // to `setPushNotificationsDeviceToken(_:)` via NS_SWIFT_NAME, overloaded
+        // with the Data variant. Passing a String resolves to the String overload;
+        // `setPushNotificationsDeviceTokenString` does not exist in Swift.
+        AppEvents.shared.setPushNotificationsDeviceToken(token)
         result(nil)
     }
 

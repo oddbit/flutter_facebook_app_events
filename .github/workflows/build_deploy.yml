@@ -77,7 +77,7 @@ jobs:
 
       - name: Set up Android SDK
         if: matrix.target == 'android'
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2

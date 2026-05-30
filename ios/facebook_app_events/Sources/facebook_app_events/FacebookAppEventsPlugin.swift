@@ -276,12 +276,9 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
             return
         }
 
-        let rawParams = arguments["parameters"] as? [String: Any] ?? [:]
-        let parameters: [AppEvents.ParameterName: Any] = Dictionary(
-            uniqueKeysWithValues: rawParams.map { key, value in
-                (AppEvents.ParameterName(key), value)
-            }
-        )
+        // logProductItem's `parameters` is typed [String: Any] (unlike
+        // logEvent/logPurchase which use [AppEvents.ParameterName: Any]).
+        let parameters = arguments["parameters"] as? [String: Any] ?? [:]
 
         AppEvents.shared.logProductItem(
             itemId,

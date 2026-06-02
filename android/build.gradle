@@ -2,14 +2,14 @@ group = "id.oddbit.flutter.facebook_app_events"
 version = "1.0-SNAPSHOT"
 
 buildscript {
-    ext.kotlin_version = "2.3.10"
+    ext.kotlin_version = "2.3.21"
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:8.9.2")
+        classpath("com.android.tools.build:gradle:9.1.1")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
     }
 }
@@ -37,7 +37,7 @@ if (!useBuiltInKotlin) {
 android {
     namespace "id.oddbit.flutter.facebook_app_events"
 
-    compileSdk = 35
+    compileSdk = 36
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -64,7 +64,7 @@ android {
 
     defaultConfig {
         minSdk = 21
-        targetSdk = 35
+        targetSdk = 36
         consumerProguardFiles 'consumer-proguard-rules.pro'
     }
 

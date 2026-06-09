@@ -1,9 +1,9 @@
 # facebook_app_events
 
-[![pub package](https://img.shields.io/pub/v/facebook_app_events.svg)](https://pub.dev/packages/facebook_app_events)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202%2E0-lightgrey.svg)](https://github.com/oddbit/flutter_facebook_app_events/blob/main/LICENSE)
-[![pub likes](https://img.shields.io/pub/likes/facebook_app_events)](https://pub.dev/packages/facebook_app_events/score)
-[![pub points](https://img.shields.io/pub/points/facebook_app_events)](https://pub.dev/packages/facebook_app_events/score)
+[![pub package](https://img.shields.io/pub/v/facebook_app_events.svg)](https://oddb.it/mtw)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202%2E0-lightgrey.svg)](https://oddb.it/qpy)
+[![pub likes](https://img.shields.io/pub/likes/facebook_app_events)](https://oddb.it/wur)
+[![pub points](https://img.shields.io/pub/points/facebook_app_events)](https://oddb.it/wur)
 
 
 Flutter plugin for [Facebook App Events](https://oddb.it/rhg).
@@ -15,20 +15,20 @@ Flutter plugin for Facebook App Events, an app measurement solution that provide
 ## Documentation
 
 - Plugin API reference (auto-generated): [pub.dev/documentation/facebook_app_events/latest](https://oddb.it/gie)
-- Meta App Events overview: [https://developers.facebook.com/docs/app-events](https://oddb.it/rhg)
+- Meta App Events overview: [developers.facebook.com/docs/app-events](https://oddb.it/rhg)
 
 ## Setting things up
 
-You must first create an app at Facebook for developers: <https://developers.facebook.com/>
+You must first create an app at Facebook for developers: [developers.facebook.com](https://oddb.it/sbp)
 
 1. Get your app id (referred to as `[APP_ID]` below)
 2. Get your client token (referred to as `[CLIENT_TOKEN]` below).
-   See "[Facebook Doc: Client Tokens](https://developers.facebook.com/docs/facebook-login/guides/access-tokens#clienttokens)" for more information and how to obtain it.
+   See "[Facebook Doc: Client Tokens](https://oddb.it/jex)" for more information and how to obtain it.
 
 
 ### Configure Android
 
-Read through the "[Get Started with App Events (Android)](https://developers.facebook.com/docs/app-events/getting-started-app-events-android)" and "[Getting Started with the Facebook SDK for Android](https://developers.facebook.com/docs/android/getting-started)" tutorial. In particular, follow [Update Your Manifest](https://developers.facebook.com/docs/android/getting-started#add-app_id) step by adding the following into `android/app/src/main/res/values/strings.xml` (or into respective `debug` or `release` build flavor)  
+Read through the "[Get Started with App Events (Android)](https://oddb.it/e2i)" and "[Getting Started with the Facebook SDK for Android](https://oddb.it/j5p)" tutorial. In particular, follow [Update Your Manifest](https://oddb.it/3si) step by adding the following into `android/app/src/main/res/values/strings.xml` (or into respective `debug` or `release` build flavor)  
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -53,7 +53,7 @@ After that, add that string resource reference to your main `AndroidManifest.xml
 
 ### Configure iOS
 
-Read through the "[Getting Started with App Events for iOS](https://developers.facebook.com/docs/app-events/getting-started-app-events-ios)" and "[Getting Started with the Facebook SDK for iOS](https://developers.facebook.com/docs/ios/getting-started)" guides. In particular, follow [step 5](https://developers.facebook.com/docs/app-events/getting-started-app-events-ios#step-5--configure-your-project) by opening `Info.plist` "As Source Code" and add the following
+Read through the "[Getting Started with App Events for iOS](https://oddb.it/77p)" and "[Getting Started with the Facebook SDK for iOS](https://oddb.it/hei)" guides. In particular, follow [step 5](https://oddb.it/279) by opening `Info.plist` "As Source Code" and add the following
 
 - If your code does not have `CFBundleURLTypes`, add the following just before the final `</dict>` element:
 
@@ -99,12 +99,18 @@ Read through the "[Getting Started with App Events for iOS](https://developers.f
 This plugin supports iOS integration via both **CocoaPods** (Flutter default) and **Swift Package Manager**.
 
 - CocoaPods (default): no additional steps beyond the configuration above.
-- Swift Package Manager: the plugin includes a Swift package manifest at [ios/facebook_app_events/Package.swift](ios/facebook_app_events/Package.swift). Facebook's official iOS SDK also documents SPM support (see [Swift Package Manager](https://github.com/facebook/facebook-ios-sdk#swift-package-manager)).
+- Swift Package Manager: the plugin includes a Swift package manifest at [ios/facebook_app_events/Package.swift](ios/facebook_app_events/Package.swift). Facebook's official iOS SDK also documents SPM support (see [Swift Package Manager](https://oddb.it/s73)).
+
+#### iOS UIScene lifecycle
+
+This plugin supports both the legacy `UIApplicationDelegate` lifecycle and the newer **`UIScene`** lifecycle (the default for apps built with Flutter 3.38+). It registers as both an application delegate and a scene delegate, so Facebook URL callbacks (deep links and deferred app links) reach the SDK regardless of which lifecycle your app uses. No extra host-app configuration is required beyond the standard Facebook setup above.
+
+Because this plugin uses Flutter's scene-delegate plugin APIs (`FlutterSceneLifeCycleDelegate` / `addSceneDelegate`), added in Flutter 3.38, it requires **Flutter 3.38.0 or newer**.
 
 ## About Facebook App Events
 
-Please refer to the official SDK documentation for correct and expected behavior (see documentation [iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/fbsdkappevents.html) and [Android](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventslogger.html)). Please
-[report an issue](https://github.com/oddbit/flutter_facebook_app_events/issues)
+Please refer to the official SDK documentation for correct and expected behavior (see documentation [iOS](https://oddb.it/wks) and [Android](https://oddb.it/yu2)). Please
+[report an issue](https://oddb.it/3wd)
 if you find anything that is not working according to official documentation.
 
 ## Dependencies on Facebook SDK
@@ -112,7 +118,7 @@ Every now and then it is necessary for this plugin to update the Facebook SDK de
 version of the current Facebook SDK in order to be as compatible as possible with other dependencies in your
 project. 
 
-For Facebook SDK release notes, see [iOS](https://github.com/facebook/facebook-ios-sdk/releases) and [Android](https://github.com/facebook/facebook-android-sdk/releases).
+For Facebook SDK release notes, see [iOS](https://oddb.it/ikt) and [Android](https://oddb.it/un7).
 
 Please do note that it means that you get "the latest version" up until next major release, and it might
 be a source of unexpected behavior for you if you are not aware of this. It is a preferred option to the
@@ -144,13 +150,13 @@ await facebookAppEvents.setGraphApiVersion('v24.0');
 await facebookAppEvents.activateApp();
 ```
 
-Refer to Meta's [Graph API changelog](https://developers.facebook.com/docs/graph-api/changelog/) for currently active versions.
+Refer to Meta's [Graph API changelog](https://oddb.it/ku2) for currently active versions.
 
-This is a plugin-specific workaround for a [known upstream issue in the iOS SDK](https://github.com/facebook/facebook-ios-sdk/issues/2610) and [Android SDK](https://github.com/facebook/facebook-android-sdk/issues/1308). When Meta releases SDK v19.x with a corrected default, this override will become a no-op and the method can safely be removed from your code.
+This is a plugin-specific workaround for a [known upstream issue in the iOS SDK](https://oddb.it/y8r) and [Android SDK](https://oddb.it/gmy). When Meta releases SDK v19.x with a corrected default, this override will become a no-op and the method can safely be removed from your code.
 
 ### `setDataProcessingOptions` on iOS
 
-`setDataProcessingOptions` is **functional on Android** but is a **no-op on iOS** (a warning is printed). Meta removed the underlying API from the Facebook iOS SDK in the 18.x series; there is no native replacement callable from the SDK. If you need to configure data use on iOS, use Meta's [Data Use Checkup](https://developers.facebook.com/docs/development/data-processing-options) tooling in the app dashboard instead.
+`setDataProcessingOptions` is **functional on Android** but is a **no-op on iOS** (a warning is printed). Meta removed the underlying API from the Facebook iOS SDK in the 18.x series; there is no native replacement callable from the SDK. If you need to configure data use on iOS, use Meta's [Data Use Checkup](https://oddb.it/gnc) tooling in the app dashboard instead.
 
 ### `clearUserDataForType` on Android
 
@@ -180,7 +186,7 @@ When setting up codeless events in Facebook Event Manager, you may encounter a w
 3. Ensure your app is properly configured:
    - iOS: Verify `FacebookAppID`, `FacebookClientToken`, and `FacebookDisplayName` are set in your `Info.plist`
    - Android: Verify `facebook_app_id` and `facebook_client_token` are set in `strings.xml` and referenced in `AndroidManifest.xml`
-  - For codeless event debugging, enable codeless debug logging (see documentation [iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/settings.html) and [Android](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/FacebookSdk.html))
+  - For codeless event debugging, enable codeless debug logging (see documentation [iOS](https://oddb.it/m28) and [Android](https://oddb.it/ji7))
 
 4. Test codeless events on a physical device by:
    - Shaking the device to open the codeless event setup tool
@@ -189,13 +195,13 @@ When setting up codeless events in Facebook Event Manager, you may encounter a w
 **Note:** This is a cosmetic UI issue in Facebook's Event Manager tool. Your app is using the correct, up-to-date SDK version. The codeless events feature will function correctly with proper configuration, regardless of the warning message.
 
 For more details, see:
-- [GitHub Issue #402](https://github.com/oddbit/flutter_facebook_app_events/issues/402)
-- [Facebook iOS SDK Issue #2513](https://github.com/facebook/facebook-ios-sdk/issues/2513)
+- [GitHub Issue #402](https://oddb.it/7eq)
+- [Facebook iOS SDK Issue #2513](https://oddb.it/hrz)
 
 ## Discussions and ideas
 We're happy to discuss and talk about ideas in the
-[repository discussions](https://github.com/oddbit/flutter_facebook_app_events/discussions) and/or post your
-question to [StackOverflow](https://stackoverflow.com/search?q=facebook+app+events+flutter).
+[repository discussions](https://oddb.it/z42) and/or post your
+question to [StackOverflow](https://oddb.it/ywj).
 
 Feel free to open a thread if you are having any questions on how to use either the Facebook App Events as a reporting tool
 itself or even on how to use this plugin. 
@@ -221,9 +227,9 @@ Please read our [contribution guideline](CONTRIBUTING.md) for more info.
 
 ## Attribution
 
-`facebook_app_events` is developed and maintained by **[Oddbit](https://oddbit.id)**.
+`facebook_app_events` is developed and maintained by **[Oddbit](https://oddb.it/website)**.
 
-- Source repository: <https://oddb.it/gh-appevt-readme>
+- Source repository: [github.com/oddbit/flutter_facebook_app_events](https://oddb.it/vrc)
 - License: [Apache License 2.0](LICENSE)
 - Attribution notices: [NOTICE](NOTICE)
 - Name and logo usage: [Trademark Policy](TRADEMARK_POLICY.md)

@@ -8,7 +8,7 @@ import UIKit
 import FBSDKCoreKit
 import FBSDKCoreKit_Basics
 
-public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
+public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeCycleDelegate {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
             name: "flutter.oddbit.id/facebook_app_events",
@@ -28,6 +28,12 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
 
         registrar.addMethodCallDelegate(instance, channel: channel)
         registrar.addApplicationDelegate(instance)
+        // Also receive UIScene lifecycle callbacks. Apps on the UIScene
+        // lifecycle (the default for Flutter 3.38+) deliver URL opens to the
+        // scene delegate; without this the `application(_:open:options:)` path
+        // below never fires for those apps.
+        // See: https://docs.flutter.dev/release/breaking-changes/uiscenedelegate
+        registrar.addSceneDelegate(instance)
     }
 
     /// Connect app delegate with SDK
@@ -38,6 +44,34 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin {
     ) -> Bool {
         // For Facebook SDK 18.x+, use the simplified URL handling
         return ApplicationDelegate.shared.application(app, open: url, options: options)
+    }
+
+    /// Scene-lifecycle counterpart to `application(_:open:options:)`. Apps on
+    /// the UIScene lifecycle (the default for Flutter 3.38+) deliver URL opens
+    /// to the scene delegate instead of the app delegate. Reconstruct the
+    /// open-URL options from each scene context and forward to the Facebook SDK
+    /// via its modern `application(_:open:options:)` API. Returns whether the
+    /// SDK handled any of the URLs.
+    public func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) -> Bool {
+        var handled = false
+        for context in URLContexts {
+            var options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+            if let sourceApplication = context.options.sourceApplication {
+                options[.sourceApplication] = sourceApplication
+            }
+            if let annotation = context.options.annotation {
+                options[.annotation] = annotation
+            }
+            options[.openInPlace] = context.options.openInPlace
+            if ApplicationDelegate.shared.application(
+                UIApplication.shared,
+                open: context.url,
+                options: options
+            ) {
+                handled = true
+            }
+        }
+        return handled
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

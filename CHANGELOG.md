@@ -1,3 +1,8 @@
+## 0.29.0
+
+- **iOS UISceneDelegate adoption.** Adopt `FlutterSceneLifeCycleDelegate` and register as a scene delegate so Facebook URL callbacks (deep links / deferred app links) still reach the SDK on apps using the UIScene lifecycle — the default for Flutter 3.38+. The legacy `application(_:open:options:)` path is retained for non-UIScene apps (fixes [#489](https://github.com/oddbit/flutter_facebook_app_events/issues/489)).
+- **Breaking:** Raise the minimum Flutter SDK to `>=3.38.0`, required by `FlutterSceneLifeCycleDelegate` / `addSceneDelegate`. The Dart API and Android behavior are unchanged.
+
 ## 0.28.0
 
 - Add `logProductItem(...)` for product-catalog item logging, with type-safe `ProductAvailability` and `ProductCondition` enums (PR [#487](https://github.com/oddbit/flutter_facebook_app_events/pull/487)).

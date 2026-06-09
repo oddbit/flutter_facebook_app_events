@@ -101,6 +101,12 @@ This plugin supports iOS integration via both **CocoaPods** (Flutter default) an
 - CocoaPods (default): no additional steps beyond the configuration above.
 - Swift Package Manager: the plugin includes a Swift package manifest at [ios/facebook_app_events/Package.swift](ios/facebook_app_events/Package.swift). Facebook's official iOS SDK also documents SPM support (see [Swift Package Manager](https://oddb.it/s73)).
 
+#### iOS UIScene lifecycle
+
+This plugin supports both the legacy `UIApplicationDelegate` lifecycle and the newer **`UIScene`** lifecycle (the default for apps built with Flutter 3.38+). It registers as both an application delegate and a scene delegate, so Facebook URL callbacks (deep links and deferred app links) reach the SDK regardless of which lifecycle your app uses. No extra host-app configuration is required beyond the standard Facebook setup above.
+
+Because this plugin uses Flutter's scene-delegate plugin APIs (`FlutterSceneLifeCycleDelegate` / `addSceneDelegate`), added in Flutter 3.38, it requires **Flutter 3.38.0 or newer**.
+
 ## About Facebook App Events
 
 Please refer to the official SDK documentation for correct and expected behavior (see documentation [iOS](https://oddb.it/wks) and [Android](https://oddb.it/yu2)). Please

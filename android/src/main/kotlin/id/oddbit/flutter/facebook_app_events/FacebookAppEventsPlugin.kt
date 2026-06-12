@@ -8,6 +8,7 @@ package id.oddbit.flutter.facebook_app_events
 import androidx.annotation.NonNull
 
 import android.app.Application
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import com.facebook.FacebookSdk
@@ -34,11 +35,13 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   private val logTag = "FacebookAppEvents"
 
   private var application: Application? = null
+  private var applicationContext: Context? = null
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter.oddbit.id/facebook_app_events")
     channel.setMethodCallHandler(this)
 
+    applicationContext = flutterPluginBinding.applicationContext
     application = flutterPluginBinding.applicationContext.applicationContext as? Application
     appEventsLogger = AppEventsLogger.newLogger(flutterPluginBinding.applicationContext)
     anonymousId = AppEventsLogger.getAnonymousAppDeviceGUID(flutterPluginBinding.applicationContext)
@@ -53,6 +56,7 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
     application = null
+    applicationContext = null
     channel.setMethodCallHandler(null)
   }
 
@@ -72,9 +76,11 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
       "getAnonymousId" -> handleGetAnonymousId(call, result)
       "logPurchase" -> handlePurchased(call, result)
       "setAdvertiserTracking" -> handleSetAdvertiserTracking(call, result)
+      "setAdvertiserIdCollectionEnabled" -> handleSetAdvertiserIdCollectionEnabled(call, result)
+      "setLimitEventAndDataUsage" -> handleSetLimitEventAndDataUsage(call, result)
       "setGraphApiVersion" -> handleSetGraphApiVersion(call, result)
       "logProductItem" -> handleLogProductItem(call, result)
-      "setPushNotificationToken" -> handleSetPushNotificationToken(call, result)
+      "setPushNotificationsDeviceToken", "setPushNotificationToken" -> handleSetPushNotificationToken(call, result)
       "setFlushBehavior" -> handleSetFlushBehavior(call, result)
       "getFlushBehavior" -> handleGetFlushBehavior(call, result)
       "getUserData" -> handleGetUserData(call, result)
@@ -107,20 +113,23 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   private fun handleSetUserData(call: MethodCall, result: Result) {
-    val parameters = call.arguments as? Map<String, Any?> ?: emptyMap()
-    val parameterBundle = createBundleFromMap(parameters)
+    val arguments = call.arguments as? Map<String, Any?> ?: emptyMap()
 
+    // Merge semantics: the native SDK only stores non-null fields and leaves
+    // previously-set fields untouched, matching the iOS handler. Clearing is
+    // done explicitly via clearUserData.
     AppEventsLogger.setUserData(
-      parameterBundle?.getString("email"),
-      parameterBundle?.getString("firstName"),
-      parameterBundle?.getString("lastName"),
-      parameterBundle?.getString("phone"),
-      parameterBundle?.getString("dateOfBirth"),
-      parameterBundle?.getString("gender"),
-      parameterBundle?.getString("city"),
-      parameterBundle?.getString("state"),
-      parameterBundle?.getString("zip"),
-      parameterBundle?.getString("country")
+      arguments["email"] as? String,
+      arguments["firstName"] as? String,
+      arguments["lastName"] as? String,
+      arguments["phone"] as? String,
+      arguments["dateOfBirth"] as? String,
+      arguments["gender"] as? String,
+      arguments["city"] as? String,
+      arguments["state"] as? String,
+      arguments["zip"] as? String,
+      arguments["country"] as? String,
+      arguments["externalId"] as? String
     )
 
     result.success(null)
@@ -159,6 +168,23 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
 
     FacebookSdk.setAdvertiserIDCollectionEnabled(enabled && collectId)
 
+    result.success(null)
+  }
+
+  private fun handleSetAdvertiserIdCollectionEnabled(call: MethodCall, result: Result) {
+    val enabled = call.arguments as? Boolean ?: false
+    FacebookSdk.setAdvertiserIDCollectionEnabled(enabled)
+    result.success(null)
+  }
+
+  private fun handleSetLimitEventAndDataUsage(call: MethodCall, result: Result) {
+    val context = applicationContext
+    if (context == null) {
+      result.error("missing_context", "could not set limitEventAndDataUsage: Android context is missing", null)
+      return
+    }
+    val enabled = call.arguments as? Boolean ?: false
+    FacebookSdk.setLimitEventAndDataUsage(context, enabled)
     result.success(null)
   }
 
@@ -268,7 +294,11 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
       result.error("INVALID_ARGUMENT", "Amount and currency are required", null)
       return
     }
-    val currency = Currency.getInstance(currencyCode)
+    val currency = currencyFromCode(currencyCode)
+    if (currency == null) {
+      result.error("INVALID_ARGUMENT", "'$currencyCode' is not a valid ISO 4217 currency code", null)
+      return
+    }
     val parameters = call.argument<Map<String, Any>>("parameters")
     val parameterBundle = createBundleFromMap(parameters) ?: Bundle()
 
@@ -308,6 +338,12 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
       return
     }
 
+    val currency = currencyFromCode(currencyCode)
+    if (currency == null) {
+      result.error("INVALID_ARGUMENT", "'$currencyCode' is not a valid ISO 4217 currency code", null)
+      return
+    }
+
     val parameters = call.argument<Map<String, Any>>("parameters")
     val parameterBundle = createBundleFromMap(parameters) ?: Bundle()
 
@@ -320,13 +356,21 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
       link,
       title,
       BigDecimal.valueOf(priceAmount),
-      Currency.getInstance(currencyCode),
+      currency,
       gtin,
       mpn,
       brand,
       parameterBundle
     )
     result.success(null)
+  }
+
+  private fun currencyFromCode(code: String): Currency? {
+    return try {
+      Currency.getInstance(code)
+    } catch (e: IllegalArgumentException) {
+      null
+    }
   }
 
   private fun productAvailabilityFromToken(token: String): AppEventsLogger.ProductAvailability? {

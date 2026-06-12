@@ -113,6 +113,10 @@ Please refer to the official SDK documentation for correct and expected behavior
 [report an issue](https://oddb.it/3wd)
 if you find anything that is not working according to official documentation.
 
+### API scope
+
+The plugin mirrors the App Events surface of the native SDKs 1:1 — if a method exists on `AppEvents` (iOS) / `AppEventsLogger` or the related `Settings` / `FacebookSdk` toggles (Android), you should find it here under the same name. A few native APIs are intentionally **not** exposed because they don't translate to Flutter: the access-token overloads of `logEvent`/`logPurchase`, hybrid-webview augmentation (`augmentWebView` / `augmentHybridWebView`), the Unity integration hooks, and iOS-only `logFailedStoreKit2Purchase`. If you need one of these, please [open an issue](https://oddb.it/3wd).
+
 ## Dependencies on Facebook SDK
 Every now and then it is necessary for this plugin to update the Facebook SDK dependency. We follow the major
 version of the current Facebook SDK in order to be as compatible as possible with other dependencies in your
@@ -154,9 +158,9 @@ Refer to Meta's [Graph API changelog](https://oddb.it/ku2) for currently active 
 
 This is a plugin-specific workaround for a [known upstream issue in the iOS SDK](https://oddb.it/y8r) and [Android SDK](https://oddb.it/gmy). When Meta releases SDK v19.x with a corrected default, this override will become a no-op and the method can safely be removed from your code.
 
-### `setDataProcessingOptions` on iOS
+### Event parameter values
 
-`setDataProcessingOptions` is **functional on Android** but is a **no-op on iOS** (a warning is printed). Meta removed the underlying API from the Facebook iOS SDK in the 18.x series; there is no native replacement callable from the SDK. If you need to configure data use on iOS, use Meta's [Data Use Checkup](https://oddb.it/gnc) tooling in the app dashboard instead.
+The native Facebook SDKs only accept `String` and numeric event parameter values — an event carrying any other value type is **silently dropped** by the SDK. To protect against that, `logEvent` (and the helpers that route through it) accepts `String`, `num`, and `bool` values: booleans are converted to `"1"`/`"0"` (Meta's yes/no convention) so events are recorded identically on both platforms, and any other value type throws an `ArgumentError`. Encode structured values (lists, maps) as a JSON string first, as Meta prescribes for parameters like `fb_content`.
 
 ### `clearUserDataForType` on Android
 

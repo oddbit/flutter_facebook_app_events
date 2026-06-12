@@ -43,6 +43,7 @@ class MyApp extends StatelessWidget {
                       firstName: 'Oddbit',
                       city: 'Denpasar',
                       country: 'Indonesia',
+                      externalId: 'example-user-42',
                     );
                   },
                 ),
@@ -64,15 +65,31 @@ class MyApp extends StatelessWidget {
                   },
                 ),
                 MaterialButton(
-                  child: Text("Enable advertise tracking!"),
+                  child: Text("Enable advertiser ID collection"),
                   onPressed: () {
-                    facebookAppEvents.setAdvertiserTracking(enabled: true);
+                    facebookAppEvents.setAdvertiserIdCollectionEnabled(true);
                   },
                 ),
                 MaterialButton(
-                  child: Text("Disabled advertise tracking!"),
+                  child: Text("Disable advertiser ID collection"),
                   onPressed: () {
-                    facebookAppEvents.setAdvertiserTracking(enabled: false);
+                    facebookAppEvents.setAdvertiserIdCollectionEnabled(false);
+                  },
+                ),
+                MaterialButton(
+                  child: Text("Limit event and data usage"),
+                  onPressed: () {
+                    facebookAppEvents.setLimitEventAndDataUsage(true);
+                  },
+                ),
+                MaterialButton(
+                  child: Text("Enable Limited Data Use (LDU)"),
+                  onPressed: () {
+                    facebookAppEvents.setDataProcessingOptions(
+                      ['LDU'],
+                      country: 0,
+                      state: 0,
+                    );
                   },
                 ),
                 MaterialButton(
@@ -102,7 +119,8 @@ class MyApp extends StatelessWidget {
                 MaterialButton(
                   child: Text("Register push token"),
                   onPressed: () {
-                    facebookAppEvents.setPushNotificationToken('example-token');
+                    facebookAppEvents
+                        .setPushNotificationsDeviceToken('example-token');
                   },
                 ),
                 MaterialButton(

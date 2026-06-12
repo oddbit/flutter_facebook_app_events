@@ -104,7 +104,9 @@ class FacebookAppEvents {
   /// If you provide an [applicationId], the native SDK will be configured to
   /// log to that App ID instead of the default app id from platform config.
   /// (On iOS this uses `loggingOverrideAppID`; on Android it is passed to
-  /// `activateApp(Application, applicationId)`.)
+  /// `activateApp(Application, applicationId)`.) The override applies per
+  /// call: calling [activateApp] again without an [applicationId] reverts to
+  /// the default app id on both platforms.
   ///
   /// See documentation:
   /// - [iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/fbsdkappevents.html)
@@ -131,6 +133,14 @@ class FacebookAppEvents {
   /// instance of an application. The user data will be persisted between
   /// application instances.
   ///
+  /// Merge semantics: only the fields you pass are updated; fields that are
+  /// `null` (or omitted) keep their previously-set value on both platforms.
+  /// To remove fields use [clearUserData] (all fields) or
+  /// [clearUserDataForType] (single field, iOS only).
+  ///
+  /// [externalId] is your own identifier for the user, used by Meta for
+  /// advanced matching (`extern_id`).
+  ///
   /// See documentation:
   /// - [iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/fbsdkappevents.html)
   /// - [Android](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventslogger.html)
@@ -145,6 +155,7 @@ class FacebookAppEvents {
     String? state,
     String? zip,
     String? country,
+    String? externalId,
   }) {
     final args = <String, dynamic>{
       'email': email,
@@ -157,6 +168,7 @@ class FacebookAppEvents {
       'state': state,
       'zip': zip,
       'country': country,
+      'externalId': externalId,
     };
 
     return _channel.invokeMethod<void>('setUserData', _filterOutNulls(args));
@@ -182,7 +194,10 @@ class FacebookAppEvents {
 
   /// Returns the app ID this logger was configured to log to.
   ///
-  /// Note: on iOS, this plugin reads `FacebookAppID` from `Info.plist`.
+  /// Maps to `appEventsLogger.applicationId` on Android and
+  /// `Settings.shared.appID` on iOS — both resolve the app id from platform
+  /// configuration (`AndroidManifest.xml` / `Info.plist`) and reflect any app
+  /// id set programmatically on the SDK.
   ///
   /// See documentation:
   /// - [iOS](https://developers.facebook.com/docs/ios/getting-started)
@@ -202,9 +217,14 @@ class FacebookAppEvents {
 
   /// Log an app event with the specified [name] and the supplied [parameters] value.
   ///
-  /// - [parameters] should contain only JSON-compatible values. On Android
-  ///   these values are converted into a `Bundle`, so supported types are
-  ///   limited to primitives (String/num/bool) and nested maps of the same.
+  /// The native SDKs only accept `String` and numeric parameter values; an
+  /// event containing any other value type is silently dropped by the SDK.
+  /// This method therefore accepts `String`, `num`, and `bool` values —
+  /// booleans are converted to `"1"`/`"0"` (Meta's yes/no convention, see
+  /// [paramValueYes]/[paramValueNo]) so the event is recorded identically on
+  /// both platforms. Any other value type (lists, maps, ...) throws an
+  /// [ArgumentError]; encode structured values as a JSON string first (as
+  /// Meta prescribes for [paramNameContent]).
   ///
   /// See documentation:
   /// - [iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/fbsdkappevents.html)
@@ -220,7 +240,7 @@ class FacebookAppEvents {
     };
 
     if (parameters != null) {
-      args['parameters'] = _filterOutNulls(parameters);
+      args['parameters'] = _normalizeParameters(parameters);
     }
 
     return _channel.invokeMethod<void>('logEvent', _filterOutNulls(args));
@@ -392,15 +412,19 @@ class FacebookAppEvents {
     return _channel.invokeMethod<void>('setAutoLogAppEventsEnabled', enabled);
   }
 
-  /// Sets data processing options (CCPA / limited data use).
+  /// Sets data processing options (CCPA / Limited Data Use).
   ///
-  /// Platform behavior:
-  /// - Android: calls the native `FacebookSdk.setDataProcessingOptions(...)`.
-  /// - iOS: the upstream iOS SDK removed this API in recent versions; this
-  ///   method currently performs no action on iOS.
+  /// Maps to `FacebookSdk.setDataProcessingOptions(options, country, state)`
+  /// on Android and `Settings.shared.setDataProcessingOptions(options,
+  /// country:state:)` on iOS.
+  ///
+  /// For example, to enable Limited Data Use with geolocation:
+  /// `setDataProcessingOptions(['LDU'], country: 0, state: 0)`. Passing an
+  /// empty [options] list disables Limited Data Use.
   ///
   /// See documentation:
   /// - https://developers.facebook.com/docs/development/data-processing-options
+  /// - [iOS Settings](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/settings.html)
   /// - [Android FacebookSdk](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/FacebookSdk.html)
   Future<void> setDataProcessingOptions(
     List<String> options, {
@@ -420,6 +444,10 @@ class FacebookAppEvents {
   ///
   /// [currency] should be an ISO 4217 currency code (for example: `"USD"`).
   ///
+  /// [parameters] follows the same value-type rules as [logEvent]: `String`,
+  /// `num`, and `bool` (sent as `"1"`/`"0"`); other types throw an
+  /// [ArgumentError].
+  ///
   /// See documentation:
   /// - [iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/fbsdkappevents.html)
   /// - [Android](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventslogger.html)
@@ -431,7 +459,7 @@ class FacebookAppEvents {
     final args = <String, dynamic>{
       'amount': amount,
       'currency': currency,
-      'parameters': parameters,
+      if (parameters != null) 'parameters': _normalizeParameters(parameters),
     };
     return _channel.invokeMethod<void>('logPurchase', _filterOutNulls(args));
   }
@@ -470,16 +498,23 @@ class FacebookAppEvents {
 
   /// Sets advertiser tracking / advertiser ID collection flags.
   ///
-  /// This typically needs to be aligned with your user consent flow and the
-  /// platform's privacy requirements.
+  /// Deprecated because the two flags it couples no longer exist as a pair on
+  /// either platform:
   ///
-  /// Note: this method no longer toggles verbose SDK debug logging as a side
-  /// effect on Android. Use [setDebugLoggingEnabled] to control SDK logging
-  /// explicitly on both platforms.
+  /// - On iOS, `Settings.isAdvertiserTrackingEnabled` is deprecated since
+  ///   Facebook SDK v17: the SDK derives tracking consent from
+  ///   `ATTrackingManager.trackingAuthorizationStatus` and ignores this setter
+  ///   on iOS 17+. Request App Tracking Transparency authorization in your
+  ///   app instead.
+  /// - On Android, no tracking-enabled flag exists; only advertiser ID
+  ///   collection is configurable, and this method reduces to
+  ///   `setAdvertiserIDCollectionEnabled(enabled && collectId)`.
   ///
-  /// See documentation:
-  /// - [iOS Settings](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/settings.html)
-  /// - [Android FacebookSdk](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/FacebookSdk.html)
+  /// Use [setAdvertiserIdCollectionEnabled] instead, which maps 1:1 to the
+  /// native setting on both platforms.
+  @Deprecated('Use setAdvertiserIdCollectionEnabled instead. On iOS the SDK '
+      'derives tracking consent from App Tracking Transparency, and on '
+      'Android only advertiser ID collection is configurable.')
   Future<void> setAdvertiserTracking({
     required bool enabled,
     bool collectId = true,
@@ -490,6 +525,40 @@ class FacebookAppEvents {
     };
 
     return _channel.invokeMethod<void>('setAdvertiserTracking', args);
+  }
+
+  /// Enables/disables collection of the device advertiser ID (IDFA on iOS,
+  /// Google Advertising ID on Android) with logged events.
+  ///
+  /// Maps to `Settings.shared.isAdvertiserIDCollectionEnabled` (iOS) and
+  /// `FacebookSdk.setAdvertiserIDCollectionEnabled` (Android). Align this
+  /// with your user consent flow.
+  ///
+  /// Note that on iOS the advertiser ID is only available when the user has
+  /// granted App Tracking Transparency authorization.
+  ///
+  /// See documentation:
+  /// - [iOS Settings](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/settings.html)
+  /// - [Android FacebookSdk](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/FacebookSdk.html)
+  Future<void> setAdvertiserIdCollectionEnabled(bool enabled) {
+    return _channel.invokeMethod<void>(
+      'setAdvertiserIdCollectionEnabled',
+      enabled,
+    );
+  }
+
+  /// Restricts logged event data from being used for purposes other than
+  /// analytics and conversions (e.g. targeting ads to the user).
+  ///
+  /// Maps to `FacebookSdk.setLimitEventAndDataUsage` (Android) and
+  /// `Settings.shared.isEventDataUsageLimited` (iOS). The setting is
+  /// persisted across app launches. Defaults to `false`.
+  ///
+  /// See documentation:
+  /// - [iOS Settings](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/settings.html)
+  /// - [Android FacebookSdk](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/FacebookSdk.html)
+  Future<void> setLimitEventAndDataUsage(bool enabled) {
+    return _channel.invokeMethod<void>('setLimitEventAndDataUsage', enabled);
   }
 
   /// The start of a paid subscription for a product or service you offer.
@@ -662,7 +731,7 @@ class FacebookAppEvents {
       'gtin': gtin,
       'mpn': mpn,
       'brand': brand,
-      'parameters': parameters,
+      if (parameters != null) 'parameters': _normalizeParameters(parameters),
     };
 
     return _channel.invokeMethod<void>(
@@ -671,8 +740,8 @@ class FacebookAppEvents {
     );
   }
 
-  /// Registers a push notification [token] with the SDK so Meta can attribute
-  /// push-driven app opens and measure push campaigns.
+  /// Registers a push notification device [token] with the SDK so Meta can
+  /// attribute push-driven app opens and measure push campaigns.
   ///
   /// Platform mapping:
   /// - iOS: `AppEvents.setPushNotificationsDeviceToken(_:)` (the String overload).
@@ -680,8 +749,18 @@ class FacebookAppEvents {
   ///   selector is renamed to `setPushNotificationsDeviceToken(_:)` in Swift via
   ///   `NS_SWIFT_NAME`, so that is the symbol this plugin calls.
   /// - Android: `AppEventsLogger.setPushNotificationsRegistrationId`.
+  Future<void> setPushNotificationsDeviceToken(String token) {
+    return _channel.invokeMethod<void>(
+      'setPushNotificationsDeviceToken',
+      token,
+    );
+  }
+
+  /// Registers a push notification [token] with the SDK.
+  @Deprecated('Use setPushNotificationsDeviceToken instead, which follows the '
+      'native SDK naming.')
   Future<void> setPushNotificationToken(String token) {
-    return _channel.invokeMethod<void>('setPushNotificationToken', token);
+    return setPushNotificationsDeviceToken(token);
   }
 
   /// Sets the [FlushBehavior] controlling when events are sent to Meta.
@@ -723,8 +802,8 @@ class FacebookAppEvents {
   /// network requests).
   ///
   /// This replaces the implicit debug-logging side effect that previously lived
-  /// in [setAdvertiserTracking] on Android; call this explicitly when you want
-  /// SDK logs during development.
+  /// in the deprecated `setAdvertiserTracking` on Android; call this explicitly
+  /// when you want SDK logs during development.
   Future<void> setDebugLoggingEnabled(bool enabled) {
     return _channel.invokeMethod<void>('setDebugLoggingEnabled', enabled);
   }
@@ -744,5 +823,30 @@ class FacebookAppEvents {
       }
     });
     return filtered;
+  }
+
+  /// Normalizes event [parameters] to the value types accepted by the native
+  /// SDKs: drops `null` entries, keeps `String`/`num` values, converts `bool`
+  /// to `"1"`/`"0"`, and throws [ArgumentError] for anything else — the native
+  /// SDKs silently drop the whole event when given an unsupported value type.
+  Map<String, dynamic> _normalizeParameters(Map<String, dynamic> parameters) {
+    final Map<String, dynamic> normalized = <String, dynamic>{};
+    parameters.forEach((String key, dynamic value) {
+      if (value == null) {
+        return;
+      } else if (value is bool) {
+        normalized[key] = value ? paramValueYes : paramValueNo;
+      } else if (value is String || value is num) {
+        normalized[key] = value;
+      } else {
+        throw ArgumentError.value(
+          value,
+          key,
+          'App event parameter values must be String, num, or bool. '
+          'Encode structured values as a JSON string (json.encode) first.',
+        );
+      }
+    });
+    return normalized;
   }
 }

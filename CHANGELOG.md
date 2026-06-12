@@ -1,3 +1,17 @@
+## Unreleased
+
+- **Fix (iOS):** `setDataProcessingOptions` is now functional on iOS, mapping to `Settings.shared.setDataProcessingOptions(options, country:state:)`. The previous no-op was based on the incorrect belief that Meta removed the API in Facebook iOS SDK 18.x — it exists in all 18.x releases. The "no-op on iOS" known limitation is gone.
+- **Fix (iOS):** `getApplicationId` now returns `Settings.shared.appID` (which also resolves the `Info.plist` `FacebookAppID`) instead of reading `Info.plist` directly, so programmatic app-id configuration is reflected, matching Android.
+- **Fix (iOS):** `setUserData` now uses merge semantics like Android: only the fields you pass are updated. Previously the iOS handler passed `nil` for absent fields, which *cleared* previously-set fields on iOS while Android kept them. Use `clearUserData`/`clearUserDataForType` to remove fields.
+- **Fix:** event parameters are validated in the Dart layer. The native SDKs accept only `String`/numeric parameter values and **silently drop** the entire event otherwise — booleans (previously dropped on Android, recorded on iOS) are now converted to `"1"`/`"0"` on both platforms, and unsupported types (lists, maps) throw an `ArgumentError` instead of vanishing. JSON-encode structured values instead.
+- **Fix (iOS):** the `activateApp(applicationId:)` override now applies per call: calling `activateApp()` without an id resets `loggingOverrideAppID`, matching Android's per-call fallback to the default app id.
+- **Fix (Android):** `logPurchase`/`logProductItem` now return an `INVALID_ARGUMENT` error for invalid ISO 4217 currency codes instead of an opaque platform exception.
+- Add `externalId` to `setUserData` and `FacebookUserDataField` (Meta advanced matching `extern_id`), supported by both native SDKs.
+- Add `setLimitEventAndDataUsage(bool)`, mapping to `FacebookSdk.setLimitEventAndDataUsage` (Android) / `Settings.shared.isEventDataUsageLimited` (iOS).
+- Add `setAdvertiserIdCollectionEnabled(bool)` and deprecate `setAdvertiserTracking`: the iOS tracking flag it set is deprecated since FBSDK v17 (ATT status is used instead), and on Android only advertiser ID collection exists.
+- Add `setPushNotificationsDeviceToken(String)` (native SDK naming) and deprecate `setPushNotificationToken`, which now delegates to it.
+- Document the plugin's API scope (intentionally unexposed native APIs) in the README.
+
 ## 0.29.0
 
 - **iOS UISceneDelegate adoption.** Adopt `FlutterSceneLifeCycleDelegate` and register as a scene delegate so Facebook URL callbacks (deep links / deferred app links) still reach the SDK on apps using the UIScene lifecycle — the default for Flutter 3.38+. The legacy `application(_:open:options:)` path is retained for non-UIScene apps (fixes [#489](https://github.com/oddbit/flutter_facebook_app_events/issues/489)).

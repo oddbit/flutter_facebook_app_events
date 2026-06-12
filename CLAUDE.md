@@ -26,5 +26,7 @@ The plugin follows the **major** version of the Facebook SDK (currently v18.x). 
 
 ## Known platform divergence
 
-- `setDataProcessingOptions`: functional on Android; no-op on iOS (Meta removed the API in FBSDK 18.x). Documented in the Dart dartdoc and README "Known Limitations".
+- `clearUserDataForType`: functional on iOS; no-op on Android (the Android `AppEventsLogger` has no per-field clear). Documented in the Dart dartdoc and README "Known Limitations".
+- `setUserData` uses merge semantics on both platforms: only fields present in the call are updated. The iOS handler deliberately skips absent keys because passing nil to the native setter would *clear* the field on iOS (Android ignores nulls).
 - Graph API version override: plugin forces `v24.0` at init on both platforms to work around outdated SDK defaults. Revisit when FBSDK v19 lands.
+- Event parameters are validated in the Dart layer (`String`/`num`/`bool` only, bool sent as `"1"`/`"0"`) because the native SDKs silently drop events with other value types.

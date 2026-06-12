@@ -80,6 +80,10 @@ enum FacebookUserDataField {
   state,
   zip,
   country,
+
+  /// Your own identifier for the user (`extern_id`), used by Meta for
+  /// advanced matching.
+  externalId,
 }
 
 /// Parses a [FlushBehavior] from a wire token, defaulting to

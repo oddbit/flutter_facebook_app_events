@@ -26,8 +26,10 @@ void main() {
     expect(find.text('Set user data'), findsOneWidget);
     expect(find.text('Test logAddToCart'), findsOneWidget);
     expect(find.text('Test purchase!'), findsOneWidget);
-    expect(find.text('Enable advertise tracking!'), findsOneWidget);
-    expect(find.text('Disabled advertise tracking!'), findsOneWidget);
+    expect(find.text('Enable advertiser ID collection'), findsOneWidget);
+    expect(find.text('Disable advertiser ID collection'), findsOneWidget);
+    expect(find.text('Limit event and data usage'), findsOneWidget);
+    expect(find.text('Enable Limited Data Use (LDU)'), findsOneWidget);
   });
 
   testWidgets('Button text content', (WidgetTester tester) async {
@@ -42,9 +44,12 @@ void main() {
         findsOneWidget);
     expect(
         find.widgetWithText(MaterialButton, 'Test purchase!'), findsOneWidget);
-    expect(find.widgetWithText(MaterialButton, 'Enable advertise tracking!'),
+    expect(
+        find.widgetWithText(MaterialButton, 'Enable advertiser ID collection'),
         findsOneWidget);
-    expect(find.widgetWithText(MaterialButton, 'Disabled advertise tracking!'),
+    expect(
+        find.widgetWithText(
+            MaterialButton, 'Disable advertiser ID collection'),
         findsOneWidget);
   });
 }

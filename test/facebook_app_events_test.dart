@@ -189,6 +189,68 @@ void main() {
       );
     });
 
+    test('logEvent converts bool parameters to "1"/"0"', () async {
+      await facebookAppEvents.logEvent(
+        name: 'test-event',
+        parameters: <String, dynamic>{'success': true, 'retried': false},
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'test-event',
+            'parameters': <String, dynamic>{
+              'success': '1',
+              'retried': '0',
+            },
+          },
+        ),
+      );
+    });
+
+    test('logEvent drops null parameter values', () async {
+      await facebookAppEvents.logEvent(
+        name: 'test-event',
+        parameters: <String, dynamic>{'a': 'b', 'empty': null},
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logEvent',
+          arguments: <String, dynamic>{
+            'name': 'test-event',
+            'parameters': <String, dynamic>{'a': 'b'},
+          },
+        ),
+      );
+    });
+
+    test('logEvent throws ArgumentError for nested map parameters', () async {
+      expect(
+        () => facebookAppEvents.logEvent(
+          name: 'test-event',
+          parameters: <String, dynamic>{
+            'nested': {'id': '1'},
+          },
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('logEvent throws ArgumentError for list parameters', () async {
+      expect(
+        () => facebookAppEvents.logEvent(
+          name: 'test-event',
+          parameters: <String, dynamic>{
+            'items': ['a', 'b'],
+          },
+        ),
+        throwsArgumentError,
+      );
+    });
   });
 
   group('Purchase logging', () {
@@ -229,6 +291,40 @@ void main() {
         ),
       );
     });
+
+    test('logPurchase converts bool parameters to "1"/"0"', () async {
+      await facebookAppEvents.logPurchase(
+        amount: 12.34,
+        currency: 'USD',
+        parameters: <String, dynamic>{'first_purchase': true},
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'logPurchase',
+          arguments: <String, dynamic>{
+            'amount': 12.34,
+            'currency': 'USD',
+            'parameters': <String, dynamic>{'first_purchase': '1'},
+          },
+        ),
+      );
+    });
+
+    test('logPurchase throws ArgumentError for nested map parameters',
+        () async {
+      expect(
+        () => facebookAppEvents.logPurchase(
+          amount: 12.34,
+          currency: 'USD',
+          parameters: <String, dynamic>{
+            'content': {'id': '1'},
+          },
+        ),
+        throwsArgumentError,
+      );
+    });
   });
 
   group('User data', () {
@@ -245,6 +341,24 @@ void main() {
           'setUserData',
           arguments: <String, dynamic>{
             'email': 'user@example.com',
+          },
+        ),
+      );
+    });
+
+    test('setUserData forwards externalId', () async {
+      await facebookAppEvents.setUserData(
+        email: 'user@example.com',
+        externalId: 'crm-42',
+      );
+
+      expect(
+        methodCall,
+        isMethodCall(
+          'setUserData',
+          arguments: <String, dynamic>{
+            'email': 'user@example.com',
+            'externalId': 'crm-42',
           },
         ),
       );
@@ -332,6 +446,7 @@ void main() {
     });
 
     test('setAdvertiserTracking forwards enabled and collectId', () async {
+      // ignore: deprecated_member_use_from_same_package
       await facebookAppEvents.setAdvertiserTracking(
         enabled: true,
         collectId: false,
@@ -346,6 +461,24 @@ void main() {
             'collectId': false,
           },
         ),
+      );
+    });
+
+    test('setAdvertiserIdCollectionEnabled forwards boolean', () async {
+      await facebookAppEvents.setAdvertiserIdCollectionEnabled(true);
+
+      expect(
+        methodCall,
+        isMethodCall('setAdvertiserIdCollectionEnabled', arguments: true),
+      );
+    });
+
+    test('setLimitEventAndDataUsage forwards boolean', () async {
+      await facebookAppEvents.setLimitEventAndDataUsage(true);
+
+      expect(
+        methodCall,
+        isMethodCall('setLimitEventAndDataUsage', arguments: true),
       );
     });
 
@@ -652,14 +785,33 @@ void main() {
         isMethodCall('clearUserDataForType', arguments: 'email'),
       );
     });
+
+    test('clearUserDataForType forwards externalId token', () async {
+      await facebookAppEvents
+          .clearUserDataForType(FacebookUserDataField.externalId);
+      expect(
+        methodCall,
+        isMethodCall('clearUserDataForType', arguments: 'externalId'),
+      );
+    });
   });
 
   group('Push token and debug logging', () {
-    test('setPushNotificationToken forwards token as scalar', () async {
+    test('setPushNotificationsDeviceToken forwards token as scalar', () async {
+      await facebookAppEvents.setPushNotificationsDeviceToken('tok-123');
+      expect(
+        methodCall,
+        isMethodCall('setPushNotificationsDeviceToken', arguments: 'tok-123'),
+      );
+    });
+
+    test('deprecated setPushNotificationToken delegates to the new method',
+        () async {
+      // ignore: deprecated_member_use_from_same_package
       await facebookAppEvents.setPushNotificationToken('tok-123');
       expect(
         methodCall,
-        isMethodCall('setPushNotificationToken', arguments: 'tok-123'),
+        isMethodCall('setPushNotificationsDeviceToken', arguments: 'tok-123'),
       );
     });
 

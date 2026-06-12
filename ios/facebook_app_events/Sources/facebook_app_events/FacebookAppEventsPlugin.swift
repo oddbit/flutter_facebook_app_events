@@ -260,10 +260,21 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
     private func handleSetDataProcessingOptions(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let arguments = call.arguments as? [String: Any] ?? [:]
         let options = arguments["options"] as? [String] ?? []
-        let country = arguments["country"] as? Int ?? 0
-        let state = arguments["state"] as? Int ?? 0
 
-        Settings.shared.setDataProcessingOptions(options, country: Int32(country), state: Int32(state))
+        // The channel codec delivers Dart ints as Int64 when they exceed
+        // Int32, so a forced Int32(_:) conversion would trap. The native API
+        // takes Int32, so reject out-of-range values instead of crashing.
+        guard let country = Int32(exactly: arguments["country"] as? Int ?? 0),
+              let state = Int32(exactly: arguments["state"] as? Int ?? 0) else {
+            result(FlutterError(
+                code: "INVALID_ARGUMENT",
+                message: "country and state must fit in a 32-bit integer",
+                details: nil
+            ))
+            return
+        }
+
+        Settings.shared.setDataProcessingOptions(options, country: country, state: state)
         result(nil)
     }
 

@@ -1,4 +1,4 @@
-## Unreleased
+## 0.30.0
 
 - **Fix (iOS):** `setDataProcessingOptions` is now functional on iOS, mapping to `Settings.shared.setDataProcessingOptions(options, country:state:)`. The previous no-op was based on the incorrect belief that Meta removed the API in Facebook iOS SDK 18.x — it exists in all 18.x releases. The "no-op on iOS" known limitation is gone.
 - **Fix (iOS):** `getApplicationId` now returns `Settings.shared.appID` (which also resolves the `Info.plist` `FacebookAppID`) instead of reading `Info.plist` directly, so programmatic app-id configuration is reflected, matching Android.

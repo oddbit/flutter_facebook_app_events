@@ -1,10 +1,12 @@
 name: Build verification
 
 # Single source of truth for build confirmation. Called by `pr_acceptance.yml` (on PRs) and
-# `build_deploy.yml` (before publishing on a tag) via `uses:` so the build steps live in ONE
-# place and cannot drift between workflows. Do not duplicate these steps elsewhere — add a
-# matrix cell here when (and only when) a build env exercises a distinct code path or a
-# support boundary.
+# `build_deploy.yml` (before publishing on a tag) via `uses:` so the steps live in ONE place and
+# can't drift between workflows.
+#
+# Shape: one fast `test` job (Dart unit tests are MethodChannel-mocked, so platform-agnostic — run
+# once, not per build), then the platform builds gated behind it (`needs: [test]`) so the slow /
+# expensive builds (especially macOS) don't run when the Dart layer is broken.
 on:
   workflow_call:
     inputs:
@@ -14,8 +16,42 @@ on:
         default: false
 
 jobs:
+  test:
+    name: Dart tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter --version
+
+      - name: Flutter pub get (root)
+        run: flutter pub get
+
+      - name: Flutter test (root)
+        run: flutter test
+
+      - name: Flutter pub get (example)
+        working-directory: example
+        run: flutter pub get
+
+      - name: Flutter test (example)
+        working-directory: example
+        run: flutter test
+
   android:
     name: Android example — ${{ matrix.label }}
+    needs: [test]
     runs-on: ubuntu-latest
     timeout-minutes: 45
     # Only the experimental (AGP 9) cell is allowed to fail; the floor/stable cells gate.
@@ -74,28 +110,21 @@ jobs:
         if: ${{ matrix.agp9 }}
         run: |
           set -euxo pipefail
-          # AGP 9 requires Gradle >= 9.1 and enables Built-in Kotlin by default, so the example app
-          # must no longer apply kotlin-android (Flutter supplies KGP). Migrating it here lets this
-          # cell exercise the plugin's `agpMajor >= 9` branch end to end.
+          # AGP 9.1.1 requires Gradle >= 9.3.1 and enables Built-in Kotlin by default, so the
+          # example app must no longer apply kotlin-android (Flutter supplies KGP). Migrating it
+          # here lets this cell exercise the plugin's `agpMajor >= 9` branch end to end.
           sed -i 's#com.android.tools.build:gradle:8.9.2#com.android.tools.build:gradle:9.1.1#' example/android/build.gradle
           sed -i 's#com.android.application" version "8.9.2"#com.android.application" version "9.1.1"#' example/android/settings.gradle
-          sed -i 's#gradle-8.11.1-bin.zip#gradle-9.1.0-bin.zip#' example/android/gradle/wrapper/gradle-wrapper.properties
+          sed -i 's#gradle-8.11.1-bin.zip#gradle-9.3.1-bin.zip#' example/android/gradle/wrapper/gradle-wrapper.properties
           sed -i '/id "kotlin-android"/d' example/android/app/build.gradle
           sed -i '/kotlinOptions {/,/}/d' example/android/app/build.gradle
 
       - name: Flutter pub get (root)
         run: flutter pub get
 
-      - name: Flutter test (root)
-        run: flutter test
-
       - name: Flutter pub get (example)
         working-directory: example
         run: flutter pub get
-
-      - name: Flutter test (example)
-        working-directory: example
-        run: flutter test
 
       - name: Build example APK (debug, verbose)
         working-directory: example
@@ -103,6 +132,7 @@ jobs:
 
   ios:
     name: iOS example
+    needs: [test]
     if: ${{ inputs.include-ios }}
     runs-on: macos-latest
     timeout-minutes: 60

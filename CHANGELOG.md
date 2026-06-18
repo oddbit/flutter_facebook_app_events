@@ -1,3 +1,7 @@
+## 0.30.1
+
+- **Fix (Android):** stop triggering Flutter 3.44+'s "plugins that apply Kotlin Gradle Plugin (KGP)" warning and build on AGP 9, without raising the minimum Flutter SDK. KGP is now applied only on AGP < 9 (Flutter's Built-in Kotlin supplies it otherwise) (fixes [#492](https://github.com/oddbit/flutter_facebook_app_events/issues/492)).
+
 ## 0.30.0
 
 - **Fix (iOS):** `setDataProcessingOptions` is now functional on iOS, mapping to `Settings.shared.setDataProcessingOptions(options, country:state:)`. The previous no-op was based on the incorrect belief that Meta removed the API in Facebook iOS SDK 18.x — it exists in all 18.x releases. The "no-op on iOS" known limitation is gone.

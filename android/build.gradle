@@ -2,7 +2,6 @@ group = "id.oddbit.flutter.facebook_app_events"
 version = "1.0-SNAPSHOT"
 
 buildscript {
-    ext.kotlin_version = "2.3.10"
     repositories {
         google()
         mavenCentral()
@@ -10,7 +9,6 @@ buildscript {
 
     dependencies {
         classpath("com.android.tools.build:gradle:8.9.2")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
     }
 }
 
@@ -23,15 +21,19 @@ allprojects {
 
 apply plugin: "com.android.library"
 
-// AGP 9 ships built-in Kotlin support (`android.builtInKotlin=true` by default). Applying
-// `kotlin-android` on top of that conflicts, so skip it in that case. Users running AGP 9 with
-// `android.builtInKotlin=false` still need `kotlin-android` applied — otherwise there's no
-// Kotlin plugin at all and the Kotlin DSL below has nothing to bind to.
-def agpMajor = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.split('\\.')[0].toInteger()
-def builtInKotlinEnabled = (project.findProperty("android.builtInKotlin") ?: "true").toString().toBoolean()
-def useBuiltInKotlin = (agpMajor >= 9 && builtInKotlinEnabled)
-if (!useBuiltInKotlin) {
-    apply plugin: "kotlin-android"
+// Apply the Kotlin Gradle Plugin (KGP) only on AGP < 9. AGP 9 removed support for plugins applying
+// KGP, and Flutter's Built-in Kotlin (Flutter >= 3.44) supplies it for us there instead.
+//
+// The imperative `pluginManager.apply(...)` form is used deliberately rather than
+// `apply plugin: "kotlin-android"`: Flutter detects KGP-applying plugins by a *static text scan*
+// for the DSL form (`apply plugin:` / `plugins { id ... }`) in this file, so a conditional around
+// the DSL form would still trip the warning. The imperative form keeps the plugin building on
+// AGP 9 *and* silences Flutter's "plugins that apply KGP" warning, without raising the plugin's
+// minimum Flutter SDK. Supersedes the AGP-9 / `android.builtInKotlin` guard from 0.27.1–0.27.2.
+// https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-plugin-authors
+def agpMajor = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0] as int
+if (agpMajor < 9) {
+    project.pluginManager.apply("kotlin-android")
 }
 
 android {
@@ -42,16 +44,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    // Built-in Kotlin defaults `kotlin.compilerOptions.jvmTarget` to
-    // `android.compileOptions.targetCompatibility` (set above), so no explicit
-    // configuration is needed in that mode. The legacy `kotlinOptions` DSL is
-    // only available when `kotlin-android` is applied.
-    if (!useBuiltInKotlin) {
-        kotlinOptions {
-            jvmTarget = "17"
-        }
     }
 
     sourceSets {
@@ -71,5 +63,14 @@ android {
     dependencies {
         // Keep major-only range per repo guidelines.
         implementation("com.facebook.android:facebook-android-sdk:[18.0,19.0)")
+    }
+}
+
+// Replaces the legacy `kotlinOptions { jvmTarget }` DSL (only available when KGP is applied
+// directly). KGP is guaranteed applied here: by the block above on AGP < 9, or by Flutter's
+// Built-in Kotlin on AGP 9.
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }
 }

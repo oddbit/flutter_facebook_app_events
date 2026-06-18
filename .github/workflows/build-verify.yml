@@ -9,11 +9,6 @@ name: Build verification
 # expensive builds (especially macOS) don't run when the Dart layer is broken.
 on:
   workflow_call:
-    inputs:
-      include-ios:
-        description: "Also build the example for iOS (macOS runner). Off for PRs, on for release."
-        type: boolean
-        default: false
 
 jobs:
   test:
@@ -133,7 +128,6 @@ jobs:
   ios:
     name: iOS example
     needs: [test]
-    if: ${{ inputs.include-ios }}
     runs-on: macos-latest
     timeout-minutes: 60
     permissions:

@@ -5,11 +5,9 @@ on:
       - "v[0-9]+.[0-9]+.[0-9]+*"
 
 jobs:
-  # Same build confirmation as PRs (reusable workflow), plus iOS — one source of truth, no drift.
+  # Same build confirmation as PRs (reusable workflow) — one source of truth, no drift.
   verify:
     uses: ./.github/workflows/build-verify.yml
-    with:
-      include-ios: true
 
   publish:
     name: Publish Plugin

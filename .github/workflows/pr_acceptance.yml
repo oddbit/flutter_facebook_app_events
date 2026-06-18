@@ -5,7 +5,6 @@ on:
 
 jobs:
   # Build confirmation lives in the reusable build-verify workflow so it stays in sync with the
-  # release pipeline (build_deploy.yml). iOS is left off for PRs (macOS runner cost); the release
-  # pipeline opts in.
+  # release pipeline (build_deploy.yml) — same Android matrix + iOS build for both.
   build-verify:
     uses: ./.github/workflows/build-verify.yml

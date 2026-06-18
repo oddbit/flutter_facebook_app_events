@@ -1,0 +1,164 @@
+name: Build verification
+
+# Single source of truth for build confirmation. Called by `pr_acceptance.yml` (on PRs) and
+# `build_deploy.yml` (before publishing on a tag) via `uses:` so the build steps live in ONE
+# place and cannot drift between workflows. Do not duplicate these steps elsewhere — add a
+# matrix cell here when (and only when) a build env exercises a distinct code path or a
+# support boundary.
+on:
+  workflow_call:
+    inputs:
+      include-ios:
+        description: "Also build the example for iOS (macOS runner). Off for PRs, on for release."
+        type: boolean
+        default: false
+
+jobs:
+  android:
+    name: Android example — ${{ matrix.label }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # Only the experimental (AGP 9) cell is allowed to fail; the floor/stable cells gate.
+    continue-on-error: ${{ matrix.experimental || false }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Support floor — guards against breaking the minimum Flutter SDK. Exercises the
+          # plugin's `agpMajor < 9` path on the oldest supported toolchain.
+          - label: "Flutter 3.38 (floor)"
+            flutter: "3.38.0"
+          # Current default toolchain — where #492 reproduced (AGP < 9 path + Built-in Kotlin scan).
+          - label: "Flutter stable"
+            flutter: ""
+          # Forward-looking — AGP 9 enables Built-in Kotlin, which supplies KGP and exercises the
+          # plugin's `agpMajor >= 9` branch. Allowed to fail until the AGP 9 toolchain stabilises.
+          - label: "Flutter stable + AGP 9 (experimental)"
+            flutter: ""
+            agp9: true
+            experimental: true
+    env:
+      CI: true
+      GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.vfs.watch=false -Dorg.gradle.caching=true
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+          cache-dependency-path: |
+            example/android/**/*.gradle*
+            example/android/**/gradle-wrapper.properties
+            example/android/gradle.properties
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          # Empty string → latest of the channel; otherwise pin to the floor version.
+          flutter-version: ${{ matrix.flutter }}
+          cache: true
+
+      - run: flutter --version
+
+      - name: Switch example to the AGP 9 toolchain (experimental cell)
+        if: ${{ matrix.agp9 }}
+        run: |
+          set -euxo pipefail
+          # AGP 9 requires Gradle >= 9.1 and enables Built-in Kotlin by default, so the example app
+          # must no longer apply kotlin-android (Flutter supplies KGP). Migrating it here lets this
+          # cell exercise the plugin's `agpMajor >= 9` branch end to end.
+          sed -i 's#com.android.tools.build:gradle:8.9.2#com.android.tools.build:gradle:9.1.1#' example/android/build.gradle
+          sed -i 's#com.android.application" version "8.9.2"#com.android.application" version "9.1.1"#' example/android/settings.gradle
+          sed -i 's#gradle-8.11.1-bin.zip#gradle-9.1.0-bin.zip#' example/android/gradle/wrapper/gradle-wrapper.properties
+          sed -i '/id "kotlin-android"/d' example/android/app/build.gradle
+          sed -i '/kotlinOptions {/,/}/d' example/android/app/build.gradle
+
+      - name: Flutter pub get (root)
+        run: flutter pub get
+
+      - name: Flutter test (root)
+        run: flutter test
+
+      - name: Flutter pub get (example)
+        working-directory: example
+        run: flutter pub get
+
+      - name: Flutter test (example)
+        working-directory: example
+        run: flutter test
+
+      - name: Build example APK (debug, verbose)
+        working-directory: example
+        run: flutter build apk --debug -v
+
+  ios:
+    name: iOS example
+    if: ${{ inputs.include-ios }}
+    runs-on: macos-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    env:
+      CI: true
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter --version
+
+      # The example app integrates the plugin via CocoaPods. Flutter's SPM auto-integration fails
+      # here because the checkout directory (flutter_facebook_app_events) differs from the plugin's
+      # Swift package identity (facebook_app_events); this only affects local checkouts, not
+      # pub.dev consumers (where the package dir matches). Build via CocoaPods.
+      - name: Disable Swift Package Manager (example builds via CocoaPods)
+        run: flutter config --no-enable-swift-package-manager
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cocoapods
+            ~/Library/Caches/CocoaPods
+            example/ios/Pods
+          key: ${{ runner.os }}-cocoapods-${{ hashFiles('example/ios/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cocoapods-
+
+      - name: Cache CocoaPods gem
+        uses: actions/cache@v5
+        with:
+          path: ~/.gem
+          key: ${{ runner.os }}-cocoapods-gem-v1
+
+      - name: Add user gem bin to PATH
+        run: echo "$(ruby -r rubygems -e 'print Gem.user_dir')/bin" >> "$GITHUB_PATH"
+
+      - name: Install CocoaPods
+        run: gem list -i cocoapods || gem install cocoapods -N --user-install
+
+      - name: Flutter pub get (root)
+        run: flutter pub get
+
+      - name: Flutter pub get (example)
+        working-directory: example
+        run: flutter pub get
+
+      - name: Build example iOS (no-codesign, verbose)
+        working-directory: example
+        run: flutter build ios --no-codesign -v

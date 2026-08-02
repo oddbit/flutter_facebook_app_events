@@ -1,6 +1,6 @@
 ## 0.30.4
 
-- **Update Android toolchain** — Kotlin 2.4.10 (was 2.4.0). AGP, Gradle, and `compileSdk`/`targetSdk` are already at their latest stable releases (8.13.0, 8.13, and 36 respectively), so no change there. The Facebook Android SDK Maven range (`[18.0,19.0)`) already covers the latest 18.x release (18.3.0) and the iOS CocoaPods/SPM `~> 18.0` / `"18.0.0"..<"19.0.0"` pins already cover the latest 18.x release (18.1.0), so no Facebook SDK dependency changes were needed this round.
+- **Update Android toolchain** — Kotlin 2.4.10 (was 2.4.0). AGP (8.13.0, already the latest 8.x release) and `compileSdk`/`targetSdk` (36, already the latest stable API level) are unchanged. Gradle stays pinned at 8.13, matched to AGP 8.13.x per the existing wrapper convention, even though a newer 8.14.x patch is available upstream. The Facebook Android SDK Maven range (`[18.0,19.0)`) already covers the latest 18.x release (18.3.0) and the iOS CocoaPods/SPM `~> 18.0` / `"18.0.0"..<"19.0.0"` pins already cover the latest 18.x release (18.1.0), so no Facebook SDK dependency changes were needed this round.
 - Raise the example app's iOS deployment target from 12.0 to 13.0 to match the plugin's actual minimum (`s.ios.deployment_target` in the podspec and `Package.swift` have required iOS 13 since 0.26.0); the example's Xcode project setting had never been updated to match.
 
 ## 0.30.3

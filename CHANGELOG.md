@@ -1,3 +1,8 @@
+## 0.30.5
+
+- **Update Android toolchain** — Kotlin 2.4.10 (was 2.4.0). AGP (8.13.0, already the latest 8.x release) and `compileSdk`/`targetSdk` (36, already the latest stable API level) are unchanged. Gradle stays pinned at 8.13, matched to AGP 8.13.x per the existing wrapper convention, even though a newer 8.14.x patch is available upstream. The Facebook Android SDK Maven range (`[18.0,19.0)`) already covers the latest 18.x release (18.3.0) and the iOS CocoaPods/SPM `~> 18.0` / `"18.0.0"..<"19.0.0"` pins already cover the latest 18.x release (18.1.0), so no Facebook SDK dependency changes were needed this round.
+- Raise the example app's iOS deployment target from 12.0 to 13.0 to match the plugin's actual minimum (`s.ios.deployment_target` in the podspec and `Package.swift` have required iOS 13 since 0.26.0); the example's Xcode project setting had never been updated to match.
+
 ## 0.30.4
 
 - **Remove the `com.facebook.sdk.CodelessDebugLogEnabled` meta-data from the plugin's Android manifest.** It has been there since the first release and had no effect: in Facebook Android SDK 18.x the flag is read into `FacebookSdk.getCodelessDebugLogEnabled()` and nothing in the SDK reads that getter. Codeless event setup is gated server-side by Meta's fetched app settings (`codelessEventsEnabled` / `getCodelessSetupEnabled()`), not by this flag. Because library manifests merge into the host app, the entry also forced any app that wanted the key set to `false` to add `tools:replace` to win the merge — that workaround is no longer needed and can be removed.

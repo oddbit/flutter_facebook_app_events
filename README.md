@@ -4,17 +4,16 @@
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202%2E0-lightgrey.svg)](https://oddb.it/qpy)
 [![pub likes](https://img.shields.io/pub/likes/facebook_app_events)](https://oddb.it/wur)
 [![pub points](https://img.shields.io/pub/points/facebook_app_events)](https://oddb.it/wur)
+[![commercial support](https://img.shields.io/badge/commercial%20support-Oddbit-0a7ea4.svg)](https://oddb.it/fbae-audit)
 
-
-Flutter plugin for [Facebook App Events](https://oddb.it/rhg).
+Flutter plugin for [Facebook App Events](https://oddb.it/rhg), Meta's app measurement and ad attribution SDK.
 
 > An app event is an action that takes place in your app or on your web page such as a person installing your app or completing a purchase. Facebook App Events allows you to track these events to measure ad performance, and build audiences for ad targeting.
-
-Flutter plugin for Facebook App Events, an app measurement solution that provides insight on app usage and user engagement.
 
 ## Documentation
 
 - Plugin API reference (auto-generated): [pub.dev/documentation/facebook_app_events/latest](https://oddb.it/gie)
+- Flutter integration guides: [oddbit.id guides for this plugin](https://oddb.it/fbae-guides)
 - Meta App Events overview: [developers.facebook.com/docs/app-events](https://oddb.it/rhg)
 
 ## Setting things up
@@ -99,7 +98,7 @@ Read through the "[Getting Started with App Events for iOS](https://oddb.it/77p)
 This plugin supports iOS integration via both **CocoaPods** (Flutter default) and **Swift Package Manager**.
 
 - CocoaPods (default): no additional steps beyond the configuration above.
-- Swift Package Manager: the plugin includes a Swift package manifest at [ios/facebook_app_events/Package.swift](ios/facebook_app_events/Package.swift). Facebook's official iOS SDK also documents SPM support (see [Swift Package Manager](https://oddb.it/s73)).
+- Swift Package Manager: the plugin includes a Swift package manifest at [ios/facebook_app_events/Package.swift](https://oddb.it/fbae-package-swift). Facebook's official iOS SDK also documents SPM support (see [Swift Package Manager](https://oddb.it/s73)).
 
 #### iOS UIScene lifecycle
 
@@ -115,7 +114,7 @@ if you find anything that is not working according to official documentation.
 
 ### API scope
 
-The plugin mirrors the App Events surface of the native SDKs 1:1 — if a method exists on `AppEvents` (iOS) / `AppEventsLogger` or the related `Settings` / `FacebookSdk` toggles (Android), you should find it here under the same name. A few native APIs are intentionally **not** exposed because they don't translate to Flutter: the access-token overloads of `logEvent`/`logPurchase`, hybrid-webview augmentation (`augmentWebView` / `augmentHybridWebView`), the Unity integration hooks, and iOS-only `logFailedStoreKit2Purchase`. If you need one of these, please [open an issue](https://oddb.it/3wd).
+The plugin mirrors the App Events surface of the native SDKs 1:1. If a method exists on `AppEvents` (iOS) / `AppEventsLogger` or the related `Settings` / `FacebookSdk` toggles (Android), you should find it here under the same name. A few native APIs are intentionally **not** exposed because they don't translate to Flutter: the access-token overloads of `logEvent`/`logPurchase`, hybrid-webview augmentation (`augmentWebView` / `augmentHybridWebView`), the Unity integration hooks, and iOS-only `logFailedStoreKit2Purchase`. If you need one of these, please [open an issue](https://oddb.it/3wd).
 
 ## Dependencies on Facebook SDK
 Every now and then it is necessary for this plugin to update the Facebook SDK dependency. We follow the major
@@ -128,6 +127,40 @@ Please do note that it means that you get "the latest version" up until next maj
 be a source of unexpected behavior for you if you are not aware of this. It is a preferred option to the
 alternative of locking into a specific MINOR version of the SDK, which might be causing incompatibilities 
 with your other plugins or dependencies.
+
+## Troubleshooting
+
+### Events are not showing up in Events Manager
+
+**Symptom:** you call `logEvent` and nothing appears in Events Manager, or the counts disagree with your own database.
+
+**First check:** use **Test Events** in Events Manager rather than the aggregate dashboards, which are delayed and deduplicated. Call `flush()` to send immediately instead of waiting for the SDK's batching. If nothing arrives at all, the cause is almost always configuration rather than the plugin: a missing or wrong app id or client token, or a value type the SDK refuses (see [Event parameter values](#event-parameter-values) below).
+
+Full diagnosis, split by layer (configuration, transport, attribution), with per-platform verification steps: [events not showing in Events Manager](https://oddb.it/fbae-guide-not-landing).
+
+### Facebook Event Manager "Please Upgrade SDK" warning
+
+When setting up codeless events in Facebook Event Manager, you may encounter a warning message stating:
+> "To use the codeless event setup tool, you will need to update to Facebook SDK Version 4.34.0 or higher."
+
+**This is a defect in the Events Manager UI and does not indicate an actual problem with your SDK version.** Version 4.34.0 is from the 4.x line, years older than the plugin's Facebook SDK 18.x, and the version it asks for is not the version it checks for.
+
+**Do not downgrade your SDK, and do not add the deprecated `FacebookSDK` umbrella pod** (Meta stopped publishing it after 11.2.1 in September 2021). Instead:
+
+1. Ignore the warning. Your SDK is already current.
+2. Codeless events should still work despite the warning message.
+3. Verify your configuration: `FacebookAppID`, `FacebookClientToken` and `FacebookDisplayName` in `Info.plist` on iOS; `facebook_app_id` and `facebook_client_token` in `strings.xml`, referenced as meta-data in `AndroidManifest.xml`, on Android.
+4. Test on a physical device by shaking it to open the codeless event setup tool.
+5. To confirm the SDK is logging at all, call `setDebugLoggingEnabled(true)` and watch for app event and network request logs.
+
+**Codeless setup is gated by Meta server-side, not by an app-side flag.** Meta's docs for codeless debug logging ([iOS](https://oddb.it/m28), [Android](https://oddb.it/ji7)) describe the `FacebookCodelessDebugLogEnabled` (`Info.plist`) and `com.facebook.sdk.CodelessDebugLogEnabled` (Android manifest) flags, but in Facebook SDK 18.x neither flag has a consumer left in the SDK, so setting either changes nothing. On Android the codeless path is armed by `CodelessManager.onActivityResumed` from Meta's fetched app settings; on iOS by `FBSDKCodelessIndexer` from the `auto_event_setup_enabled` field Meta returns.
+
+Why the warning appears, what the SDK actually checks, and how to tell a UI defect from a real misconfiguration: [the "Please Upgrade SDK" warning explained](https://oddb.it/fbae-guide-codeless).
+
+Related reports, for what they actually show rather than as explanations of this warning:
+
+- [GitHub Issue #402](https://oddb.it/7eq): Events Manager telling a developer on a current SDK to remove `FBSDKCoreKit`, `FBSDKLoginKit`, `FBSDKShareKit`, `FBSDKPlacesKit` and `FBSDKMessengerShareKit` from their Podfile, including the pod that logs app events. A different Events Manager message from the one above, closed as stale in March 2025 with no diagnosis.
+- [Facebook iOS SDK Issue #2513](https://oddb.it/hrz): the same family of false "upgrade your SDK" report, on SDK 17.1.0, where Events Manager claimed the app needed updating in order to serve ads to users on iOS 14.5 or higher. Closed as a duplicate.
 
 ## Known Limitations
 
@@ -142,12 +175,14 @@ The Facebook SDK v18.x ships with an outdated default Graph API version that Met
 
 This plugin works around the issue by overriding the Graph API version to `v24.0` during plugin initialization. This requires no extra configuration for the vast majority of apps.
 
+Calls to a removed version are not rejected. Meta routes them to the oldest version that is still usable, so the app keeps working while silently using a version nobody chose. What reaches you instead is a deprecation notice from Meta with a removal deadline, on a version you did not knowingly pick. That is what [#474](https://oddb.it/fbae-issue-474) in this repository was.
+
 If you need to target a specific Graph API version (e.g. to pin to the same version as your backend), call `setGraphApiVersion` as early as possible in app startup before using features that may trigger Graph API requests:
 
 ```dart
 final facebookAppEvents = FacebookAppEvents();
 
-// Override the Graph API version (optional — plugin defaults to v24.0)
+// Override the Graph API version (optional, the plugin sets a current default)
 await facebookAppEvents.setGraphApiVersion('v24.0');
 
 // Then activate the app as usual
@@ -160,84 +195,40 @@ This is a plugin-specific workaround for a [known upstream issue in the iOS SDK]
 
 ### Event parameter values
 
-The native Facebook SDKs only accept `String` and numeric event parameter values — an event carrying any other value type is **silently dropped** by the SDK. To protect against that, `logEvent` (and the helpers that route through it) accepts `String`, `num`, and `bool` values: booleans are converted to `"1"`/`"0"` (Meta's yes/no convention) so events are recorded identically on both platforms, and any other value type throws an `ArgumentError`. Encode structured values (lists, maps) as a JSON string first, as Meta prescribes for parameters like `fb_content`.
+The native Facebook SDKs only accept `String` and numeric event parameter values. An event carrying any other value type is **silently dropped** by the SDK. To protect against that, `logEvent` (and the helpers that route through it) accepts `String`, `num`, and `bool` values: booleans are converted to `"1"`/`"0"` (Meta's yes/no convention) so events are recorded identically on both platforms, and any other value type throws an `ArgumentError`. Encode structured values (lists, maps) as a JSON string first, as Meta prescribes for parameters like `fb_content`.
 
 ### `clearUserDataForType` on Android
 
 `clearUserDataForType` is **functional on iOS** but is a **no-op on Android** (a warning is logged). The Android `AppEventsLogger` exposes no per-field clear; call `clearUserData()` to clear all previously-set user data fields at once.
 
-### Facebook Event Manager "Please Upgrade SDK" Warning
+## Compatibility alerts
 
-When setting up codeless events in Facebook Event Manager, you may encounter a warning message stating:
-> "To use the codeless event setup tool, you will need to update to Facebook SDK Version 4.34.0 or higher."
+When Meta ships something that breaks Flutter apps, we email what changed and what to do about it. Facebook SDK v18 defaulting to Graph API versions Meta had already removed was one of those. A few times a year, only when something real happened. Not a newsletter.
 
-**This is a known limitation of the Facebook Event Manager UI and does not indicate an actual problem with your SDK version.**
+[Subscribe to compatibility alerts](https://oddb.it/fbae-alerts)
 
-#### Why This Happens
+## Getting help
 
-- This plugin uses **Facebook SDK version 18.x** (the latest available version)
-- Facebook deprecated the umbrella pod `FacebookSDK` after version 11.2.1
-- Modern Facebook SDK uses individual component pods: `FBSDKCoreKit`, `FBSDKLoginKit`, `FBSDKShareKit`, etc.
-- The Facebook Event Manager UI was never updated to recognize this new pod structure
-- The warning message incorrectly suggests using the deprecated `FacebookSDK` umbrella pod
+**Plugin defects are fixed for free, always.** If this plugin does not behave the way the native SDK documents, [open an issue](https://oddb.it/3wd). No conditions attached.
 
-#### What You Should Do
+**Questions about using or configuring App Events:** start with the [guides](https://oddb.it/fbae-guides), then the [repository discussions](https://oddb.it/z42) or [StackOverflow](https://oddb.it/ywj).
 
-**Do not downgrade your SDK version or try to use the deprecated `FacebookSDK` umbrella pod.** Instead:
+**Attribution debugging where ad spend is on the line:** if installs and purchases are not matching up between your app, Events Manager and Ads Manager, that is usually not a plugin bug and not a quick answer. We offer a [Meta attribution audit](https://oddb.it/fbae-audit): a one hour diagnostic call at $300, credited in full against the audit fee if you go ahead, booked first and invoiced after we have read your intake answers. If the cause turns out to be a defect in this plugin, we fix it free and you keep the diagnostic.
 
-1. **Ignore the warning** - Your SDK is already up-to-date (version 18.x)
-2. **Codeless events should still work** despite the warning message
-3. Ensure your app is properly configured:
-   - iOS: Verify `FacebookAppID`, `FacebookClientToken`, and `FacebookDisplayName` are set in your `Info.plist`
-   - Android: Verify `facebook_app_id` and `facebook_client_token` are set in `strings.xml` and referenced in `AndroidManifest.xml`
-  - For codeless event debugging, enable codeless debug logging (see documentation [iOS](https://oddb.it/m28) and [Android](https://oddb.it/ji7))
+### Who maintains this
 
-4. Test codeless events on a physical device by:
-   - Shaking the device to open the codeless event setup tool
-   - If the tool doesn't appear, check your app configuration and Facebook console logs
-
-**Note:** This is a cosmetic UI issue in Facebook's Event Manager tool. Your app is using the correct, up-to-date SDK version. The codeless events feature will function correctly with proper configuration, regardless of the warning message.
-
-For more details, see:
-- [GitHub Issue #402](https://oddb.it/7eq)
-- [Facebook iOS SDK Issue #2513](https://oddb.it/hrz)
-
-## Discussions and ideas
-We're happy to discuss and talk about ideas in the
-[repository discussions](https://oddb.it/z42) and/or post your
-question to [StackOverflow](https://oddb.it/ywj).
-
-Feel free to open a thread if you are having any questions on how to use either the Facebook App Events as a reporting tool
-itself or even on how to use this plugin. 
-
-## Need help shipping it?
-
-This plugin is free and open source. But wiring up Meta attribution end to end —
-consent flows, iOS ATT and SKAdNetwork, and getting events to actually land in
-Events Manager — can get fiddly. If your team is integrating App Events and hits a
-wall, or you'd just like an experienced pair of hands, [Oddbit](https://oddb.it/website)
-is happy to help.
-
-We're a senior-led studio (based in Indonesia, with roots in Sweden) shipping Flutter,
-Firebase, and analytics integrations. `facebook_app_events` is one of the open-source
-tools we maintain and use ourselves.
-
-[Talk to us at oddbit.id →](https://oddb.it/website)
+Oddbit is a senior-led studio, based in Indonesia with roots in Sweden, shipping Flutter, Firebase and analytics integrations. `facebook_app_events` is one of the open source tools we maintain and use ourselves. Wiring up Meta attribution end to end, including consent flows, iOS App Tracking Transparency and SKAdNetwork, and getting events to actually land in Events Manager, gets fiddly. If your team hits a wall, or you would like an experienced pair of hands, [talk to us at oddbit.id](https://oddb.it/website).
 
 ## Getting involved
 First of all, thank you for even considering to get involved. You are a real super :star: and we :heart: you! 
 
-Please read our [contribution guideline](CONTRIBUTING.md) for more info.
+Please read our [contribution guideline](https://oddb.it/fbae-contributing) for more info.
 
 ## Attribution
 
 `facebook_app_events` is developed and maintained by **[Oddbit](https://oddb.it/website)**.
 
 - Source repository: [github.com/oddbit/flutter_facebook_app_events](https://oddb.it/vrc)
-- License: [Apache License 2.0](LICENSE)
-- Attribution notices: [NOTICE](NOTICE)
-- Name and logo usage: [Trademark Policy](TRADEMARK_POLICY.md)
-
-If you publish a fork or derivative work, retain the license and notice files,
-preserve applicable copyright and attribution notices, and clearly indicate
-that your version has been modified.
+- License: [Apache License 2.0](https://oddb.it/fbae-license)
+- Attribution notices: [NOTICE](https://oddb.it/fbae-notice)
+- Name and logo usage: [Trademark Policy](https://oddb.it/fbae-trademark)

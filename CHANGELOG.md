@@ -1,3 +1,8 @@
+## Unreleased
+
+- **Remove the `com.facebook.sdk.CodelessDebugLogEnabled` meta-data from the plugin's Android manifest.** It has been there since the first release and had no effect: in Facebook Android SDK 18.x the flag is read into `FacebookSdk.getCodelessDebugLogEnabled()` and nothing in the SDK reads that getter. Codeless event setup is gated server-side by Meta's fetched app settings (`codelessEventsEnabled` / `getCodelessSetupEnabled()`), not by this flag. Because library manifests merge into the host app, the entry also forced any app that wanted the key set to `false` to add `tools:replace` to win the merge — that workaround is no longer needed and can be removed.
+- **Docs:** the README no longer advises enabling codeless debug logging for debugging (the flags are inert on both platforms; `setDebugLoggingEnabled` is the switch that does something), and `CONTRIBUTING.md` now records the pinned Graph API version as a release-time check with the three places the literal appears.
+
 ## 0.30.3
 
 - **Fix (Android):** `getApplicationId` now reads the live `FacebookSdk.getApplicationId()` instead of the app id captured when the plugin attached to the engine, so app-id changes made programmatically after startup are reflected — matching iOS (`Settings.shared.appID`) and the documented behavior.

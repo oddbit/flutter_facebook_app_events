@@ -690,7 +690,7 @@ class FacebookAppEvents {
   /// Meta. Call this as early as possible in app startup if you need a specific
   /// version before using plugin features that may trigger Graph API requests.
   ///
-  /// The [version] string must be in the form `"vX.Y"` (e.g. `"v24.0"`).
+  /// The [version] string must be in the form `"vX.Y"`.
   /// Refer to Meta's [Graph API changelog](https://developers.facebook.com/docs/graph-api/changelog/)
   /// for currently supported versions.
   ///

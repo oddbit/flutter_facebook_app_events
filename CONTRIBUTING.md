@@ -60,6 +60,14 @@ Before tagging a release, update the version in **both** of these files — they
 - `pubspec.yaml` — `version:` field
 - `ios/facebook_app_events.podspec` — `s.version` field
 
+Also check the pinned Graph API version while preparing a release. The plugin overrides the SDK's outdated default with a literal that appears in **three** places, which must match each other:
+
+- `android/src/main/kotlin/id/oddbit/flutter/facebook_app_events/FacebookAppEventsPlugin.kt` — `FacebookSdk.setGraphApiVersion(...)`
+- `ios/facebook_app_events/Sources/facebook_app_events/FacebookAppEventsPlugin.swift` — `Settings.shared.graphAPIVersion = ...`
+- `README.md` — the "Graph API Version" section under Known Limitations
+
+The deadline worth tracking is **not** a version's expiry date. Calls to an expired version are routed to the oldest version that is still usable ([Graph API versioning](https://developers.facebook.com/docs/graph-api/guides/versioning/)), so nothing breaks outright. What reaches app owners is Meta's deprecation notice, which sets a floor ("all versions prior to vXX will be removed") on Meta's own schedule, independent of any expiry. Compare the pin against [Meta's Graph API changelog](https://developers.facebook.com/docs/graph-api/changelog/) at release time and bump it if the current latest has moved well past it.
+
 Then update `CHANGELOG.md` and create and push a tag in the format `v<major>.<minor>.<patch>`. For example:
 ```bash
 git tag v1.2.3

@@ -98,7 +98,7 @@ Read through the "[Getting Started with App Events for iOS](https://oddb.it/77p)
 This plugin supports iOS integration via both **CocoaPods** (Flutter default) and **Swift Package Manager**.
 
 - CocoaPods (default): no additional steps beyond the configuration above.
-- Swift Package Manager: the plugin includes a Swift package manifest at [ios/facebook_app_events/Package.swift](ios/facebook_app_events/Package.swift). Facebook's official iOS SDK also documents SPM support (see [Swift Package Manager](https://oddb.it/s73)).
+- Swift Package Manager: the plugin includes a Swift package manifest at [ios/facebook_app_events/Package.swift](https://oddb.it/fbae-package-swift). Facebook's official iOS SDK also documents SPM support (see [Swift Package Manager](https://oddb.it/s73)).
 
 #### iOS UIScene lifecycle
 
@@ -175,7 +175,7 @@ The Facebook SDK v18.x ships with an outdated default Graph API version that Met
 
 This plugin works around the issue by overriding the Graph API version to `v24.0` during plugin initialization. This requires no extra configuration for the vast majority of apps.
 
-Calls to a removed version are not rejected. Meta routes them to the oldest version that is still usable, so the app keeps working while silently using a version nobody chose. What reaches you instead is a deprecation notice from Meta with a removal deadline, on a version you did not knowingly pick. That is what [#474](https://github.com/oddbit/flutter_facebook_app_events/issues/474) in this repository was.
+Calls to a removed version are not rejected. Meta routes them to the oldest version that is still usable, so the app keeps working while silently using a version nobody chose. What reaches you instead is a deprecation notice from Meta with a removal deadline, on a version you did not knowingly pick. That is what [#474](https://oddb.it/fbae-issue-474) in this repository was.
 
 If you need to target a specific Graph API version (e.g. to pin to the same version as your backend), call `setGraphApiVersion` as early as possible in app startup before using features that may trigger Graph API requests:
 
@@ -222,13 +222,13 @@ Oddbit is a senior-led studio, based in Indonesia with roots in Sweden, shipping
 ## Getting involved
 First of all, thank you for even considering to get involved. You are a real super :star: and we :heart: you! 
 
-Please read our [contribution guideline](CONTRIBUTING.md) for more info.
+Please read our [contribution guideline](https://oddb.it/fbae-contributing) for more info.
 
 ## Attribution
 
 `facebook_app_events` is developed and maintained by **[Oddbit](https://oddb.it/website)**.
 
 - Source repository: [github.com/oddbit/flutter_facebook_app_events](https://oddb.it/vrc)
-- License: [Apache License 2.0](LICENSE)
-- Attribution notices: [NOTICE](NOTICE)
-- Name and logo usage: [Trademark Policy](TRADEMARK_POLICY.md)
+- License: [Apache License 2.0](https://oddb.it/fbae-license)
+- Attribution notices: [NOTICE](https://oddb.it/fbae-notice)
+- Name and logo usage: [Trademark Policy](https://oddb.it/fbae-trademark)

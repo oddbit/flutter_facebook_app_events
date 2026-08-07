@@ -2,10 +2,4 @@
   package="id.oddbit.flutter.facebook_app_events">
 
   <uses-permission android:name="android.permission.INTERNET"/>
-  <application>
-
-    <meta-data
-      android:name="com.facebook.sdk.CodelessDebugLogEnabled"
-      android:value="true" />
-  </application>
 </manifest>

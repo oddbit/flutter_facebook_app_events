@@ -14,7 +14,7 @@ Flutter plugin for [Facebook App Events](https://oddb.it/rhg), Meta's app measur
 
 - Plugin API reference (auto-generated): [pub.dev/documentation/facebook_app_events/latest](https://oddb.it/gie)
 - Flutter integration guides: [oddbit.id guides for this plugin](https://oddb.it/fbae-guides)
-- Meta App Events overview: [developers.facebook.com/docs/app-events](https://oddb.it/rhg)
+- Meta App Events overview: [developers.facebook.com/docs/app-events](https://oddb.it/rhg). What that surface maps to in Flutter, and what it leaves to your app: [what Facebook App Events covers in Flutter](https://oddb.it/fbae-guide-app-events)
 
 ## Setting things up
 
@@ -23,6 +23,7 @@ You must first create an app at Facebook for developers: [developers.facebook.co
 1. Get your app id (referred to as `[APP_ID]` below)
 2. Get your client token (referred to as `[CLIENT_TOKEN]` below).
    See "[Facebook Doc: Client Tokens](https://oddb.it/jex)" for more information and how to obtain it.
+   The token is not a secret and it is not the app id, and it goes in a different file on each platform. Which file, and what fails when it is missing or wrong: [where the Facebook client token goes](https://oddb.it/fbae-guide-client-token).
 
 
 ### Configure Android
@@ -100,6 +101,8 @@ This plugin supports iOS integration via both **CocoaPods** (Flutter default) an
 - CocoaPods (default): no additional steps beyond the configuration above.
 - Swift Package Manager: the plugin includes a Swift package manifest at [ios/facebook_app_events/Package.swift](https://oddb.it/fbae-package-swift). Facebook's official iOS SDK also documents SPM support (see [Swift Package Manager](https://oddb.it/s73)).
 
+Which of the two your build uses is decided by your Flutter project's configuration, not by this plugin, which ships both. How to tell which one you are on, and how to move between them: [Swift Package Manager setup for this plugin](https://oddb.it/fbae-guide-spm).
+
 #### iOS UIScene lifecycle
 
 This plugin supports both the legacy `UIApplicationDelegate` lifecycle and the newer **`UIScene`** lifecycle (the default for apps built with Flutter 3.38+). It registers as both an application delegate and a scene delegate, so Facebook URL callbacks (deep links and deferred app links) reach the SDK regardless of which lifecycle your app uses. No extra host-app configuration is required beyond the standard Facebook setup above.
@@ -127,6 +130,8 @@ Please do note that it means that you get "the latest version" up until next maj
 be a source of unexpected behavior for you if you are not aware of this. It is a preferred option to the
 alternative of locking into a specific MINOR version of the SDK, which might be causing incompatibilities 
 with your other plugins or dependencies.
+
+Because the exact version is resolved at build time rather than pinned here, two builds of the same app can ship different SDK versions. How to read the version you actually got, and what controls it: [which Facebook SDK version you actually get](https://oddb.it/fbae-guide-sdk-versions).
 
 ## Troubleshooting
 

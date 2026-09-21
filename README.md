@@ -106,6 +106,40 @@ This plugin supports both the legacy `UIApplicationDelegate` lifecycle and the n
 
 Because this plugin uses Flutter's scene-delegate plugin APIs (`FlutterSceneLifeCycleDelegate` / `addSceneDelegate`), added in Flutter 3.38, it requires **Flutter 3.38.0 or newer**.
 
+#### Deferring SDK initialization (consent gating)
+
+The plugin initializes the Facebook SDK when it registers, which happens before your
+Dart code runs. Apps that must not contact Meta until the user has consented can defer
+that by adding the following to `Info.plist`:
+
+```xml
+<key>FacebookAutoInitEnabled</key>
+<false/>
+```
+
+The key mirrors the `com.facebook.sdk.AutoInitEnabled` meta-data that the Facebook
+Android SDK reads from `AndroidManifest.xml`, so both platforms can be configured the
+same way. If the key is absent it defaults to `true` and initialization happens at
+registration as before; only an explicit `false` defers it.
+
+The collection flags do not cover this case on their own. With both
+`FacebookAutoLogAppEventsEnabled` and `FacebookAdvertiserIDCollectionEnabled` set to
+`false` no app events are logged, but initialization still issues its own configuration
+requests (gatekeepers, server and domain configuration) and writes to `UserDefaults`.
+
+With initialization deferred, nothing will be sent until your app initializes the SDK
+itself. There is currently no Dart API for this, so do it from your own `AppDelegate`
+once consent exists, for example over a method channel of your own:
+
+```swift
+import FBSDKCoreKit
+
+ApplicationDelegate.shared.initializeSDK()
+```
+
+`Settings.shared.graphAPIVersion` is still set at registration time, so the Graph API
+version the plugin pins applies either way.
+
 ## About Facebook App Events
 
 Please refer to the official SDK documentation for correct and expected behavior (see documentation [iOS](https://oddb.it/wks) and [Android](https://oddb.it/yu2)). Please

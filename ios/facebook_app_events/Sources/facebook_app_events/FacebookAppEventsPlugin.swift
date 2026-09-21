@@ -19,7 +19,17 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
         // Required for FB SDK 9.0, as it does not initialize the SDK automatically any more.
         // See: https://developers.facebook.com/blog/post/2021/01/19/introducing-facebook-platform-sdk-version-9/
         // "Removal of Auto Initialization of SDK" section
-        ApplicationDelegate.shared.initializeSDK()
+        //
+        // Apps that gate measurement on user consent can defer this by setting
+        // `FacebookAutoInitEnabled` to `false` in Info.plist, mirroring the
+        // `com.facebook.sdk.AutoInitEnabled` meta-data the Facebook Android SDK
+        // reads, and initializing the SDK themselves once consent exists.
+        // Initializing reaches Meta (the gatekeeper fetch in `doSDKSetup` is
+        // gated on nothing) and writes to `UserDefaults`, so for those apps it
+        // cannot happen at registration time.
+        if autoInitEnabled {
+            ApplicationDelegate.shared.initializeSDK()
+        }
 
         // Override the Graph API version because Facebook iOS SDK v18.x still defaults to v17.0,
         // which was removed by Meta on September 12, 2025. This is a known upstream issue:
@@ -34,6 +44,25 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
         // below never fires for those apps.
         // See: https://docs.flutter.dev/release/breaking-changes/uiscenedelegate
         registrar.addSceneDelegate(instance)
+    }
+
+    /// Whether the Facebook SDK should be initialized when the plugin
+    /// registers. An absent key means `true`, so existing apps are unaffected.
+    /// Only an explicit `false` defers initialization.
+    private static var autoInitEnabled: Bool {
+        guard let value = Bundle.main.object(forInfoDictionaryKey: "FacebookAutoInitEnabled") else {
+            return true
+        }
+        switch value {
+        case let number as NSNumber:
+            return number.boolValue
+        // Info.plist holds this as a Boolean, but tolerate a string so a
+        // build-setting substitution does not silently read as `true`.
+        case let string as String:
+            return !["false", "no", "0"].contains(string.lowercased())
+        default:
+            return true
+        }
     }
 
     /// Connect app delegate with SDK

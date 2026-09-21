@@ -1,3 +1,7 @@
+## 0.31.0
+
+- **Add a `FacebookAutoInitEnabled` Info.plist key (iOS) to defer SDK initialization.** `register(with:)` called `ApplicationDelegate.shared.initializeSDK()` unconditionally, which runs inside `GeneratedPluginRegistrant.register` and therefore before any Dart code, so apps that gate measurement on user consent had no way to prevent it. The key mirrors the `com.facebook.sdk.AutoInitEnabled` meta-data the Facebook Android SDK reads from the manifest, so both platforms can be configured the same way. An absent key means `true`, so existing apps are unaffected; only an explicit `false` defers initialization. The collection flags do not cover this case: with `FacebookAutoLogAppEventsEnabled` and `FacebookAdvertiserIDCollectionEnabled` both `false` no app events are logged, but initialization still performs its own configuration requests (gatekeepers, server and domain configuration) and writes to `UserDefaults`. `Settings.shared.graphAPIVersion` continues to be set at registration, so the pinned Graph API version applies whether or not initialization is deferred.
+
 ## 0.30.6
 
 - **Update Android toolchain** — Kotlin 2.4.20 (was 2.4.10) in the example app. The Facebook Android SDK Maven range (`[18.0,19.0)`) already covers the latest 18.x release (18.3.0) and the iOS CocoaPods/SPM `~> 18.0` / `"18.0.0"..<"19.0.0"` pins already cover the latest 18.x release (18.1.1), so no Facebook SDK dependency changes were needed this round. Gradle wrapper 8.14.5 (was 8.13), since current Flutter stable requires Gradle 8.14.0 or newer; AGP 8.13.x supports it.

@@ -9,6 +9,29 @@ import FBSDKCoreKit
 import FBSDKCoreKit_Basics
 
 public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeCycleDelegate {
+    /// Whether `ApplicationDelegate.shared.initializeSDK()` has been called,
+    /// either at registration or later via the `initializeSdk` method call.
+    ///
+    /// Until it has, the SDK is unconfigured: `AppEvents` validates its
+    /// configuration on every call and throws in DEBUG (silently drops the
+    /// call in release), the persisted `Settings` setters hit `fatalError`,
+    /// and lazy `Settings` properties that read Info.plist cache `nil`
+    /// forever. Everything that reaches the SDK is therefore gated on this.
+    private static var isSdkInitialized = false
+
+    /// Method calls that are safe before the SDK is initialized.
+    ///
+    /// `setGraphApiVersion` writes a plain lazy var on `Settings` that
+    /// `initializeSDK()` does not reset, so an early pin survives deferral.
+    /// Nothing else qualifies; notably `setDebugLoggingEnabled` is excluded
+    /// because `Settings.loggingBehaviors` lazily reads
+    /// `FacebookLoggingBehavior` from Info.plist through a provider that is
+    /// nil before configuration, so an early call would discard that setting.
+    private static let methodsAllowedBeforeInit: Set<String> = [
+        "initializeSdk",
+        "setGraphApiVersion",
+    ]
+
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
             name: "flutter.oddbit.id/facebook_app_events",
@@ -21,14 +44,13 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
         // "Removal of Auto Initialization of SDK" section
         //
         // Apps that gate measurement on user consent can defer this by setting
-        // `FacebookAutoInitEnabled` to `false` in Info.plist, mirroring the
-        // `com.facebook.sdk.AutoInitEnabled` meta-data the Facebook Android SDK
-        // reads, and initializing the SDK themselves once consent exists.
-        // Initializing reaches Meta (the gatekeeper fetch in `doSDKSetup` is
-        // gated on nothing) and writes to `UserDefaults`, so for those apps it
-        // cannot happen at registration time.
+        // `FacebookAutoInitEnabled` to `false` in Info.plist and calling
+        // `initializeSdk()` from Dart once consent exists. Initializing reaches
+        // Meta (the gatekeeper fetch in `doSDKSetup` is gated on nothing) and
+        // writes to `UserDefaults`, so for those apps it cannot happen at
+        // registration time.
         if autoInitEnabled {
-            ApplicationDelegate.shared.initializeSDK()
+            initializeSdk()
         }
 
         // Override the Graph API version because Facebook iOS SDK v18.x still defaults to v17.0,
@@ -48,21 +70,17 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
 
     /// Whether the Facebook SDK should be initialized when the plugin
     /// registers. An absent key means `true`, so existing apps are unaffected.
-    /// Only an explicit `false` defers initialization.
+    /// Only an explicit `<false/>` defers initialization.
     private static var autoInitEnabled: Bool {
-        guard let value = Bundle.main.object(forInfoDictionaryKey: "FacebookAutoInitEnabled") else {
-            return true
-        }
-        switch value {
-        case let number as NSNumber:
-            return number.boolValue
-        // Info.plist holds this as a Boolean, but tolerate a string so a
-        // build-setting substitution does not silently read as `true`.
-        case let string as String:
-            return !["false", "no", "0"].contains(string.lowercased())
-        default:
-            return true
-        }
+        Bundle.main.object(forInfoDictionaryKey: "FacebookAutoInitEnabled") as? Bool ?? true
+    }
+
+    /// Initializes the Facebook SDK and opens the gate on the method channel.
+    /// `initializeSDK()` is idempotent in the SDK (`hasInitializeBeenCalled`),
+    /// so calling this more than once is harmless.
+    private static func initializeSdk() {
+        ApplicationDelegate.shared.initializeSDK()
+        isSdkInitialized = true
     }
 
     /// Connect app delegate with SDK
@@ -71,6 +89,9 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
         open url: URL,
         options: [UIApplication.OpenURLOptionsKey: Any] = [:]
     ) -> Bool {
+        // An App Link URL reaching the SDK before initialization throws in
+        // DEBUG (`logIfAppLinkEvent` -> `validateConfiguration`).
+        guard Self.isSdkInitialized else { return false }
         // For Facebook SDK 18.x+, use the simplified URL handling
         return ApplicationDelegate.shared.application(app, open: url, options: options)
     }
@@ -82,6 +103,7 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
     /// via its modern `application(_:open:options:)` API. Returns whether the
     /// SDK handled any of the URLs.
     public func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) -> Bool {
+        guard Self.isSdkInitialized else { return false }
         var handled = false
         for context in URLContexts {
             var options: [UIApplication.OpenURLOptionsKey: Any] = [:]
@@ -104,7 +126,19 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard Self.isSdkInitialized || Self.methodsAllowedBeforeInit.contains(call.method) else {
+            result(FlutterError(
+                code: "sdk_not_initialized",
+                message: "The Facebook SDK has not been initialized. FacebookAutoInitEnabled is false "
+                    + "in Info.plist, so call initializeSdk() before \(call.method).",
+                details: nil
+            ))
+            return
+        }
+
         switch call.method {
+        case "initializeSdk":
+            handleInitializeSdk(call, result: result)
         case "activateApp":
             handleActivateApp(call, result: result)
         case "clearUserData":
@@ -158,6 +192,11 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
         default:
             result(FlutterMethodNotImplemented)
         }
+    }
+
+    private func handleInitializeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        Self.initializeSdk()
+        result(nil)
     }
 
     private func handleActivateApp(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

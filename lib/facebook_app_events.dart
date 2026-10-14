@@ -107,8 +107,7 @@ class FacebookAppEvents {
   ///   or silently discards calls made in that state. The plugin therefore
   ///   rejects every other method with a `PlatformException` of code
   ///   `sdk_not_initialized` until this method has been called. The only
-  ///   exceptions are [setGraphApiVersion] and [setDebugLoggingEnabled],
-  ///   which are safe to call early.
+  ///   exception is [setGraphApiVersion], which is safe to call early.
   /// - **Android:** the SDK is already loaded and plugin calls work, but it
   ///   is not "fully initialized". This method calls
   ///   `FacebookSdk.fullyInitialize()`. It deliberately does *not* call

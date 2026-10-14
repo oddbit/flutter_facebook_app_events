@@ -1,3 +1,7 @@
+## 0.30.6
+
+- **Update Android toolchain** — Kotlin 2.4.20 (was 2.4.10) in the example app. The Facebook Android SDK Maven range (`[18.0,19.0)`) already covers the latest 18.x release (18.3.0) and the iOS CocoaPods/SPM `~> 18.0` / `"18.0.0"..<"19.0.0"` pins already cover the latest 18.x release (18.1.1), so no Facebook SDK dependency changes were needed this round. Gradle wrapper 8.14.5 (was 8.13), since current Flutter stable requires Gradle 8.14.0 or newer; AGP 8.13.x supports it.
+
 ## 0.30.5
 
 - **Update Android toolchain** — Kotlin 2.4.10 (was 2.4.0). AGP (8.13.0, already the latest 8.x release) and `compileSdk`/`targetSdk` (36, already the latest stable API level) are unchanged. Gradle stays pinned at 8.13, matched to AGP 8.13.x per the existing wrapper convention, even though a newer 8.14.x patch is available upstream. The Facebook Android SDK Maven range (`[18.0,19.0)`) already covers the latest 18.x release (18.3.0) and the iOS CocoaPods/SPM `~> 18.0` / `"18.0.0"..<"19.0.0"` pins already cover the latest 18.x release (18.1.0), so no Facebook SDK dependency changes were needed this round.

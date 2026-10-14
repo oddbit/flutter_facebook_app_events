@@ -424,6 +424,11 @@ void main() {
   });
 
   group('Configuration', () {
+    test('initializeSdk invokes the channel with no arguments', () async {
+      await facebookAppEvents.initializeSdk();
+      expect(methodCall, isMethodCall('initializeSdk', arguments: null));
+    });
+
     test('setGraphApiVersion forwards version string', () async {
       await facebookAppEvents.setGraphApiVersion('v24.0');
 

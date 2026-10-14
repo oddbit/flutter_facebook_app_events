@@ -62,6 +62,7 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
 
   override fun onMethodCall(call: MethodCall, result: Result) {
     when (call.method) {
+      "initializeSdk" -> handleInitializeSdk(call, result)
       "activateApp" -> handleActivateApp(call, result)
       "clearUserData" -> handleClearUserData(call, result)
       "setUserData" -> handleSetUserData(call, result)
@@ -90,6 +91,24 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
 
       else -> result.notImplemented()
     }
+  }
+
+  private fun handleInitializeSdk(call: MethodCall, result: Result) {
+    // Counterpart to the iOS `initializeSdk` for apps that set
+    // `com.facebook.sdk.AutoInitEnabled` to `false` in the manifest. On
+    // Android that flag does not keep the SDK asleep: FacebookInitProvider
+    // still runs `sdkInitialize` at process start (app id and client token
+    // are loaded, `isInitialized()` is true, and this plugin's handlers work),
+    // it only skips `fullyInitialize()`. So this is the one call that is
+    // missing, and it is idempotent.
+    //
+    // Deliberately NOT `FacebookSdk.setAutoInitEnabled(true)`: that persists
+    // the flag to SharedPreferences, and `UserSettingsManager` reads the
+    // persisted value before the manifest, so a single call would override
+    // `AutoInitEnabled=false` on every later launch even after the user
+    // withdraws consent.
+    FacebookSdk.fullyInitialize()
+    result.success(null)
   }
 
   private fun handleActivateApp(call: MethodCall, result: Result) {

@@ -19,13 +19,7 @@ class MyApp extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                FutureBuilder(
-                  future: facebookAppEvents.getAnonymousId(),
-                  builder: (context, snapshot) {
-                    final id = snapshot.data ?? '???';
-                    return Text('Anonymous ID: $id');
-                  },
-                ),
+                const _ConsentGate(),
                 MaterialButton(
                   child: Text("Click me!"),
                   onPressed: () {
@@ -152,6 +146,55 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Demonstrates deferred SDK initialization.
+///
+/// This example turns automatic initialization off on both platforms
+/// (`FacebookAutoInitEnabled` in `Info.plist`,
+/// `com.facebook.sdk.AutoInitEnabled` in `AndroidManifest.xml`), the way a
+/// consent-gated app would. Nothing below the button works on iOS until it has
+/// been pressed: every other call fails with a `PlatformException` of code
+/// `sdk_not_initialized`. The anonymous ID is only read after initialization
+/// because reading it creates and persists the ID on iOS.
+class _ConsentGate extends StatefulWidget {
+  const _ConsentGate();
+
+  @override
+  State<_ConsentGate> createState() => _ConsentGateState();
+}
+
+class _ConsentGateState extends State<_ConsentGate> {
+  Future<String?>? _anonymousId;
+
+  Future<void> _initialize() async {
+    await MyApp.facebookAppEvents.initializeSdk();
+    setState(() {
+      _anonymousId = MyApp.facebookAppEvents.getAnonymousId();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        MaterialButton(
+          onPressed: _initialize,
+          child: const Text("Initialize SDK (consent given)"),
+        ),
+        FutureBuilder(
+          future: _anonymousId,
+          builder: (context, snapshot) {
+            if (_anonymousId == null) {
+              return const Text('SDK not initialized');
+            }
+            final id = snapshot.data ?? '???';
+            return Text('Anonymous ID: $id');
+          },
+        ),
+      ],
     );
   }
 }

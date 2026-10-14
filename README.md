@@ -109,6 +109,36 @@ This plugin supports both the legacy `UIApplicationDelegate` lifecycle and the n
 
 Because this plugin uses Flutter's scene-delegate plugin APIs (`FlutterSceneLifeCycleDelegate` / `addSceneDelegate`), added in Flutter 3.38, it requires **Flutter 3.38.0 or newer**.
 
+### Deferring SDK initialization (consent gating)
+
+By default the Facebook SDK is initialized before any of your Dart code runs: on iOS the plugin calls `initializeSDK()` when it registers, and on Android the SDK's own `FacebookInitProvider` runs at process start. Initialization is not inert. It fetches gatekeeper, server and domain configuration from Meta and writes to local storage, and the `AutoLogAppEventsEnabled` / `AdvertiserIDCollectionEnabled` flags do not prevent that; they only stop app events from being logged. Apps that must not contact Meta until the user has consented need to defer initialization itself.
+
+Turn automatic initialization off on each platform, then call `initializeSdk()` from Dart once consent exists:
+
+```xml
+<!-- ios/Runner/Info.plist -->
+<key>FacebookAutoInitEnabled</key>
+<false/>
+```
+
+```xml
+<!-- android/app/src/main/AndroidManifest.xml, under <application> -->
+<meta-data android:name="com.facebook.sdk.AutoInitEnabled" android:value="false"/>
+```
+
+```dart
+final facebookAppEvents = FacebookAppEvents();
+
+// After the user has consented, and on every later launch where consent is
+// already stored. The plugin does not remember the decision for you.
+await facebookAppEvents.initializeSdk();
+await facebookAppEvents.activateApp(); // only if auto-logging is also off
+```
+
+An absent key means `true` on both platforms, so existing apps are unaffected. Calling `initializeSdk()` when automatic initialization is on is harmless.
+
+**The two platforms do not behave the same before `initializeSdk()` is called.** On iOS, `FacebookAutoInitEnabled=false` keeps the SDK completely unconfigured, and the plugin rejects every other call with a `PlatformException` of code `sdk_not_initialized` until you initialize it (the only exception is `setGraphApiVersion`, which is safe to call early). On Android, `AutoInitEnabled=false` does *not* keep the SDK asleep: the app id and client token are still loaded at process start and plugin calls still work, the SDK is merely not "fully initialized". `initializeSdk()` maps to `FacebookSdk.fullyInitialize()` there. See [Known Limitations](#deferred-initialization-on-ios) for the full list of what the iOS gate covers.
+
 ## About Facebook App Events
 
 Please refer to the official SDK documentation for correct and expected behavior (see documentation [iOS](https://oddb.it/wks) and [Android](https://oddb.it/yu2)). Please
@@ -205,6 +235,12 @@ The native Facebook SDKs only accept `String` and numeric event parameter values
 ### `clearUserDataForType` on Android
 
 `clearUserDataForType` is **functional on iOS** but is a **no-op on Android** (a warning is logged). The Android `AppEventsLogger` exposes no per-field clear; call `clearUserData()` to clear all previously-set user data fields at once.
+
+### Deferred initialization on iOS
+
+With `FacebookAutoInitEnabled` set to `false`, the Facebook iOS SDK is unconfigured until `initializeSdk()` is called, and the native SDK does not tolerate calls in that state: `AppEvents` methods throw in debug builds and are silently dropped in release, the persisted `Settings` setters (`setAutoLogAppEventsEnabled`, `setAdvertiserIdCollectionEnabled`) crash, and some lazily-read settings such as the app id would be cached as empty for the rest of the process. The plugin therefore rejects **every method except `initializeSdk` and `setGraphApiVersion`** with a `PlatformException` of code `sdk_not_initialized` until initialization has happened. Incoming Facebook App Link URLs are also ignored until then.
+
+In practice this means your consent flow must call `initializeSdk()` *before* `setUserData`, `setDataProcessingOptions`, `setLimitEventAndDataUsage`, `setAutoLogAppEventsEnabled` or any logging call, not after. Android does not have this restriction (see [Deferring SDK initialization](#deferring-sdk-initialization-consent-gating)), so a consent flow that works on Android can still be misordered for iOS; the error is deliberate so that shows up in development rather than as silently lost data.
 
 ## Compatibility alerts
 

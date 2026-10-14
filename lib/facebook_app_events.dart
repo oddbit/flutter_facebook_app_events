@@ -88,6 +88,38 @@ class FacebookAppEvents {
   /// This could be an EAN, article identifier, etc., depending on the nature of the app.
   static const paramNameContentId = "fb_content_id";
 
+  /// Initializes the native Facebook SDK.
+  ///
+  /// You only need this if you have turned automatic initialization off to
+  /// gate the SDK on user consent, by setting `FacebookAutoInitEnabled` to
+  /// `false` in `Info.plist` (iOS) and/or `com.facebook.sdk.AutoInitEnabled`
+  /// to `false` in `AndroidManifest.xml` (Android). With automatic
+  /// initialization on (the default), the plugin initializes the SDK when it
+  /// registers and this method is a no-op.
+  ///
+  /// Call it once consent exists, and again on every later launch where
+  /// consent is already stored. The plugin does not persist that decision.
+  /// Calling it more than once is harmless.
+  ///
+  /// The two platforms behave differently before this is called:
+  ///
+  /// - **iOS:** the SDK is not configured at all, and the native SDK crashes
+  ///   or silently discards calls made in that state. The plugin therefore
+  ///   rejects every other method with a `PlatformException` of code
+  ///   `sdk_not_initialized` until this method has been called. The only
+  ///   exception is [setGraphApiVersion], which is safe to call early.
+  /// - **Android:** the SDK is already loaded and plugin calls work, but it
+  ///   is not "fully initialized". This method calls
+  ///   `FacebookSdk.fullyInitialize()`. It deliberately does *not* call
+  ///   `FacebookSdk.setAutoInitEnabled(true)`, which the native SDK persists
+  ///   and which would override the manifest setting on later launches.
+  ///
+  /// Follow it with [activateApp] if you have also turned automatic event
+  /// logging off.
+  Future<void> initializeSdk() {
+    return _channel.invokeMethod<void>('initializeSdk');
+  }
+
   /// Notifies the Facebook SDK that the app has launched ("activate app").
   ///
   /// In the default configuration, App Install/App Launch events are logged
@@ -95,7 +127,8 @@ class FacebookAppEvents {
   ///
   /// Call this method only if you have disabled or delayed automatic app event
   /// logging (for example to obtain user consent) and want to log activation
-  /// manually after enabling/initializing the SDK.
+  /// manually. If you have also deferred SDK initialization, call
+  /// [initializeSdk] first.
   ///
   /// If `FacebookAutoLogAppEventsEnabled` (iOS) or
   /// `com.facebook.sdk.AutoLogAppEventsEnabled` (Android) is set to `false`,

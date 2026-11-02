@@ -55,6 +55,14 @@ After that, add that string resource reference to your main `AndroidManifest.xml
 
 This plugin requires **iOS 15.0 or newer**, the minimum of the Facebook iOS SDK v19. If your app targets an older version, raise `IPHONEOS_DEPLOYMENT_TARGET` to `15.0` in `ios/Runner.xcodeproj` (Runner target → General → Minimum Deployments) and, if your `ios/Podfile` has an uncommented `platform :ios, ...` line, set it to `'15.0'` as well. Otherwise CocoaPods or Swift Package Manager will refuse to resolve the Facebook SDK.
 
+**Upgrading from a plugin version built on Facebook SDK 18.x (0.31.x or older) with CocoaPods:** your app's `ios/Podfile.lock` still pins `FBSDKCoreKit` 18.x, and `pod install` does not move a plugin's transitive dependency when the plugin's constraint changes. The build stops with "changed the constraints of dependency `FBSDKCoreKit` inside your development pod `facebook_app_events`", and the `pod repo update` hint Flutter prints does not fix it. After upgrading, run this once:
+
+```bash
+cd ios && pod update FBSDKCoreKit
+```
+
+This also releases `FBAEMKit` and `FBSDKCoreKit_Basics`, which are pinned through `FBSDKCoreKit`.
+
 Read through the "[Getting Started with App Events for iOS](https://oddb.it/77p)" and "[Getting Started with the Facebook SDK for iOS](https://oddb.it/hei)" guides. In particular, follow [step 5](https://oddb.it/279) by opening `Info.plist` "As Source Code" and add the following
 
 - If your code does not have `CFBundleURLTypes`, add the following just before the final `</dict>` element:
@@ -143,7 +151,17 @@ An absent key means `true` on both platforms, so existing apps are unaffected. C
 
 ### Event metadata collected by the Facebook SDK
 
-Starting with Facebook SDK v19, the native SDK attaches the current screen title and the AppLink URL the app was opened from to logged app events (Meta's SDK changelogs date this to October 12, 2026). It is on by default and independent of `AutoLogAppEventsEnabled`. To opt out, set the SDK's own configuration key to `false`, or turn off "Automatically include more app event details" in Events Manager:
+Starting with Facebook SDK v19, the native SDK attaches extra context to logged app events (Meta's SDK changelogs date this to October 12, 2026). It is on by default and independent of `AutoLogAppEventsEnabled`. What it attaches:
+
+- **Screen title:** the title of the screen the event was logged on.
+- **Inbound URL:** the URL that most recently opened the app, including its query string. Meta calls this the "AppLink URL", but it is not limited to App Links: it is any URL that launches or resumes the app, including custom-scheme deep links and OAuth or magic-link callbacks that carry codes or tokens. On iOS the SDK caches every URL passed to `ApplicationDelegate`, and this plugin forwards every URL the app receives through `application(_:open:options:)` and `scene(_:openURLContexts:)`. On Android the SDK saves the launching intent's data URI whenever an activity starts or resumes.
+- **Outbound URL (iOS only):** the last URL the app itself opened through `UIApplication.open(_:options:completionHandler:)`, in any scheme (for example through `url_launcher`). It is sent as `outbound_url`, next to the inbound URL.
+
+Both URLs are stored on the device (`UserDefaults` on iOS, `SharedPreferences` on Android) and persist across launches until a newer URL overwrites them. They leave the device only attached to logged events.
+
+**On Android, deferred initialization does not defer this capture.** On iOS, collection is installed as part of SDK initialization, so `FacebookAutoInitEnabled=false` holds it off until `initializeSdk()` (and the plugin does not forward incoming URLs before that). On Android, inbound URL capture is set up when the SDK loads at process start, which still happens with `com.facebook.sdk.AutoInitEnabled=false`, so inbound URLs are written to disk before `initializeSdk()` is called. The Android capture checks only the manifest key, not the Events Manager setting. If your app must not collect anything before consent, set the manifest opt-out below.
+
+To opt out, set the SDK's own configuration key to `false`, or turn off "Automatically include more app event details" in Events Manager (which does not stop the on-device capture on Android described above):
 
 ```xml
 <!-- ios/Runner/Info.plist -->
@@ -197,7 +215,7 @@ Full diagnosis, split by layer (configuration, transport, attribution), with per
 When setting up codeless events in Facebook Event Manager, you may encounter a warning message stating:
 > "To use the codeless event setup tool, you will need to update to Facebook SDK Version 4.34.0 or higher."
 
-**This is a defect in the Events Manager UI and does not indicate an actual problem with your SDK version.** Version 4.34.0 is from the 4.x line, years older than the plugin's Facebook SDK 18.x, and the version it asks for is not the version it checks for.
+**This is a defect in the Events Manager UI and does not indicate an actual problem with your SDK version.** Version 4.34.0 is from the 4.x line, years older than the plugin's Facebook SDK 19.x, and the version it asks for is not the version it checks for.
 
 **Do not downgrade your SDK, and do not add the deprecated `FacebookSDK` umbrella pod** (Meta stopped publishing it after 11.2.1 in September 2021). Instead:
 
@@ -207,7 +225,7 @@ When setting up codeless events in Facebook Event Manager, you may encounter a w
 4. Test on a physical device by shaking it to open the codeless event setup tool.
 5. To confirm the SDK is logging at all, call `setDebugLoggingEnabled(true)` and watch for app event and network request logs.
 
-**Codeless setup is gated by Meta server-side, not by an app-side flag.** Meta's docs for codeless debug logging ([iOS](https://oddb.it/m28), [Android](https://oddb.it/ji7)) describe the `FacebookCodelessDebugLogEnabled` (`Info.plist`) and `com.facebook.sdk.CodelessDebugLogEnabled` (Android manifest) flags, but in Facebook SDK 18.x neither flag has a consumer left in the SDK, so setting either changes nothing. On Android the codeless path is armed by `CodelessManager.onActivityResumed` from Meta's fetched app settings; on iOS by `FBSDKCodelessIndexer` from the `auto_event_setup_enabled` field Meta returns.
+**Codeless setup is gated by Meta server-side, not by an app-side flag.** Meta's docs for codeless debug logging ([iOS](https://oddb.it/m28), [Android](https://oddb.it/ji7)) describe the `FacebookCodelessDebugLogEnabled` (`Info.plist`) and `com.facebook.sdk.CodelessDebugLogEnabled` (Android manifest) flags, but in Facebook SDK 19.x neither flag has a consumer left in the SDK, so setting either changes nothing. On Android the codeless path is armed by `CodelessManager.onActivityResumed` from Meta's fetched app settings; on iOS by `FBSDKCodelessIndexer` from the `auto_event_setup_enabled` field Meta returns.
 
 Why the warning appears, what the SDK actually checks, and how to tell a UI defect from a real misconfiguration: [the "Please Upgrade SDK" warning explained](https://oddb.it/fbae-guide-codeless).
 

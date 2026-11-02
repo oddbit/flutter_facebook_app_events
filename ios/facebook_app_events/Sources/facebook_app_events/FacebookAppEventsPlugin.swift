@@ -53,9 +53,11 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
             initializeSdk()
         }
 
-        // Override the Graph API version because Facebook iOS SDK v18.x still defaults to v17.0,
-        // which was removed by Meta on September 12, 2025. This is a known upstream issue:
-        // https://github.com/facebook/facebook-ios-sdk/issues/2610
+        // Pin the Graph API version. Facebook iOS SDK 18.0.x defaulted to v17.0, which was removed
+        // by Meta on September 12, 2025 (https://github.com/facebook/facebook-ios-sdk/issues/2610).
+        // The iOS SDK v19 defaults to v26.0, but the Android SDK v19 still defaults to the removed
+        // v16.0, so the plugin pins the same version on both platforms for consistent Graph
+        // behavior. Keep this literal in sync with the Android plugin and README.
         Settings.shared.graphAPIVersion = "v24.0"
 
         registrar.addMethodCallDelegate(instance, channel: channel)

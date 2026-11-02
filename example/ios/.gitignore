@@ -29,3 +29,8 @@ Runner/GeneratedPluginRegistrant.*
 !default.mode2v3
 !default.pbxuser
 !default.perspectivev3
+
+# Not committed: the example resolves the plugin as a local development pod, so a
+# checked-in lockfile pins the Facebook SDK and breaks `pod install` on every
+# major SDK bump. CI resolves fresh from the podspec.
+Podfile.lock

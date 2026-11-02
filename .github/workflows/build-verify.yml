@@ -160,7 +160,8 @@ jobs:
             ~/.cocoapods
             ~/Library/Caches/CocoaPods
             example/ios/Pods
-          key: ${{ runner.os }}-cocoapods-${{ hashFiles('example/ios/Podfile.lock') }}
+          # example/ios/Podfile.lock is not committed; key on the inputs that drive resolution.
+          key: ${{ runner.os }}-cocoapods-${{ hashFiles('ios/facebook_app_events.podspec', 'example/ios/Podfile') }}
           restore-keys: |
             ${{ runner.os }}-cocoapods-
 

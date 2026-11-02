@@ -1,3 +1,7 @@
+## 0.31.2
+
+- **Update Android toolchain** — Kotlin 2.4.21 (was 2.4.20) in the example app and Gradle wrapper 8.14.6 (was 8.14.5), in the plugin, the example app and the build-verify workflow. AGP (8.13.0) and `compileSdk`/`targetSdk` (36) are unchanged. The Facebook Android SDK Maven range (`[18.0,19.0)`) already covers the latest 18.x release (18.3.0) and the iOS CocoaPods/SPM `~> 18.0` / `"18.0.0"..<"19.0.0"` pins are unchanged. Facebook SDK v19 is tracked separately in #509.
+
 ## 0.31.1
 
 - **Fix (Android): use assignment syntax for `namespace` in the plugin's `build.gradle`** (fixes [#506](https://github.com/oddbit/flutter_facebook_app_events/issues/506), thanks [@ManishPatel2611](https://github.com/ManishPatel2611)). `namespace "…"` relied on Groovy's space-assignment syntax, which Gradle 9 deprecates and Gradle 10 removes, so every Android build of a dependent app printed a deprecation warning and would fail to build on Gradle 10. It is now `namespace = "…"`, which Gradle 8.x already supports, so nothing changes for existing toolchains. `consumerProguardFiles '…'` is left as is: it is a regular method call, not a generated property setter, so the deprecation does not apply to it.

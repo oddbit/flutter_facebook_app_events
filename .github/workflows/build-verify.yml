@@ -188,10 +188,9 @@ jobs:
         working-directory: example
         run: flutter build ios --no-codesign -v
 
-      # Records which pod versions this run resolved. The example consumes the plugin as a
-      # local development pod, so after an SDK range bump `pod install` refuses a stale
-      # example/ios/Podfile.lock instead of re-resolving it; the regenerated lockfile can be
-      # taken from here and committed from a machine without CocoaPods.
+      # example/ios/Podfile.lock is deliberately not committed (see example/ios/.gitignore), so
+      # each run resolves the newest Facebook SDK in range. This artifact is the only record of
+      # which pod versions a given run built against.
       - name: Upload resolved Podfile.lock
         if: always()
         uses: actions/upload-artifact@v7

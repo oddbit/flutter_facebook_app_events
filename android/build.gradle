@@ -37,7 +37,7 @@ if (agpMajor < 9) {
 }
 
 android {
-    namespace "id.oddbit.flutter.facebook_app_events"
+    namespace = "id.oddbit.flutter.facebook_app_events"
 
     compileSdk = 36
 

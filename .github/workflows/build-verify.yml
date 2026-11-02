@@ -187,3 +187,15 @@ jobs:
       - name: Build example iOS (no-codesign, verbose)
         working-directory: example
         run: flutter build ios --no-codesign -v
+
+      # Records which pod versions this run resolved. The example consumes the plugin as a
+      # local development pod, so after an SDK range bump `pod install` refuses a stale
+      # example/ios/Podfile.lock instead of re-resolving it; the regenerated lockfile can be
+      # taken from here and committed from a machine without CocoaPods.
+      - name: Upload resolved Podfile.lock
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: example-ios-podfile-lock
+          path: example/ios/Podfile.lock
+          if-no-files-found: ignore

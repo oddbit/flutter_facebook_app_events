@@ -153,17 +153,19 @@ jobs:
       - name: Disable Swift Package Manager (example builds via CocoaPods)
         run: flutter config --no-enable-swift-package-manager
 
-      - name: Cache CocoaPods
+      # Only the pod download cache is cached. ~/.cocoapods holds the trunk CDN version index,
+      # which `pod install` (without --repo-update) trusts as-is when present, so caching it
+      # would freeze resolution at whatever 19.x patch existed when the cache was saved.
+      # example/ios/Pods is rebuilt by `pod install` every run (no lockfile), so restoring it
+      # buys nothing.
+      - name: Cache CocoaPods downloads
         uses: actions/cache@v5
         with:
-          path: |
-            ~/.cocoapods
-            ~/Library/Caches/CocoaPods
-            example/ios/Pods
+          path: ~/Library/Caches/CocoaPods
           # example/ios/Podfile.lock is not committed; key on the inputs that drive resolution.
-          key: ${{ runner.os }}-cocoapods-${{ hashFiles('ios/facebook_app_events.podspec', 'example/ios/Podfile') }}
+          key: ${{ runner.os }}-cocoapods-downloads-${{ hashFiles('ios/facebook_app_events.podspec', 'example/ios/Podfile') }}
           restore-keys: |
-            ${{ runner.os }}-cocoapods-
+            ${{ runner.os }}-cocoapods-downloads-
 
       - name: Cache CocoaPods gem
         uses: actions/cache@v5

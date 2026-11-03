@@ -11,7 +11,12 @@
                 android:value="@string/facebook_client_token"/>
         <meta-data android:name="com.facebook.sdk.AutoInitEnabled"
                 android:value="false"/>
-            
+        <!-- SDK v19 attaches the screen title and the last inbound URL to every event, and on
+             Android the inbound URL is captured at process start even with AutoInitEnabled=false.
+             This example gates initialization on consent, so it opts out of that capture too. -->
+        <meta-data android:name="com.facebook.sdk.AutoLogMetaDataEnabled"
+                android:value="false"/>
+
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges=
                     "keyboard|keyboardHidden|screenLayout|screenSize|orientation"

@@ -72,6 +72,20 @@ class MyApp extends StatelessWidget {
                     facebookAppEvents.setAdvertiserIdCollectionEnabled(false);
                   },
                 ),
+                // The example opts out of metadata collection in its manifest and
+                // Info.plist, so "enable" is the post-consent step of that flow.
+                MaterialButton(
+                  child: Text("Enable event metadata collection"),
+                  onPressed: () {
+                    facebookAppEvents.setAutoLogMetaDataEnabled(true);
+                  },
+                ),
+                MaterialButton(
+                  child: Text("Disable event metadata collection"),
+                  onPressed: () {
+                    facebookAppEvents.setAutoLogMetaDataEnabled(false);
+                  },
+                ),
                 MaterialButton(
                   child: Text("Limit event and data usage"),
                   onPressed: () {

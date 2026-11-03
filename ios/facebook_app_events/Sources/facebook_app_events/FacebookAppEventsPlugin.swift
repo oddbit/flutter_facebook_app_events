@@ -173,6 +173,8 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
             handleSetAdvertiserIdCollectionEnabled(call, result: result)
         case "setLimitEventAndDataUsage":
             handleSetLimitEventAndDataUsage(call, result: result)
+        case "setAutoLogMetaDataEnabled":
+            handleSetAutoLogMetaDataEnabled(call, result: result)
         case "setGraphApiVersion":
             handleSetGraphApiVersion(call, result: result)
         case "logProductItem":
@@ -324,6 +326,25 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
     private func handleSetAutoLogAppEventsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let enabled = call.arguments as? Bool ?? false
         Settings.shared.isAutoLogAppEventsEnabled = enabled
+        result(nil)
+    }
+
+    // Persisted; overrides the FBSDKAutoLogMetaDataEnabled Info.plist key. Setting it to true
+    // installs the collectors without a relaunch, once the SDK's metadata-collection gatekeeper
+    // has been fetched; false clears the cached screen title and URLs. Stays behind the
+    // isSdkInitialized gate: the setter calls validateConfiguration(), which is fatal pre-init
+    // in debug builds. Because `false` is both persisted and destructive, a malformed argument
+    // is rejected rather than defaulted to false like the other boolean toggles.
+    private func handleSetAutoLogMetaDataEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let enabled = call.arguments as? Bool else {
+            result(FlutterError(
+                code: "INVALID_ARGUMENT",
+                message: "setAutoLogMetaDataEnabled requires a boolean argument",
+                details: nil
+            ))
+            return
+        }
+        Settings.shared.isMetaDataCollectionEnabled = enabled
         result(nil)
     }
 

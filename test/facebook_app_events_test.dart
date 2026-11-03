@@ -450,6 +450,15 @@ void main() {
       );
     });
 
+    test('setAutoLogMetaDataEnabled forwards boolean', () async {
+      await facebookAppEvents.setAutoLogMetaDataEnabled(false);
+
+      expect(
+        methodCall,
+        isMethodCall('setAutoLogMetaDataEnabled', arguments: false),
+      );
+    });
+
     test('setAdvertiserTracking forwards enabled and collectId', () async {
       // ignore: deprecated_member_use_from_same_package
       await facebookAppEvents.setAdvertiserTracking(

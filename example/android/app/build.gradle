@@ -8,7 +8,9 @@ plugins {
 android {
     namespace = "id.oddbit.flutter.facebook_app_events_example"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // No ndkVersion on purpose: nothing here compiles native code, so the NDK would only strip
+    // Flutter's engine library. Left unset, AGP uses an installed NDK when there is one and
+    // otherwise packages the library unstripped, rather than downloading an exact build in CI.
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

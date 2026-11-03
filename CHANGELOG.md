@@ -6,6 +6,7 @@
 - **New in the SDK: event metadata collection.** SDK v19 attaches the current screen title and the inbound URL to logged events by default, and on iOS also the last outbound URL the app opened (`outbound_url`). The inbound URL is any URL that opened the app, query string included (custom-scheme deep links and OAuth or magic-link callbacks too), not only App Links; both URLs are persisted on the device across launches. Apps can opt out with `FBSDKAutoLogMetaDataEnabled` (iOS Info.plist) / `com.facebook.sdk.AutoLogMetaDataEnabled` (Android manifest), or in Events Manager. On iOS, collection is installed as part of SDK initialization, so `FacebookAutoInitEnabled=false` still defers it. **On Android it does not:** inbound URLs are captured and written to disk from process start even with `com.facebook.sdk.AutoInitEnabled=false`, so consent-gated apps that want nothing collected before consent need the manifest opt-out. Documented in the README.
 - The Graph API version pin stays at `v24.0` on both platforms: the Android SDK v19.0.0 still defaults to the removed `v16.0`, so the override is still needed. Docs and code comments now reflect that the iOS SDK default has been `v26.0` since 18.1.1.
 - The example app's iOS deployment target is raised to 15.0.
+- **Update Android toolchain** — Kotlin 2.4.21 (was 2.4.20) in the example app and Gradle wrapper 8.14.6 (was 8.14.5), in the plugin, the example app and the build-verify workflow. AGP (8.13.0) and `compileSdk`/`targetSdk` (36) are unchanged.
 
 ## 0.31.1
 

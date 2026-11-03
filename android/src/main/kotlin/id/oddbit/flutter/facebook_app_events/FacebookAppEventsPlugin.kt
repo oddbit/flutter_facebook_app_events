@@ -80,6 +80,7 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
       "setAdvertiserTracking" -> handleSetAdvertiserTracking(call, result)
       "setAdvertiserIdCollectionEnabled" -> handleSetAdvertiserIdCollectionEnabled(call, result)
       "setLimitEventAndDataUsage" -> handleSetLimitEventAndDataUsage(call, result)
+      "setAutoLogMetaDataEnabled" -> handleSetAutoLogMetaDataEnabled(call, result)
       "setGraphApiVersion" -> handleSetGraphApiVersion(call, result)
       "logProductItem" -> handleLogProductItem(call, result)
       "setPushNotificationsDeviceToken", "setPushNotificationToken" -> handleSetPushNotificationToken(call, result)
@@ -309,6 +310,14 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   private fun handleSetAutoLogAppEventsEnabled(call: MethodCall, result: Result) {
     val enabled = call.arguments as? Boolean ?: false
     FacebookSdk.setAutoLogAppEventsEnabled(enabled)
+    result.success(null)
+  }
+
+  // Persisted; overrides the com.facebook.sdk.AutoLogMetaDataEnabled manifest entry. The SDK
+  // clears the stored inbound URL and user journey itself when the flag is turned off.
+  private fun handleSetAutoLogMetaDataEnabled(call: MethodCall, result: Result) {
+    val enabled = call.arguments as? Boolean ?: false
+    FacebookSdk.setAutoLogMetaDataEnabled(enabled)
     result.success(null)
   }
 

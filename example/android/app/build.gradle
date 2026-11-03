@@ -5,29 +5,10 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
-// The NDK has one job here: AGP strips Flutter's engine library with it. Nothing in this plugin
-// compiles native code. AGP only accepts an exact NDK version, and any machine without that exact
-// build downloads it during configuration (a corrupt download broke CI once, #512). So Flutter's
-// version is treated as a floor: the newest NDK already installed that meets it is used, and
-// Flutter's own version is requested only when none does.
-def ndkSortKey = { String v -> v.tokenize(".").collect { it.padLeft(12, "0") }.join(".") }
-def localProperties = new Properties()
-def localPropertiesFile = rootProject.file("local.properties")
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.withInputStream { localProperties.load(it) }
-}
-def sdkRoot = localProperties.getProperty("sdk.dir")
-    ?: System.getenv("ANDROID_HOME")
-    ?: System.getenv("ANDROID_SDK_ROOT")
-def installedNdks = sdkRoot ? (new File(sdkRoot, "ndk").listFiles() ?: []).collect { it.name } : []
-def eligibleNdks = installedNdks.findAll {
-    it ==~ /\d+\.\d+\.\d+/ && ndkSortKey(it) >= ndkSortKey(flutter.ndkVersion)
-}
-
 android {
     namespace = "id.oddbit.flutter.facebook_app_events_example"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = eligibleNdks ? eligibleNdks.max { ndkSortKey(it) } : flutter.ndkVersion
+    ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

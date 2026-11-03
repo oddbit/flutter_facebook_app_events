@@ -173,6 +173,8 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
             handleSetAdvertiserIdCollectionEnabled(call, result: result)
         case "setLimitEventAndDataUsage":
             handleSetLimitEventAndDataUsage(call, result: result)
+        case "setAutoLogMetaDataEnabled":
+            handleSetAutoLogMetaDataEnabled(call, result: result)
         case "setGraphApiVersion":
             handleSetGraphApiVersion(call, result: result)
         case "logProductItem":
@@ -324,6 +326,16 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
     private func handleSetAutoLogAppEventsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let enabled = call.arguments as? Bool ?? false
         Settings.shared.isAutoLogAppEventsEnabled = enabled
+        result(nil)
+    }
+
+    // Persisted; overrides the FBSDKAutoLogMetaDataEnabled Info.plist key. Setting it to true
+    // installs the collectors immediately (no relaunch needed); false clears the cached screen
+    // title and URLs. Stays behind the isSdkInitialized gate: the setter reaches into
+    // ApplicationDelegate.shared, which is unconfigured before initializeSdk().
+    private func handleSetAutoLogMetaDataEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let enabled = call.arguments as? Bool ?? false
+        Settings.shared.isMetaDataCollectionEnabled = enabled
         result(nil)
     }
 

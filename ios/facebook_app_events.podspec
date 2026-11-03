@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'facebook_app_events'
-  s.version          = '0.31.2'
+  s.version          = '0.32.0'
   s.summary          = 'Flutter plugin for Facebook Analytics and App Events'
   s.description      = <<-DESC
 Flutter plugin for Facebook Analytics and App Events
@@ -13,9 +13,9 @@ Flutter plugin for Facebook Analytics and App Events
   s.static_framework = true
   s.dependency 'Flutter'
   s.swift_version       = '5.9'
-  s.ios.deployment_target = '13.0'
+  s.ios.deployment_target = '15.0'
 
   # Do not specify PATCH version of FBSDKCoreKit. See README file for explanation
   # https://github.com/oddbit/flutter_facebook_app_events#dependencies-on-facebook-sdk
-  s.dependency 'FBSDKCoreKit', '~> 18.0'
+  s.dependency 'FBSDKCoreKit', '~> 19.0'
 end

@@ -62,7 +62,7 @@ android {
 
     dependencies {
         // Keep major-only range per repo guidelines.
-        implementation("com.facebook.android:facebook-android-sdk:[18.0,19.0)")
+        implementation("com.facebook.android:facebook-android-sdk:[19.0,20.0)")
     }
 }
 

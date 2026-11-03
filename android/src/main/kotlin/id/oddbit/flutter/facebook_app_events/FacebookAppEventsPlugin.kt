@@ -46,8 +46,9 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     appEventsLogger = AppEventsLogger.newLogger(flutterPluginBinding.applicationContext)
     anonymousId = AppEventsLogger.getAnonymousAppDeviceGUID(flutterPluginBinding.applicationContext)
 
-    // Override the Graph API version because Facebook Android SDK v18.x still defaults to v16.0,
-    // which was removed by Meta on May 14, 2025. This is a known upstream issue:
+    // Override the Graph API version because the Facebook Android SDK still defaults to v16.0
+    // (unchanged in v19.0.0, see ServerProtocol.getDefaultAPIVersion), which was removed by Meta on
+    // May 14, 2025. This is a known upstream issue:
     // https://github.com/facebook/facebook-android-sdk/issues/1308
     // Note: the SDK emits a Log.w in release builds when this is called, but the version is
     // still applied. This is intentional and correct behavior for a plugin.

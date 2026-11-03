@@ -247,6 +247,8 @@ The Facebook Android SDK ships with an outdated default Graph API version that M
 
 This plugin works around the issue by overriding the Graph API version to `v24.0` during plugin initialization, on both platforms so that Graph behavior is the same everywhere. This requires no extra configuration for the vast majority of apps.
 
+The override covers every Graph request made after the plugin has registered with the Flutter engine, which includes all app event uploads. It cannot cover the Android SDK's own startup work: the SDK initializes itself from a content provider at process start, before any Flutter plugin runs, and the app-settings fetch it issues at that point is built with the SDK default (`v16.0`). There is no manifest key for the Graph API version, so that one request cannot be redirected from the app side. It is served the same way as any other call to a removed version (see below), and it is the one place an Android app can still trigger a deprecation notice for `v16.0`.
+
 Calls to a removed version are not rejected. Meta routes them to the oldest version that is still usable, so the app keeps working while silently using a version nobody chose. What reaches you instead is a deprecation notice from Meta with a removal deadline, on a version you did not knowingly pick. That is what [#474](https://oddb.it/fbae-issue-474) in this repository was.
 
 If you need to target a specific Graph API version (e.g. to pin to the same version as your backend), call `setGraphApiVersion` as early as possible in app startup before using features that may trigger Graph API requests:

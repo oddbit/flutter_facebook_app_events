@@ -18,16 +18,16 @@ The MethodChannel name is `flutter.oddbit.id/facebook_app_events`.
 
 ## Facebook SDK version policy
 
-The plugin follows the **major** version of the Facebook SDK (currently v18.x). Dependency ranges should stay major-only:
+The plugin follows the **major** version of the Facebook SDK (currently v19.x). Dependency ranges should stay major-only:
 
-- Android (`android/build.gradle`): `com.facebook.android:facebook-android-sdk:[18.0,19.0)`
-- iOS CocoaPods (`ios/facebook_app_events.podspec`): `FBSDKCoreKit`, `~> 18.0`
-- iOS SPM (`ios/facebook_app_events/Package.swift`): `"18.0.0"..<"19.0.0"`
+- Android (`android/build.gradle`): `com.facebook.android:facebook-android-sdk:[19.0,20.0)`
+- iOS CocoaPods (`ios/facebook_app_events.podspec`): `FBSDKCoreKit`, `~> 19.0`
+- iOS SPM (`ios/facebook_app_events/Package.swift`): `"19.0.0"..<"20.0.0"`
 
 ## Known platform divergence
 
 - `clearUserDataForType`: functional on iOS; no-op on Android (the Android `AppEventsLogger` has no per-field clear). Documented in the Dart dartdoc and README "Known Limitations".
 - Deferred SDK initialization (`FacebookAutoInitEnabled` on iOS, `com.facebook.sdk.AutoInitEnabled` on Android, `initializeSdk()` in Dart): on iOS the SDK is fully unconfigured until `initializeSdk()`, so the Swift handler gates every method call except `initializeSdk`/`setGraphApiVersion` (and the URL forwarders) behind a `isSdkInitialized` flag and returns `FlutterError(sdk_not_initialized)`; adding a new handler must keep it behind that gate unless its SDK call is verified safe pre-configuration. On Android `AutoInitEnabled=false` still runs `sdkInitialize`, so there is no gate and `initializeSdk` maps to `FacebookSdk.fullyInitialize()` — never `setAutoInitEnabled(true)`, which persists and overrides the manifest.
 - `setUserData` uses merge semantics on both platforms: only fields present in the call are updated. The iOS handler deliberately skips absent keys because passing nil to the native setter would *clear* the field on iOS (Android ignores nulls).
-- Graph API version override: plugin forces `v24.0` at init on both platforms to work around outdated SDK defaults. Revisit when FBSDK v19 lands.
+- Graph API version override: plugin forces `v24.0` at init on both platforms. The Android SDK still defaults to the removed `v16.0` in v19.0.0 (`ServerProtocol.getDefaultAPIVersion`); the iOS SDK has defaulted to `v26.0` since 18.1.1, but the pin is kept on both for consistent Graph behavior. Revisit when the Android SDK ships a corrected default.
 - Event parameters are validated in the Dart layer (`String`/`num`/`bool` only, bool sent as `"1"`/`"0"`) because the native SDKs silently drop events with other value types.

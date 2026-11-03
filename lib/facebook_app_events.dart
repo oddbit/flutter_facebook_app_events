@@ -718,9 +718,11 @@ class FacebookAppEvents {
 
   /// Overrides the Graph API version used by the Facebook SDK.
   ///
-  /// The plugin sets a default Graph API version at initialization because the
-  /// Facebook SDK v18.x ships with an outdated default that has been removed by
-  /// Meta. Call this as early as possible in app startup if you need a specific
+  /// The plugin sets a default Graph API version at initialization on both
+  /// platforms because the Facebook Android SDK (v19.x included) ships with an
+  /// outdated default that has been removed by Meta, and pinning the same
+  /// version on iOS keeps Graph behavior consistent across platforms. Call this
+  /// as early as possible in app startup if you need a specific
   /// version before using plugin features that may trigger Graph API requests.
   ///
   /// The [version] string must be in the form `"vX.Y"`.

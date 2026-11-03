@@ -58,6 +58,10 @@
 	<string>0e7f593f9847ba94bb65ec68d1bed96c</string>
 	<key>FacebookAutoInitEnabled</key>
 	<false/>
+	<!-- SDK v19 attaches the screen title and the last inbound/outbound URL to every event.
+	     This example gates initialization on consent, so it opts out of that capture too. -->
+	<key>FBSDKAutoLogMetaDataEnabled</key>
+	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

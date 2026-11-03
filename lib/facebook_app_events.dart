@@ -606,6 +606,37 @@ class FacebookAppEvents {
     return _channel.invokeMethod<void>('setLimitEventAndDataUsage', enabled);
   }
 
+  /// Enables/disables the event metadata the SDK attaches to logged events
+  /// since Facebook SDK v19: the title of the current screen, the last inbound
+  /// URL that opened the app and, on iOS, the last outbound URL the app opened.
+  ///
+  /// Maps to `FacebookSdk.setAutoLogMetaDataEnabled` (Android) and
+  /// `Settings.shared.isMetaDataCollectionEnabled` (iOS). The value is
+  /// persisted across app launches and takes precedence over the
+  /// `com.facebook.sdk.AutoLogMetaDataEnabled` manifest entry and the
+  /// `FBSDKAutoLogMetaDataEnabled` Info.plist key. Defaults to `true`.
+  ///
+  /// Passing `false` also clears the URLs the SDK has already stored on the
+  /// device. Passing `true` starts collection right away; no relaunch is
+  /// needed.
+  ///
+  /// This is the runtime half of a consent flow. Set the native key to `false`
+  /// so nothing is captured before consent (on Android the inbound URL capture
+  /// runs at process start regardless of `AutoInitEnabled`), then call
+  /// `initializeSdk()` followed by `setAutoLogMetaDataEnabled(true)` once the
+  /// user has consented. On iOS this method requires the SDK to be
+  /// initialized, like the other `Settings` setters.
+  ///
+  /// Meta's Events Manager has a matching "Automatically include more app
+  /// event details" setting that applies in addition to this flag.
+  ///
+  /// See documentation:
+  /// - [iOS Settings](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/settings.html)
+  /// - [Android FacebookSdk](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/FacebookSdk.html)
+  Future<void> setAutoLogMetaDataEnabled(bool enabled) {
+    return _channel.invokeMethod<void>('setAutoLogMetaDataEnabled', enabled);
+  }
+
   /// The start of a paid subscription for a product or service you offer.
   ///
   /// To be eligible for ad revenue optimization (ROAS), you should include the

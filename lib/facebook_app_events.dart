@@ -617,8 +617,10 @@ class FacebookAppEvents {
   /// `FBSDKAutoLogMetaDataEnabled` Info.plist key. Defaults to `true`.
   ///
   /// Passing `false` also clears the URLs the SDK has already stored on the
-  /// device. Passing `true` starts collection right away; no relaunch is
-  /// needed.
+  /// device. Passing `true` turns collection on without a relaunch, though
+  /// not instantly: Android reads the flag on the next activity start or
+  /// resume, and iOS installs the collectors once the SDK has fetched its
+  /// metadata-collection gatekeeper.
   ///
   /// This is the runtime half of a consent flow. Set the native key to `false`
   /// so nothing is captured before consent (on Android the inbound URL capture

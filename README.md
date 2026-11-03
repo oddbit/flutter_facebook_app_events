@@ -174,7 +174,7 @@ To opt out, set the SDK's own configuration key to `false`, or turn off "Automat
 <meta-data android:name="com.facebook.sdk.AutoLogMetaDataEnabled" android:value="false"/>
 ```
 
-The static key is only half of a consent flow, because it cannot be changed after the user consents. For that, call `setAutoLogMetaDataEnabled` from Dart. It maps to `FacebookSdk.setAutoLogMetaDataEnabled` (Android) and `Settings.shared.isMetaDataCollectionEnabled` (iOS); the value is persisted across launches and takes precedence over the manifest or Info.plist key. Turning it on starts collection immediately, without a relaunch. Turning it off also clears the URLs the SDK has already stored on the device. On iOS it is gated like the other `Settings` setters, so call it after `initializeSdk()`:
+The static key is only half of a consent flow, because it cannot be changed after the user consents. For that, call `setAutoLogMetaDataEnabled` from Dart. It maps to `FacebookSdk.setAutoLogMetaDataEnabled` (Android) and `Settings.shared.isMetaDataCollectionEnabled` (iOS); the value is persisted across launches and takes precedence over the manifest or Info.plist key. Turning it on takes effect without a relaunch, though not instantly: Android reads the flag on the next activity start or resume, and iOS installs the collectors once the SDK has fetched its metadata-collection gatekeeper. Turning it off also clears the URLs the SDK has already stored on the device. On iOS it is gated like the other `Settings` setters, so call it after `initializeSdk()`:
 
 ```dart
 // Manifest / Info.plist key set to false, so nothing is captured before consent.

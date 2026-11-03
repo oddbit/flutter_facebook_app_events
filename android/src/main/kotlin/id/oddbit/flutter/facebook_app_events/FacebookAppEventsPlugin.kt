@@ -314,9 +314,15 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   // Persisted; overrides the com.facebook.sdk.AutoLogMetaDataEnabled manifest entry. The SDK
-  // clears the stored inbound URL and user journey itself when the flag is turned off.
+  // clears the stored inbound URL and user journey itself when the flag is turned off. Because
+  // `false` is both persisted and destructive, a malformed argument is rejected rather than
+  // defaulted to false like the other boolean toggles.
   private fun handleSetAutoLogMetaDataEnabled(call: MethodCall, result: Result) {
-    val enabled = call.arguments as? Boolean ?: false
+    val enabled = call.arguments as? Boolean
+    if (enabled == null) {
+      result.error("INVALID_ARGUMENT", "setAutoLogMetaDataEnabled requires a boolean argument", null)
+      return
+    }
     FacebookSdk.setAutoLogMetaDataEnabled(enabled)
     result.success(null)
   }

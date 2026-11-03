@@ -174,7 +174,15 @@ To opt out, set the SDK's own configuration key to `false`, or turn off "Automat
 <meta-data android:name="com.facebook.sdk.AutoLogMetaDataEnabled" android:value="false"/>
 ```
 
-SDK v19 also adds an `AutoLogProductImprovementEnabled` control (`FBSDKAutoLogProductImprovementEnabled` on iOS, `com.facebook.sdk.AutoLogProductImprovementEnabled` on Android) for diagnostic data. Meta states the SDK does not collect or send this data yet; the key only lets you opt out ahead of time. Neither setting is exposed through this plugin's Dart API; configure them natively as shown above.
+The static key is only half of a consent flow, because it cannot be changed after the user consents. For that, call `setAutoLogMetaDataEnabled` from Dart. It maps to `FacebookSdk.setAutoLogMetaDataEnabled` (Android) and `Settings.shared.isMetaDataCollectionEnabled` (iOS); the value is persisted across launches and takes precedence over the manifest or Info.plist key. Turning it on starts collection immediately, without a relaunch. Turning it off also clears the URLs the SDK has already stored on the device. On iOS it is gated like the other `Settings` setters, so call it after `initializeSdk()`:
+
+```dart
+// Manifest / Info.plist key set to false, so nothing is captured before consent.
+await facebookAppEvents.initializeSdk();
+await facebookAppEvents.setAutoLogMetaDataEnabled(true);
+```
+
+SDK v19 also adds an `AutoLogProductImprovementEnabled` control (`FBSDKAutoLogProductImprovementEnabled` on iOS, `com.facebook.sdk.AutoLogProductImprovementEnabled` on Android) for diagnostic data. Meta states the SDK does not collect or send this data yet; the key only lets you opt out ahead of time. That setting is not exposed through this plugin's Dart API; configure it natively.
 
 ## About Facebook App Events
 
@@ -277,9 +285,9 @@ The native Facebook SDKs only accept `String` and numeric event parameter values
 
 ### Deferred initialization on iOS
 
-With `FacebookAutoInitEnabled` set to `false`, the Facebook iOS SDK is unconfigured until `initializeSdk()` is called, and the native SDK does not tolerate calls in that state: `AppEvents` methods throw in debug builds and are silently dropped in release, the persisted `Settings` setters (`setAutoLogAppEventsEnabled`, `setAdvertiserIdCollectionEnabled`) crash, and some lazily-read settings such as the app id would be cached as empty for the rest of the process. The plugin therefore rejects **every method except `initializeSdk` and `setGraphApiVersion`** with a `PlatformException` of code `sdk_not_initialized` until initialization has happened. Incoming Facebook App Link URLs are also ignored until then.
+With `FacebookAutoInitEnabled` set to `false`, the Facebook iOS SDK is unconfigured until `initializeSdk()` is called, and the native SDK does not tolerate calls in that state: `AppEvents` methods throw in debug builds and are silently dropped in release, the persisted `Settings` setters (`setAutoLogAppEventsEnabled`, `setAdvertiserIdCollectionEnabled`, `setAutoLogMetaDataEnabled`) crash, and some lazily-read settings such as the app id would be cached as empty for the rest of the process. The plugin therefore rejects **every method except `initializeSdk` and `setGraphApiVersion`** with a `PlatformException` of code `sdk_not_initialized` until initialization has happened. Incoming Facebook App Link URLs are also ignored until then.
 
-In practice this means your consent flow must call `initializeSdk()` *before* `setUserData`, `setDataProcessingOptions`, `setLimitEventAndDataUsage`, `setAutoLogAppEventsEnabled` or any logging call, not after. Android does not have this restriction (see [Deferring SDK initialization](#deferring-sdk-initialization-consent-gating)), so a consent flow that works on Android can still be misordered for iOS; the error is deliberate so that shows up in development rather than as silently lost data.
+In practice this means your consent flow must call `initializeSdk()` *before* `setUserData`, `setDataProcessingOptions`, `setLimitEventAndDataUsage`, `setAutoLogAppEventsEnabled`, `setAutoLogMetaDataEnabled` or any logging call, not after. Android does not have this restriction (see [Deferring SDK initialization](#deferring-sdk-initialization-consent-gating)), so a consent flow that works on Android can still be misordered for iOS; the error is deliberate so that shows up in development rather than as silently lost data.
 
 ## Compatibility alerts
 

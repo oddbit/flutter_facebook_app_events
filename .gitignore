@@ -12,3 +12,7 @@ build/
 **/Package.resolved
 
 **/*/Flutter/ephemeral
+
+# Claude Code: machine-local state (shared config like .claude/settings.json stays trackable)
+.claude/worktrees/
+.claude/settings.local.json

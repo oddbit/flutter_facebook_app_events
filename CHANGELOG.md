@@ -1,3 +1,8 @@
+## 0.33.0
+
+- **Breaking: raise the minimum Flutter SDK to `>=3.41.0`** (was `>=3.38.0`). The iOS Swift package now depends on the local `FlutterFramework` package that the Flutter tool generates for Swift Package Manager builds, as Flutter's plugin-author migration guide requires (fixes [#514](https://github.com/oddbit/flutter_facebook_app_events/issues/514)). Flutter 3.41 is the first release that generates that package, and future Flutter versions will require the dependency. The Dart API and native behavior are unchanged. Apps on Flutter 3.38–3.40 keep resolving 0.32.x.
+- CI now builds the example app with Swift Package Manager enabled, on both the Flutter 3.41 floor and current stable. Until now only the CocoaPods path was built, so the Swift package manifest was never compiled in CI. The Android floor cell moves to Flutter 3.41.0.
+
 ## 0.32.0
 
 - **Breaking: upgrade to Facebook SDK v19** (fixes [#507](https://github.com/oddbit/flutter_facebook_app_events/issues/507)). Android now depends on `com.facebook.android:facebook-android-sdk:[19.0,20.0)`; iOS on `FBSDKCoreKit` `~> 19.0` (CocoaPods) / `"19.0.0"..<"20.0.0"` (SPM). None of the native APIs the plugin calls changed, so the Dart API is unchanged.

@@ -113,11 +113,13 @@ This plugin supports iOS integration via both **CocoaPods** (Flutter default) an
 
 Which of the two your build uses is decided by your Flutter project's configuration, not by this plugin, which ships both. How to tell which one you are on, and how to move between them: [Swift Package Manager setup for this plugin](https://oddb.it/fbae-guide-spm).
 
+The Swift package depends on the `FlutterFramework` package, which the Flutter tool generates for Swift Package Manager builds starting with Flutter 3.41. This is why the plugin requires **Flutter 3.41.0 or newer**, even for apps that use CocoaPods.
+
 #### iOS UIScene lifecycle
 
 This plugin supports both the legacy `UIApplicationDelegate` lifecycle and the newer **`UIScene`** lifecycle (the default for apps built with Flutter 3.38+). It registers as both an application delegate and a scene delegate, so Facebook URL callbacks (deep links and deferred app links) reach the SDK regardless of which lifecycle your app uses. No extra host-app configuration is required beyond the standard Facebook setup above.
 
-Because this plugin uses Flutter's scene-delegate plugin APIs (`FlutterSceneLifeCycleDelegate` / `addSceneDelegate`), added in Flutter 3.38, it requires **Flutter 3.38.0 or newer**.
+The plugin uses Flutter's scene-delegate plugin APIs (`FlutterSceneLifeCycleDelegate` / `addSceneDelegate`), added in Flutter 3.38. The plugin's overall minimum is Flutter 3.41 (see [Swift Package Manager](#swift-package-manager-spm) above).
 
 ### Deferring SDK initialization (consent gating)
 

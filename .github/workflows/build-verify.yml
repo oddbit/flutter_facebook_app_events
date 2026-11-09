@@ -227,9 +227,10 @@ jobs:
         working-directory: facebook_app_events
 
     steps:
-      # Flutter names the plugin's SwiftPM symlink after the plugin's root directory. Checking out
-      # into `facebook_app_events` (instead of the default repo-named directory) matches the
-      # plugin's Swift package name, which is the mismatch the `ios` job's comment describes.
+      # Check out into `facebook_app_events` so the plugin's SwiftPM symlink has the same name on
+      # every Flutter version in the matrix. Flutter 3.41 names it after the pubspec name; 3.44+
+      # name it after the plugin's root directory (for pub.dev installs that is
+      # `facebook_app_events-<version>`). The `test -L` assertion below relies on this name.
       - uses: actions/checkout@v7
         with:
           path: facebook_app_events
@@ -269,8 +270,15 @@ jobs:
           grep -q 'FlutterGeneratedPluginSwiftPackage' ios/Runner.xcodeproj/project.pbxproj
 
       # Flutter only prints this warning (it does not fail the build), so check for it explicitly.
+      # Runs even if an earlier step failed, so the specific error still shows up in that case.
+      # test/ios_package_swift_test.dart is the primary guard; this catches Flutter-side changes.
       - name: Fail on Flutter's missing-FlutterFramework warning
+        if: ${{ !cancelled() }}
         run: |
+          if [ ! -f "$RUNNER_TEMP/build-ios.log" ]; then
+            echo "No build log; the build step did not run."
+            exit 0
+          fi
           if grep -n 'missing a dependency on FlutterFramework' "$RUNNER_TEMP/build-ios.log"; then
             echo "::error::Package.swift is missing the FlutterFramework dependency"
             exit 1

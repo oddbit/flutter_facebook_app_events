@@ -59,8 +59,8 @@ jobs:
         include:
           # Support floor — guards against breaking the minimum Flutter SDK. Exercises the
           # plugin's `agpMajor < 9` path on the oldest supported toolchain.
-          - label: "Flutter 3.38 (floor)"
-            flutter: "3.38.0"
+          - label: "Flutter 3.41 (floor)"
+            flutter: "3.41.0"
           # Current default toolchain — where #492 reproduced (AGP < 9 path + Built-in Kotlin scan).
           - label: "Flutter stable"
             flutter: ""
@@ -198,3 +198,86 @@ jobs:
           name: example-ios-podfile-lock
           path: example/ios/Podfile.lock
           if-no-files-found: ignore
+
+  # The `ios` job above builds through CocoaPods, so the plugin's Package.swift is only exercised
+  # here. Covers the floor because 3.41 is the first Flutter release that generates the local
+  # `FlutterFramework` package the manifest depends on (#514), and stable because newer Flutter
+  # versions warn about plugins that are missing that dependency.
+  ios-spm:
+    name: iOS example (Swift Package Manager) — ${{ matrix.label }}
+    needs: [test]
+    runs-on: macos-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: "Flutter 3.41 (floor)"
+            flutter: "3.41.0"
+          - label: "Flutter stable"
+            flutter: ""
+    env:
+      CI: true
+    defaults:
+      run:
+        working-directory: facebook_app_events
+
+    steps:
+      # Check out into `facebook_app_events` so the plugin's SwiftPM symlink has the same name on
+      # every Flutter version in the matrix. Flutter 3.41 names it after the pubspec name; 3.44+
+      # name it after the plugin's root directory (for pub.dev installs that is
+      # `facebook_app_events-<version>`). The `test -L` assertion below relies on this name.
+      - uses: actions/checkout@v7
+        with:
+          path: facebook_app_events
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          # Empty string → latest of the channel; otherwise pin to the floor version.
+          flutter-version: ${{ matrix.flutter }}
+          cache: true
+
+      - run: flutter --version
+
+      - name: Enable Swift Package Manager
+        run: flutter config --enable-swift-package-manager
+
+      - name: Flutter pub get (root)
+        run: flutter pub get
+
+      - name: Flutter pub get (example)
+        working-directory: facebook_app_events/example
+        run: flutter pub get
+
+      - name: Build example iOS (no-codesign, verbose)
+        working-directory: facebook_app_events/example
+        run: |
+          set -o pipefail
+          flutter build ios --no-codesign -v 2>&1 | tee "$RUNNER_TEMP/build-ios.log"
+
+      - name: Confirm the plugin was integrated through Swift Package Manager
+        working-directory: facebook_app_events/example
+        run: |
+          set -euo pipefail
+          test -L ios/Flutter/ephemeral/Packages/.packages/facebook_app_events
+          test -f ios/Flutter/ephemeral/Packages/.packages/FlutterFramework/Package.swift
+          grep -q 'FlutterGeneratedPluginSwiftPackage' ios/Runner.xcodeproj/project.pbxproj
+
+      # Flutter only prints this warning (it does not fail the build), so check for it explicitly.
+      # Runs even if an earlier step failed, so the specific error still shows up in that case.
+      # test/ios_package_swift_test.dart is the primary guard; this catches Flutter-side changes.
+      - name: Fail on Flutter's missing-FlutterFramework warning
+        if: ${{ !cancelled() }}
+        run: |
+          if [ ! -f "$RUNNER_TEMP/build-ios.log" ]; then
+            echo "No build log; the build step did not run."
+            exit 0
+          fi
+          if grep -n 'missing a dependency on FlutterFramework' "$RUNNER_TEMP/build-ios.log"; then
+            echo "::error::Package.swift is missing the FlutterFramework dependency"
+            exit 1
+          fi

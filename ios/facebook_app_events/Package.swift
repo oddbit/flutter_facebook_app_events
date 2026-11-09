@@ -18,14 +18,20 @@ let package = Package(
         .library(name: "facebook-app-events", targets: ["facebook_app_events"])
     ],
     dependencies: [
-        .package(url: "https://github.com/facebook/facebook-ios-sdk.git", "19.0.0"..<"20.0.0")
+        .package(url: "https://github.com/facebook/facebook-ios-sdk.git", "19.0.0"..<"20.0.0"),
+        // Local package the Flutter tool (3.41+) generates next to each plugin
+        // package. Flutter's plugin-author guide requires it, and future Flutter
+        // versions will reject SwiftPM plugins without it. This is why the
+        // plugin's minimum Flutter version is 3.41.
+        .package(name: "FlutterFramework", path: "../FlutterFramework")
     ],
     targets: [
         .target(
             name: "facebook_app_events",
             dependencies: [
                 .product(name: "FacebookCore", package: "facebook-ios-sdk"),
-                .product(name: "FacebookBasics", package: "facebook-ios-sdk")
+                .product(name: "FacebookBasics", package: "facebook-ios-sdk"),
+                .product(name: "FlutterFramework", package: "FlutterFramework")
             ]
         )
     ]

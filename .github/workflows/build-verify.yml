@@ -188,6 +188,10 @@ jobs:
         working-directory: example
         run: flutter build ios --no-codesign -v
 
+      - name: Build example iOS simulator (no-codesign, verbose)
+        working-directory: example
+        run: flutter build ios --simulator --no-codesign -v
+
       # example/ios/Podfile.lock is deliberately not committed (see example/ios/.gitignore), so
       # each run resolves the newest Facebook SDK in range. This artifact is the only record of
       # which pod versions a given run built against.

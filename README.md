@@ -244,6 +244,22 @@ Related reports, for what they actually show rather than as explanations of this
 - [GitHub Issue #402](https://oddb.it/7eq): Events Manager telling a developer on a current SDK to remove `FBSDKCoreKit`, `FBSDKLoginKit`, `FBSDKShareKit`, `FBSDKPlacesKit` and `FBSDKMessengerShareKit` from their Podfile, including the pod that logs app events. A different Events Manager message from the one above, closed as stale in March 2025 with no diagnosis.
 - [Facebook iOS SDK Issue #2513](https://oddb.it/hrz): the same family of false "upgrade your SDK" report, on SDK 17.1.0, where Events Manager claimed the app needed updating in order to serve ads to users on iOS 14.5 or higher. Closed as a duplicate.
 
+### iOS Simulator build failure on Facebook SDK v19 (Swift compiler / interface errors)
+
+**Symptom:** building for the iOS simulator fails with Swift compiler errors inside `FBSDKCoreKit`'s `.private.swiftinterface` (such as `Consecutive statements on a line must be separated by ';'` or `Expected type`).
+
+**Cause:** Facebook iOS SDK v19 precompiles its module interfaces using Swift 6 fully-qualified type syntax (`::`). If an older Swift toolchain is used or if the host project forces an `x86_64` simulator build by excluding `arm64` in the `Podfile` (a legacy workaround often used with older native libraries such as old Google ML Kit / `MLImage`):
+
+```ruby
+config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'i386 arm64'
+```
+
+the Swift compiler fails to parse the interface when targeting the simulator slice.
+
+**How to fix:**
+1. **Remove legacy simulator exclusions (recommended):** update any older third-party dependencies to modern versions that support `arm64` simulators natively, and remove the `EXCLUDED_ARCHS` override from your `Podfile`.
+2. **Pin to plugin version 0.31.0:** if your project relies on legacy pods that require `EXCLUDED_ARCHS arm64` on the simulator, pin `facebook_app_events: 0.31.0` in `pubspec.yaml`. Version 0.31.0 uses Facebook iOS SDK v18, which remains compatible with `x86_64` simulator builds and Swift 5 toolchains.
+
 ## Known Limitations
 
 ### Graph API Version

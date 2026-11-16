@@ -149,7 +149,7 @@ await facebookAppEvents.activateApp(); // only if auto-logging is also off
 
 An absent key means `true` on both platforms, so existing apps are unaffected. Calling `initializeSdk()` when automatic initialization is on is harmless.
 
-**The two platforms do not behave the same before `initializeSdk()` is called.** On iOS, `FacebookAutoInitEnabled=false` keeps the SDK completely unconfigured, and the plugin rejects every other call with a `PlatformException` of code `sdk_not_initialized` until you initialize it (the only exception is `setGraphApiVersion`, which is safe to call early). On Android, `AutoInitEnabled=false` does *not* keep the SDK asleep: the app id and client token are still loaded at process start and plugin calls still work, the SDK is merely not "fully initialized". `initializeSdk()` maps to `FacebookSdk.fullyInitialize()` there. See [Known Limitations](#deferred-initialization-on-ios) for the full list of what the iOS gate covers.
+**The two platforms do not behave the same before `initializeSdk()` is called.** On iOS, `FacebookAutoInitEnabled=false` keeps the SDK completely unconfigured, and the plugin rejects every other call with a `FacebookAppEventsException` whose `errorCode` is `sdkNotInitialized` (wire code `sdk_not_initialized`) until you initialize it (the only exception is `setGraphApiVersion`, which is safe to call early). On Android, `AutoInitEnabled=false` does *not* keep the SDK asleep: the app id and client token are still loaded at process start and plugin calls still work, the SDK is merely not "fully initialized". `initializeSdk()` maps to `FacebookSdk.fullyInitialize()` there. See [Known Limitations](#deferred-initialization-on-ios) for the full list of what the iOS gate covers.
 
 ### Event metadata collected by the Facebook SDK
 
@@ -210,6 +210,33 @@ with your other plugins or dependencies.
 
 Because the exact version is resolved at build time rather than pinned here, two builds of the same app can ship different SDK versions. How to read the version you actually got, and what controls it: [which Facebook SDK version you actually get](https://oddb.it/fbae-guide-sdk-versions).
 
+## Handling errors
+
+When a native handler reports an error, the plugin method throws a `FacebookAppEventsException`. Its `errorCode` is a `FacebookAppEventsErrorCode`:
+
+| `errorCode` | Wire code | Meaning |
+| --- | --- | --- |
+| `invalidArgument` | `INVALID_ARGUMENT` | An argument was missing or malformed. The message says which one. |
+| `sdkNotInitialized` | `sdk_not_initialized` | The native SDK is not initialized. Call `initializeSdk()` first. |
+| `sdkInitializationFailed` | `sdk_initialization_failed` | `initializeSdk()` could not start the SDK (Android). The message is the SDK's reason. |
+| `missingContext` | `missing_context` | The plugin has no Android `Context`. |
+| `missingApplication` | `missing_application` | The plugin has no Android `Application`. |
+| `unknown` | anything else | An error the plugin does not classify, typically thrown by the native SDK. The raw code is in `code`. |
+
+```dart
+try {
+  await facebookAppEvents.initializeSdk();
+} on FacebookAppEventsException catch (e) {
+  if (e.errorCode == FacebookAppEventsErrorCode.sdkInitializationFailed) {
+    debugPrint('Facebook SDK could not start: ${e.message}');
+  }
+}
+```
+
+Compare `errorCode`, not `code`: `code` is the wire string from the table, not the enum name. New values can be added to the enum in later releases, so keep a wildcard branch when you `switch` over it.
+
+`FacebookAppEventsException` extends Flutter's `PlatformException`, and `code` still holds the wire code. Code that catches `PlatformException` and compares `e.code` strings keeps working. Invalid arguments caught in Dart before the call reaches the native side, such as an unsupported event parameter type, throw `ArgumentError` as before.
+
 ## Troubleshooting
 
 ### Events are not showing up in Events Manager
@@ -222,9 +249,9 @@ Full diagnosis, split by layer (configuration, transport, attribution), with per
 
 ### `sdk_not_initialized` on Android
 
-On Android the Facebook SDK initializes itself when the app process starts. If that fails, the SDK only writes an info-level `Failed to auto initialize the Facebook SDK` line to logcat and the app keeps running. Plugin calls that need the SDK, such as `logEvent`, then fail with a `PlatformException` of code `sdk_not_initialized`. Before this was handled, the same situation surfaced as `lateinit property appEventsLogger has not been initialized`.
+On Android the Facebook SDK initializes itself when the app process starts. If that fails, the SDK only writes an info-level `Failed to auto initialize the Facebook SDK` line to logcat and the app keeps running. Plugin calls that need the SDK, such as `logEvent`, then fail with a `FacebookAppEventsException` whose `errorCode` is `sdkNotInitialized` (wire code `sdk_not_initialized`). Before this was handled, the same situation surfaced as `lateinit property appEventsLogger has not been initialized`.
 
-Call `initializeSdk()` to find out why. It runs the SDK's initialization again; if that fails too, it throws a `PlatformException` of code `sdk_initialization_failed` whose message is the SDK's own reason. The usual one is that `com.facebook.sdk.ApplicationId` or `com.facebook.sdk.ClientToken` could not be read from `AndroidManifest.xml` (see [Configure Android](#configure-android)). The plugin never initializes the SDK by itself: only `initializeSdk()` does, so an app that keeps the SDK off until consent is not overridden.
+Call `initializeSdk()` to find out why. It runs the SDK's initialization again; if that fails too, it throws a `FacebookAppEventsException` whose `errorCode` is `sdkInitializationFailed` (wire code `sdk_initialization_failed`) whose message is the SDK's own reason. The usual one is that `com.facebook.sdk.ApplicationId` or `com.facebook.sdk.ClientToken` could not be read from `AndroidManifest.xml` (see [Configure Android](#configure-android)). The plugin never initializes the SDK by itself: only `initializeSdk()` does, so an app that keeps the SDK off until consent is not overridden.
 
 Remember to `await` plugin calls inside your `try` block. An un-awaited call that fails is reported as an unhandled error instead of reaching your `catch`.
 
@@ -295,7 +322,7 @@ The native Facebook SDKs only accept `String` and numeric event parameter values
 
 ### Deferred initialization on iOS
 
-With `FacebookAutoInitEnabled` set to `false`, the Facebook iOS SDK is unconfigured until `initializeSdk()` is called, and the native SDK does not tolerate calls in that state: `AppEvents` methods throw in debug builds and are silently dropped in release, the persisted `Settings` setters (`setAutoLogAppEventsEnabled`, `setAdvertiserIdCollectionEnabled`, `setAutoLogMetaDataEnabled`) crash, and some lazily-read settings such as the app id would be cached as empty for the rest of the process. The plugin therefore rejects **every method except `initializeSdk` and `setGraphApiVersion`** with a `PlatformException` of code `sdk_not_initialized` until initialization has happened. Incoming Facebook App Link URLs are also ignored until then.
+With `FacebookAutoInitEnabled` set to `false`, the Facebook iOS SDK is unconfigured until `initializeSdk()` is called, and the native SDK does not tolerate calls in that state: `AppEvents` methods throw in debug builds and are silently dropped in release, the persisted `Settings` setters (`setAutoLogAppEventsEnabled`, `setAdvertiserIdCollectionEnabled`, `setAutoLogMetaDataEnabled`) crash, and some lazily-read settings such as the app id would be cached as empty for the rest of the process. The plugin therefore rejects **every method except `initializeSdk` and `setGraphApiVersion`** with a `FacebookAppEventsException` whose `errorCode` is `sdkNotInitialized` (wire code `sdk_not_initialized`) until initialization has happened. Incoming Facebook App Link URLs are also ignored until then.
 
 In practice this means your consent flow must call `initializeSdk()` *before* `setUserData`, `setDataProcessingOptions`, `setLimitEventAndDataUsage`, `setAutoLogAppEventsEnabled`, `setAutoLogMetaDataEnabled` or any logging call, not after. Android does not have this restriction (see [Deferring SDK initialization](#deferring-sdk-initialization-consent-gating)), so a consent flow that works on Android can still be misordered for iOS; the error is deliberate so that shows up in development rather than as silently lost data.
 

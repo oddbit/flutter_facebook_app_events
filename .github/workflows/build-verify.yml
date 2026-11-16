@@ -49,27 +49,28 @@ jobs:
     needs: [test]
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    # Only the experimental (AGP 9) cell is allowed to fail; the floor/stable cells gate.
-    continue-on-error: ${{ matrix.experimental || false }}
     permissions:
       contents: read
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Support floor — guards against breaking the minimum Flutter SDK. Exercises the
-          # plugin's `agpMajor < 9` path on the oldest supported toolchain.
-          - label: "Flutter 3.41 (floor)"
+          # Support floor — guards against breaking the minimum Flutter SDK. The example is
+          # committed on the AGP 9 toolchain that current Flutter requires, so this cell switches
+          # it back to AGP 8 and exercises the plugin's `agpMajor < 9` path, where the plugin
+          # applies the Kotlin Gradle Plugin itself.
+          - label: "Flutter 3.41 (floor, AGP 8)"
             flutter: "3.41.0"
-          # Current default toolchain — where #492 reproduced (AGP < 9 path + Built-in Kotlin scan).
+            agp8: true
+          # Current default toolchain, example as committed: AGP 9 with the Flutter app template's
+          # `android.builtInKotlin=false`, so the Flutter Gradle Plugin applies KGP to the plugin.
           - label: "Flutter stable"
             flutter: ""
-          # Forward-looking — AGP 9 enables Built-in Kotlin, which supplies KGP and exercises the
-          # plugin's `agpMajor >= 9` branch. Allowed to fail until the AGP 9 toolchain stabilises.
-          - label: "Flutter stable + AGP 9 (experimental)"
+          # AGP 9 defaults (no `android.builtInKotlin`/`android.newDsl` overrides), as in an app
+          # migrated to Built-in Kotlin: AGP supplies Kotlin to the plugin.
+          - label: "Flutter stable + Built-in Kotlin"
             flutter: ""
-            agp9: true
-            experimental: true
+            builtInKotlin: true
     env:
       CI: true
       GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.vfs.watch=false -Dorg.gradle.caching=true
@@ -101,18 +102,30 @@ jobs:
 
       - run: flutter --version
 
-      - name: Switch example to the AGP 9 toolchain (experimental cell)
-        if: ${{ matrix.agp9 }}
+      - name: Switch example back to the AGP 8 toolchain (floor cell)
+        if: ${{ matrix.agp8 }}
         run: |
           set -euxo pipefail
-          # AGP 9.1.1 requires Gradle >= 9.3.1 and enables Built-in Kotlin by default, so the
-          # example app must no longer apply kotlin-android (Flutter supplies KGP). Migrating it
-          # here lets this cell exercise the plugin's `agpMajor >= 9` branch end to end.
-          sed -i 's#com.android.tools.build:gradle:8.13.0#com.android.tools.build:gradle:9.1.1#' example/android/build.gradle
-          sed -i 's#com.android.application" version "8.13.0"#com.android.application" version "9.1.1"#' example/android/settings.gradle
-          sed -i 's#gradle-8.14.6-bin.zip#gradle-9.3.1-bin.zip#' example/android/gradle/wrapper/gradle-wrapper.properties
-          sed -i '/id "kotlin-android"/d' example/android/app/build.gradle
-          sed -i '/kotlinOptions {/,/}/d' example/android/app/build.gradle
+          # Flutter 3.41 predates the AGP 9 requirement. Restore the AGP 8.13.0 / Gradle 8.14.6
+          # setup the example had before it moved to AGP 9: the app applies kotlin-android itself
+          # and the AGP 9 flags are dropped. Each grep fails the step if a sed stops matching.
+          sed -i 's#com.android.tools.build:gradle:9.3.1#com.android.tools.build:gradle:8.13.0#' example/android/build.gradle
+          grep -q 'com.android.tools.build:gradle:8.13.0' example/android/build.gradle
+          sed -i 's#com.android.application" version "9.3.1"#com.android.application" version "8.13.0"#' example/android/settings.gradle
+          grep -q 'com.android.application" version "8.13.0"' example/android/settings.gradle
+          sed -i 's#gradle-9.5.0-bin.zip#gradle-8.14.6-bin.zip#' example/android/gradle/wrapper/gradle-wrapper.properties
+          grep -q 'gradle-8.14.6-bin.zip' example/android/gradle/wrapper/gradle-wrapper.properties
+          sed -i '/^android.newDsl=/d;/^android.builtInKotlin=/d' example/android/gradle.properties
+          sed -i 's#^    id "com.android.application"$#&\n    id "kotlin-android"#' example/android/app/build.gradle
+          grep -q 'id "kotlin-android"' example/android/app/build.gradle
+          printf '\nkotlin {\n    compilerOptions {\n        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17\n    }\n}\n' >> example/android/app/build.gradle
+
+      - name: Switch example to AGP 9 Built-in Kotlin
+        if: ${{ matrix.builtInKotlin }}
+        run: |
+          set -euxo pipefail
+          sed -i '/^android.newDsl=/d;/^android.builtInKotlin=/d' example/android/gradle.properties
+          if grep -qE '^android\.(newDsl|builtInKotlin)=' example/android/gradle.properties; then exit 1; fi
 
       - name: Flutter pub get (root)
         run: flutter pub get

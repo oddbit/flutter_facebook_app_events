@@ -1,0 +1,35 @@
+# AGENTS.md
+
+Guidance for AI coding agents (Claude Code, Codex and others) working in this repo. `CLAUDE.md` imports this file, so edit the guidance here and nowhere else.
+
+## Before making changes
+
+Read [`CONTRIBUTING.md`](CONTRIBUTING.md) and follow the guidelines in it. In particular, the **Release Process** section lists files that must stay in sync (e.g. `pubspec.yaml` and `ios/facebook_app_events.podspec` versions) — consult it before preparing a release or bumping the version.
+
+## Plugin architecture
+
+This plugin exposes Meta's Facebook App Events SDK to Flutter with an explicit 1:1 mapping between the Dart API and the native handlers. When adding, renaming, or modifying a method, keep the three layers in sync:
+
+- `lib/facebook_app_events.dart` — Dart API + MethodChannel invocation
+- `android/src/main/kotlin/.../FacebookAppEventsPlugin.kt` — Android handler
+- `ios/facebook_app_events/Sources/facebook_app_events/FacebookAppEventsPlugin.swift` — iOS handler
+
+The MethodChannel name is `flutter.oddbit.id/facebook_app_events`.
+
+Native error codes (`result.error("…")` in Kotlin, `FlutterError(code: "…")` in Swift) are exposed to apps as the `FacebookAppEventsErrorCode` enum in `lib/src/errors.dart`. When a handler sends a new code, add an enum value with that wire code, a row in the README "Handling errors" table, and an entry in the literal table in `test/errors_test.dart`. That test also scans both handlers for literal `result.error("…")` / `FlutterError(code: "…")` calls and fails on an unlisted code; it cannot see codes passed through constants or helpers, so keep them as literals at the call site. Wire strings that have shipped must not be renamed, since apps may still compare `PlatformException.code`. Every Dart method must call the channel through `FacebookAppEvents._invoke`, which does the conversion and is the only place that holds the `MethodChannel`.
+
+## Facebook SDK version policy
+
+The plugin follows the **major** version of the Facebook SDK (currently v19.x). Dependency ranges should stay major-only:
+
+- Android (`android/build.gradle`): `com.facebook.android:facebook-android-sdk:[19.0,20.0)`
+- iOS CocoaPods (`ios/facebook_app_events.podspec`): `FBSDKCoreKit`, `~> 19.0`
+- iOS SPM (`ios/facebook_app_events/Package.swift`): `"19.0.0"..<"20.0.0"`
+
+## Known platform divergence
+
+- `clearUserDataForType`: functional on iOS; no-op on Android (the Android `AppEventsLogger` has no per-field clear). Documented in the Dart dartdoc and README "Known Limitations".
+- Deferred SDK initialization (`FacebookAutoInitEnabled` on iOS, `com.facebook.sdk.AutoInitEnabled` on Android, `initializeSdk()` in Dart): on iOS the SDK is fully unconfigured until `initializeSdk()`, so the Swift handler gates every method call except `initializeSdk`/`setGraphApiVersion` (and the URL forwarders) behind a `isSdkInitialized` flag and returns `FlutterError(sdk_not_initialized)`; adding a new handler must keep it behind that gate unless its SDK call is verified safe pre-configuration. On Android `AutoInitEnabled=false` still runs `sdkInitialize`, so there is no deferred-init gate and `initializeSdk` maps to `FacebookSdk.fullyInitialize()` — never `setAutoInitEnabled(true)`, which persists and overrides the manifest. If the Android SDK is not initialized at all (`FacebookInitProvider` swallows a failed start, or the app removed the provider), `onMethodCall` converts the SDK's `FacebookSdkNotInitializedException` to the same `sdk_not_initialized` code, and `initializeSdk` is the only place the plugin calls `sdkInitialize` (failing with `sdk_initialization_failed`); never initialize implicitly, since the app may be holding the SDK back for consent. For the same reason nothing in `onAttachedToEngine` may throw, and the `AppEventsLogger` is created lazily.
+- `setUserData` uses merge semantics on both platforms: only fields present in the call are updated. The iOS handler deliberately skips absent keys because passing nil to the native setter would *clear* the field on iOS (Android ignores nulls).
+- Graph API version override: plugin forces `v24.0` at init on both platforms. The Android SDK still defaults to the removed `v16.0` in v19.0.0 (`ServerProtocol.getDefaultAPIVersion`); the iOS SDK has defaulted to `v26.0` since 18.1.1, but the pin is kept on both for consistent Graph behavior. Revisit when the Android SDK ships a corrected default.
+- Event parameters are validated in the Dart layer (`String`/`num`/`bool` only, bool sent as `"1"`/`"0"`) because the native SDKs silently drop events with other value types.

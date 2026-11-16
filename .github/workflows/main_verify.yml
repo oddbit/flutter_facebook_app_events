@@ -1,0 +1,14 @@
+name: Main verification
+
+# Runs the build verification on every push to `main`. Besides confirming that `main` builds
+# after a merge, this is what makes the Actions caches useful: a cache saved by a pull request
+# run can only be read by that pull request, while a cache saved on the default branch can be
+# read by every pull request.
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-verify:
+    uses: ./.github/workflows/build-verify.yml

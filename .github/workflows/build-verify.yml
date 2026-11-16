@@ -26,7 +26,9 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          cache: true
+          # The Flutter SDK is deliberately not cached (`cache: true`): each copy is 1.6-2 GB,
+          # which filled the repo's 10 GB Actions cache quota, and a fresh download takes about
+          # as long as restoring it.
 
       - run: flutter --version
 
@@ -98,7 +100,6 @@ jobs:
           channel: stable
           # Empty string → latest of the channel; otherwise pin to the floor version.
           flutter-version: ${{ matrix.flutter }}
-          cache: true
 
       - run: flutter --version
 
@@ -181,7 +182,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          cache: true
 
       - run: flutter --version
 
@@ -278,7 +278,6 @@ jobs:
           channel: stable
           # Empty string → latest of the channel; otherwise pin to the floor version.
           flutter-version: ${{ matrix.flutter }}
-          cache: true
 
       - run: flutter --version
 

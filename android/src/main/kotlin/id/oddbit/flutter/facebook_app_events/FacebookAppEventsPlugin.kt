@@ -12,6 +12,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import com.facebook.FacebookSdk
+import com.facebook.FacebookSdkNotInitializedException
 import com.facebook.appevents.AppEventsLogger
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
@@ -32,11 +33,10 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
 
   // Created on first use rather than at engine attach: `AppEventsLogger.newLogger` throws while the
   // SDK is not initialized, and an exception in `onAttachedToEngine` leaves the plugin registered
-  // but half set up. Only read from handlers, which run behind the gate in `onMethodCall`.
-  private var cachedAppEventsLogger: AppEventsLogger? = null
-  private val appEventsLogger: AppEventsLogger
-    get() = cachedAppEventsLogger
-      ?: AppEventsLogger.newLogger(FacebookSdk.getApplicationContext()).also { cachedAppEventsLogger = it }
+  // but half set up. `lazy` runs the initializer again on the next access if it threw.
+  private val appEventsLogger: AppEventsLogger by lazy(LazyThreadSafetyMode.NONE) {
+    AppEventsLogger.newLogger(FacebookSdk.getApplicationContext())
+  }
 
   private val logTag = "FacebookAppEvents"
 
@@ -59,9 +59,12 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter.oddbit.id/facebook_app_events")
     channel.setMethodCallHandler(this)
 
-    // Surface a failed SDK start in logcat once, at launch, rather than only when Dart first calls
-    // in. The same check runs again on every method call.
-    sdkInitializationError()?.let { Log.e(logTag, it) }
+    // The SDK normally initializes itself at process start. When it has not, say so here: this
+    // plugin never initializes it implicitly, only when Dart calls `initializeSdk()`.
+    if (!FacebookSdk.isInitialized()) {
+      Log.w(logTag, "The Facebook SDK is not initialized. Plugin calls that need it fail with " +
+          "sdk_not_initialized until initializeSdk() succeeds.")
+    }
   }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
@@ -71,18 +74,22 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
-    // Every handler below assumes an initialized SDK, and most SDK entry points throw
-    // FacebookSdkNotInitializedException without one. Reject with the same error code the iOS
-    // handler uses instead of letting that surface as an opaque platform exception.
-    // `setGraphApiVersion` only assigns a field, so it stays callable, as on iOS.
-    if (call.method != "setGraphApiVersion") {
-      val error = sdkInitializationError()
-      if (error != null) {
-        result.error("sdk_not_initialized", error, null)
-        return
-      }
+    // Most SDK entry points throw FacebookSdkNotInitializedException on an SDK that never
+    // initialized. Report that under the error code the iOS handler uses for the same state
+    // rather than as an opaque platform exception. Calls that do not need an initialized SDK,
+    // such as the persisted privacy toggles, are unaffected.
+    try {
+      dispatch(call, result)
+    } catch (e: FacebookSdkNotInitializedException) {
+      result.error(
+        "sdk_not_initialized",
+        "The Facebook SDK is not initialized. It normally initializes itself when the app " +
+            "starts; call initializeSdk() to initialize it, or to get the reason it cannot.",
+        null)
     }
+  }
 
+  private fun dispatch(call: MethodCall, result: Result) {
     when (call.method) {
       "initializeSdk" -> handleInitializeSdk(call, result)
       "activateApp" -> handleActivateApp(call, result)
@@ -116,63 +123,44 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     }
   }
 
-  /**
-   * Returns null when the Facebook SDK is initialized, otherwise a message saying why it is not.
-   *
-   * The SDK initializes itself at process start through `FacebookInitProvider`, which swallows any
-   * failure (a missing app id or client token, typically) and only logs it at info level. The app
-   * then runs with an SDK that rejects nearly every call. When that has happened, this runs the
-   * same initialization again: it recovers if the cause was transient, and otherwise yields the
-   * SDK's own explanation to hand back to Dart.
-   *
-   * `sdkInitialize` is deprecated only because the SDK normally calls it itself; it is still the
-   * documented manual entry point. It honors `com.facebook.sdk.AutoInitEnabled`, so retrying it
-   * does not fully initialize an SDK the app has deferred.
-   */
+  // `sdkInitialize` is deprecated only because the SDK normally calls it itself at process start;
+  // it remains the documented way to initialize manually.
   @Suppress("DEPRECATION")
-  private fun sdkInitializationError(): String? {
-    if (FacebookSdk.isInitialized()) {
-      return null
-    }
-    val context = applicationContext
-    val cause = if (context == null) {
-      "Android context is missing"
-    } else {
+  private fun handleInitializeSdk(call: MethodCall, result: Result) {
+    // The SDK initializes itself at process start through `FacebookInitProvider`, which swallows
+    // any failure (a missing app id or client token, typically) and only logs it at info level.
+    // An app can also remove that provider to keep the SDK off. Either way the SDK is then not
+    // initialized at all, and this explicit call is the only place the plugin initializes it:
+    // doing so implicitly would start an SDK the app may be holding back for consent.
+    if (!FacebookSdk.isInitialized()) {
+      val context = applicationContext
+      if (context == null) {
+        result.error("missing_context", "could not initialize the SDK: Android context is missing", null)
+        return
+      }
       try {
         FacebookSdk.sdkInitialize(context)
-        null
       } catch (e: Exception) {
-        e.message ?: e.javaClass.simpleName
+        // `sdkInitialize` marks the SDK initialized before its last steps, so a late failure
+        // leaves a usable SDK. Only an SDK that is still uninitialized is an error.
+        if (!FacebookSdk.isInitialized()) {
+          result.error("sdk_initialization_failed", e.message ?: e.javaClass.simpleName, null)
+          return
+        }
+        Log.w(logTag, "The Facebook SDK initialized, but not all of its startup steps ran", e)
       }
     }
-    // `sdkInitialize` marks the SDK initialized before its last steps, so trust the flag over
-    // whether it threw.
-    if (FacebookSdk.isInitialized()) {
-      return null
-    }
-    return "The Facebook SDK is not initialized: ${cause ?: "unknown reason"}. " +
-        "Check that com.facebook.sdk.ApplicationId and com.facebook.sdk.ClientToken are set in " +
-        "AndroidManifest.xml."
-  }
 
-  private fun handleInitializeSdk(call: MethodCall, result: Result) {
-    // Counterpart to the iOS `initializeSdk` for apps that set
-    // `com.facebook.sdk.AutoInitEnabled` to `false` in the manifest. On
-    // Android that flag does not keep the SDK asleep: FacebookInitProvider
-    // still runs `sdkInitialize` at process start (app id and client token
-    // are loaded, `isInitialized()` is true, and this plugin's handlers work),
-    // it only skips `fullyInitialize()`. So this is the one call that is
-    // missing, and it is idempotent.
+    // The common case: `com.facebook.sdk.AutoInitEnabled` is `false` in the manifest. On Android
+    // that flag does not keep the SDK asleep: `sdkInitialize` still runs at process start (app id
+    // and client token are loaded, `isInitialized()` is true, and this plugin's handlers work),
+    // it only skips `fullyInitialize()`. So this is the one call that is missing, and it is
+    // idempotent.
     //
-    // `fullyInitialize()` only sets a flag and checks nothing, so on its own
-    // it would report success on an SDK whose `sdkInitialize` failed. The
-    // gate in `onMethodCall` has already ruled that out by the time this runs.
-    //
-    // Deliberately NOT `FacebookSdk.setAutoInitEnabled(true)`: that persists
-    // the flag to SharedPreferences, and `UserSettingsManager` reads the
-    // persisted value before the manifest, so a single call would override
-    // `AutoInitEnabled=false` on every later launch even after the user
-    // withdraws consent.
+    // Deliberately NOT `FacebookSdk.setAutoInitEnabled(true)`: that persists the flag to
+    // SharedPreferences, and `UserSettingsManager` reads the persisted value before the manifest,
+    // so a single call would override `AutoInitEnabled=false` on every later launch even after
+    // the user withdraws consent.
     FacebookSdk.fullyInitialize()
     result.success(null)
   }

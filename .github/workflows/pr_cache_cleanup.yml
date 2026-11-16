@@ -1,0 +1,36 @@
+name: PR cache cleanup
+
+# Deletes the Actions caches a pull request created once it is merged or closed. They are scoped
+# to the pull request's merge ref, so nothing can read them afterwards, yet they keep counting
+# against the repository's 10 GB cache quota until GitHub evicts them.
+#
+# `pull_request_target` (not `pull_request`) so the token may delete caches for pull requests
+# from forks too. This is safe here because the job never checks out or runs pull request code.
+on:
+  pull_request_target:
+    types: [closed]
+
+jobs:
+  cleanup:
+    name: Delete caches of the closed pull request
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - name: Delete caches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          CACHE_REF: refs/pull/${{ github.event.pull_request.number }}/merge
+        run: |
+          set -euo pipefail
+          ids="$(gh cache list --ref "$CACHE_REF" --limit 100 --json id --jq '.[].id')"
+          if [ -z "$ids" ]; then
+            echo "No caches for $CACHE_REF."
+            exit 0
+          fi
+          for id in $ids; do
+            # A cache can be evicted between the listing and the delete; that is not a failure.
+            gh cache delete "$id" || echo "::warning::Could not delete cache $id"
+          done

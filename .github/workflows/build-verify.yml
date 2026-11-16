@@ -26,7 +26,9 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          cache: true
+          # The Flutter SDK is deliberately not cached (`cache: true`): each copy is 1.6-2 GB,
+          # which filled the repo's 10 GB Actions cache quota, and a fresh download takes about
+          # as long as restoring it.
 
       - run: flutter --version
 
@@ -98,9 +100,34 @@ jobs:
           channel: stable
           # Empty string → latest of the channel; otherwise pin to the floor version.
           flutter-version: ${{ matrix.flutter }}
-          cache: true
 
       - run: flutter --version
+
+      - name: Install the NDK that Flutter asks for (with retries)
+        run: |
+          set -euo pipefail
+          # The runner image does not ship the NDK version Flutter pins, so AGP downloads it
+          # during the build, in a single attempt. A corrupt download then fails the job with
+          # "Error reading Zip content from a SeekableByteChannel". Install it here instead,
+          # where a bad download can be thrown away and retried.
+          flutter_root="$(flutter --version --machine | jq -r .flutterRoot)"
+          ndk="$(sed -nE 's/.*ndkVersion: String = "([0-9.]+)".*/\1/p' \
+            "$flutter_root/packages/flutter_tools/gradle/src/main/kotlin/FlutterExtension.kt" | head -n1)"
+          if [ -z "$ndk" ]; then
+            echo "::warning::Could not read Flutter's NDK version; leaving the NDK install to the build."
+            exit 0
+          fi
+          ndk_dir="$ANDROID_HOME/ndk/$ndk"
+          for attempt in 1 2 3; do
+            if [ -f "$ndk_dir/source.properties" ]; then
+              echo "NDK $ndk is installed."
+              exit 0
+            fi
+            echo "Installing NDK $ndk (attempt $attempt of 3)"
+            rm -rf "$ndk_dir"
+            "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;$ndk" > /dev/null || true
+          done
+          [ -f "$ndk_dir/source.properties" ] || { echo "::error::NDK $ndk could not be installed"; exit 1; }
 
       - name: Switch example back to the AGP 8 toolchain (floor cell)
         if: ${{ matrix.agp8 }}
@@ -155,7 +182,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          cache: true
 
       - run: flutter --version
 
@@ -252,7 +278,6 @@ jobs:
           channel: stable
           # Empty string → latest of the channel; otherwise pin to the floor version.
           flutter-version: ${{ matrix.flutter }}
-          cache: true
 
       - run: flutter --version
 

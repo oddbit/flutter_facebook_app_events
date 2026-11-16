@@ -29,8 +29,14 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
-  private lateinit var appEventsLogger: AppEventsLogger
-  private lateinit var anonymousId: String
+
+  // Created on first use rather than at engine attach: `AppEventsLogger.newLogger` throws while the
+  // SDK is not initialized, and an exception in `onAttachedToEngine` leaves the plugin registered
+  // but half set up. Only read from handlers, which run behind the gate in `onMethodCall`.
+  private var cachedAppEventsLogger: AppEventsLogger? = null
+  private val appEventsLogger: AppEventsLogger
+    get() = cachedAppEventsLogger
+      ?: AppEventsLogger.newLogger(FacebookSdk.getApplicationContext()).also { cachedAppEventsLogger = it }
 
   private val logTag = "FacebookAppEvents"
 
@@ -38,13 +44,8 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   private var applicationContext: Context? = null
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter.oddbit.id/facebook_app_events")
-    channel.setMethodCallHandler(this)
-
     applicationContext = flutterPluginBinding.applicationContext
     application = flutterPluginBinding.applicationContext.applicationContext as? Application
-    appEventsLogger = AppEventsLogger.newLogger(flutterPluginBinding.applicationContext)
-    anonymousId = AppEventsLogger.getAnonymousAppDeviceGUID(flutterPluginBinding.applicationContext)
 
     // Override the Graph API version because the Facebook Android SDK still defaults to v16.0
     // (unchanged in v19.0.0, see ServerProtocol.getDefaultAPIVersion), which was removed by Meta on
@@ -53,6 +54,14 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     // Note: the SDK emits a Log.w in release builds when this is called, but the version is
     // still applied. This is intentional and correct behavior for a plugin.
     FacebookSdk.setGraphApiVersion("v24.0")
+
+    // Nothing above can throw, so the handler is only installed on a fully set up plugin.
+    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter.oddbit.id/facebook_app_events")
+    channel.setMethodCallHandler(this)
+
+    // Surface a failed SDK start in logcat once, at launch, rather than only when Dart first calls
+    // in. The same check runs again on every method call.
+    sdkInitializationError()?.let { Log.e(logTag, it) }
   }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
@@ -62,6 +71,18 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
+    // Every handler below assumes an initialized SDK, and most SDK entry points throw
+    // FacebookSdkNotInitializedException without one. Reject with the same error code the iOS
+    // handler uses instead of letting that surface as an opaque platform exception.
+    // `setGraphApiVersion` only assigns a field, so it stays callable, as on iOS.
+    if (call.method != "setGraphApiVersion") {
+      val error = sdkInitializationError()
+      if (error != null) {
+        result.error("sdk_not_initialized", error, null)
+        return
+      }
+    }
+
     when (call.method) {
       "initializeSdk" -> handleInitializeSdk(call, result)
       "activateApp" -> handleActivateApp(call, result)
@@ -95,6 +116,45 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     }
   }
 
+  /**
+   * Returns null when the Facebook SDK is initialized, otherwise a message saying why it is not.
+   *
+   * The SDK initializes itself at process start through `FacebookInitProvider`, which swallows any
+   * failure (a missing app id or client token, typically) and only logs it at info level. The app
+   * then runs with an SDK that rejects nearly every call. When that has happened, this runs the
+   * same initialization again: it recovers if the cause was transient, and otherwise yields the
+   * SDK's own explanation to hand back to Dart.
+   *
+   * `sdkInitialize` is deprecated only because the SDK normally calls it itself; it is still the
+   * documented manual entry point. It honors `com.facebook.sdk.AutoInitEnabled`, so retrying it
+   * does not fully initialize an SDK the app has deferred.
+   */
+  @Suppress("DEPRECATION")
+  private fun sdkInitializationError(): String? {
+    if (FacebookSdk.isInitialized()) {
+      return null
+    }
+    val context = applicationContext
+    val cause = if (context == null) {
+      "Android context is missing"
+    } else {
+      try {
+        FacebookSdk.sdkInitialize(context)
+        null
+      } catch (e: Exception) {
+        e.message ?: e.javaClass.simpleName
+      }
+    }
+    // `sdkInitialize` marks the SDK initialized before its last steps, so trust the flag over
+    // whether it threw.
+    if (FacebookSdk.isInitialized()) {
+      return null
+    }
+    return "The Facebook SDK is not initialized: ${cause ?: "unknown reason"}. " +
+        "Check that com.facebook.sdk.ApplicationId and com.facebook.sdk.ClientToken are set in " +
+        "AndroidManifest.xml."
+  }
+
   private fun handleInitializeSdk(call: MethodCall, result: Result) {
     // Counterpart to the iOS `initializeSdk` for apps that set
     // `com.facebook.sdk.AutoInitEnabled` to `false` in the manifest. On
@@ -103,6 +163,10 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     // are loaded, `isInitialized()` is true, and this plugin's handlers work),
     // it only skips `fullyInitialize()`. So this is the one call that is
     // missing, and it is idempotent.
+    //
+    // `fullyInitialize()` only sets a flag and checks nothing, so on its own
+    // it would report success on an SDK whose `sdkInitialize` failed. The
+    // gate in `onMethodCall` has already ruled that out by the time this runs.
     //
     // Deliberately NOT `FacebookSdk.setAutoInitEnabled(true)`: that persists
     // the flag to SharedPreferences, and `UserSettingsManager` reads the
@@ -168,14 +232,14 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
 
   private fun handleGetApplicationId(call: MethodCall, result: Result) {
     // Read the live SDK setting rather than `appEventsLogger.applicationId`,
-    // which is captured when the logger is created at engine attach and would
+    // which is captured when the logger is first created and would
     // go stale if the app id is changed programmatically afterwards. This
     // matches the iOS handler, which reads `Settings.shared.appID`.
     result.success(FacebookSdk.getApplicationId())
   }
 
   private fun handleGetAnonymousId(call: MethodCall, result: Result) {
-    result.success(anonymousId)
+    result.success(AppEventsLogger.getAnonymousAppDeviceGUID(FacebookSdk.getApplicationContext()))
   }
 
   private fun handleSetGraphApiVersion(call: MethodCall, result: Result) {

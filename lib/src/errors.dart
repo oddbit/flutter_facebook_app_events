@@ -11,6 +11,10 @@ import 'package:flutter/services.dart';
 /// Why a [FacebookAppEvents] call failed, as reported by the native handler.
 ///
 /// Read it from [FacebookAppEventsException.errorCode].
+///
+/// New values are added when the native handlers start reporting new errors,
+/// and an error reported as [unknown] today may get its own value later. Keep
+/// a wildcard (`_`) or `default` branch when you `switch` over this enum.
 enum FacebookAppEventsErrorCode {
   /// An argument was missing or malformed, for example a currency that is not
   /// a valid ISO 4217 code. The exception message says which one.
@@ -74,6 +78,18 @@ enum FacebookAppEventsErrorCode {
 /// }
 /// ```
 class FacebookAppEventsException extends PlatformException {
+  /// Creates an exception for [errorCode], for example to simulate a failure
+  /// in a test double of [FacebookAppEvents].
+  ///
+  /// [code] is set to the matching wire code, or to `unknown` for
+  /// [FacebookAppEventsErrorCode.unknown].
+  FacebookAppEventsException(
+    this.errorCode, {
+    super.message,
+    super.details,
+    super.stacktrace,
+  }) : super(code: errorCode.wireCode ?? 'unknown');
+
   /// Wraps the [PlatformException] received from the native handler.
   FacebookAppEventsException.fromPlatformException(PlatformException exception)
       : errorCode = FacebookAppEventsErrorCode.fromWireCode(exception.code),
@@ -84,8 +100,9 @@ class FacebookAppEventsException extends PlatformException {
           stacktrace: exception.stacktrace,
         );
 
-  /// The typed reason for the failure. [code] holds the same information as
-  /// the raw string sent by the native handler.
+  /// The typed reason for the failure. Compare this, not [code]: [code] is
+  /// the raw string sent by the native handler (for example
+  /// `sdk_not_initialized`), which does not match the enum value's name.
   final FacebookAppEventsErrorCode errorCode;
 
   @override

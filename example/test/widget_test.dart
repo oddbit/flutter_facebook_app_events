@@ -62,6 +62,38 @@ void main() {
     expect(find.text('Anonymous ID: anon-123'), findsOneWidget);
   });
 
+  testWidgets('Consent button shows why the SDK could not start',
+      (WidgetTester tester) async {
+    const channel = MethodChannel(channelName);
+    final calls = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      channel,
+      (MethodCall call) async {
+        calls.add(call.method);
+        throw PlatformException(
+          code: 'sdk_initialization_failed',
+          message: 'client token missing',
+        );
+      },
+    );
+    addTearDown(() => tester.binding.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, null));
+
+    await tester.pumpWidget(MyApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Initialize SDK (consent given)'));
+    await tester.pumpAndSettle();
+
+    // The anonymous ID is not read after a failed initialization.
+    expect(calls, ['initializeSdk']);
+    expect(
+      find.text('The Facebook SDK could not start: client token missing'),
+      findsOneWidget,
+    );
+    expect(find.text('SDK not initialized'), findsOneWidget);
+  });
+
   testWidgets('Button text content', (WidgetTester tester) async {
     await tester.pumpWidget(MyApp());
     await tester.pumpAndSettle();

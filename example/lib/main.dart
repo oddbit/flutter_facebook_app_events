@@ -171,8 +171,9 @@ class MyApp extends StatelessWidget {
 /// `com.facebook.sdk.AutoInitEnabled` in `AndroidManifest.xml`), the way a
 /// consent-gated app would. Nothing below the button works on iOS until it has
 /// been pressed: every other call fails with a [FacebookAppEventsException]
-/// whose code is [FacebookAppEventsErrorCode.sdkNotInitialized]. The anonymous ID is only read after initialization
-/// because reading it creates and persists the ID on iOS.
+/// whose `errorCode` is [FacebookAppEventsErrorCode.sdkNotInitialized]. The
+/// anonymous ID is only read after initialization because reading it creates
+/// and persists the ID on iOS.
 class _ConsentGate extends StatefulWidget {
   const _ConsentGate();
 
@@ -194,9 +195,11 @@ class _ConsentGateState extends State<_ConsentGate> {
           'The Facebook SDK could not start: ${e.message}',
         _ => 'initializeSdk failed (${e.errorCode.name}): ${e.message}',
       };
+      if (!mounted) return;
       setState(() => _error = reason);
       return;
     }
+    if (!mounted) return;
     setState(() {
       _error = null;
       _anonymousId = MyApp.facebookAppEvents.getAnonymousId();

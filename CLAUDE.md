@@ -16,6 +16,8 @@ This plugin exposes Meta's Facebook App Events SDK to Flutter with an explicit 1
 
 The MethodChannel name is `flutter.oddbit.id/facebook_app_events`.
 
+Native error codes (`result.error("…")` in Kotlin, `FlutterError(code: "…")` in Swift) are exposed to apps as the `FacebookAppEventsErrorCode` enum in `lib/src/errors.dart`. When a handler sends a new code, add an enum value with that wire code; `test/errors_test.dart` scans both handlers and fails otherwise. Wire strings that have shipped must not be renamed, since apps may still compare `PlatformException.code`. Every Dart method must call the channel through `FacebookAppEvents._invoke`, which does the conversion.
+
 ## Facebook SDK version policy
 
 The plugin follows the **major** version of the Facebook SDK (currently v19.x). Dependency ranges should stay major-only:

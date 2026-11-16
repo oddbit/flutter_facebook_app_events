@@ -220,6 +220,14 @@ Because the exact version is resolved at build time rather than pinned here, two
 
 Full diagnosis, split by layer (configuration, transport, attribution), with per-platform verification steps: [events not showing in Events Manager](https://oddb.it/fbae-guide-not-landing).
 
+### `sdk_not_initialized` on Android
+
+On Android the Facebook SDK initializes itself when the app process starts. If that fails, the SDK only writes an info-level `Failed to auto initialize the Facebook SDK` line to logcat and the app keeps running. Plugin calls that need the SDK, such as `logEvent`, then fail with a `PlatformException` of code `sdk_not_initialized`. Before this was handled, the same situation surfaced as `lateinit property appEventsLogger has not been initialized`.
+
+Call `initializeSdk()` to find out why. It runs the SDK's initialization again; if that fails too, it throws a `PlatformException` of code `sdk_initialization_failed` whose message is the SDK's own reason. The usual one is that `com.facebook.sdk.ApplicationId` or `com.facebook.sdk.ClientToken` could not be read from `AndroidManifest.xml` (see [Configure Android](#configure-android)). The plugin never initializes the SDK by itself: only `initializeSdk()` does, so an app that keeps the SDK off until consent is not overridden.
+
+Remember to `await` plugin calls inside your `try` block. An un-awaited call that fails is reported as an unhandled error instead of reaching your `catch`.
+
 ### Facebook Event Manager "Please Upgrade SDK" warning
 
 When setting up codeless events in Facebook Event Manager, you may encounter a warning message stating:

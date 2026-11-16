@@ -114,6 +114,14 @@ class FacebookAppEvents {
   ///   `FacebookSdk.setAutoInitEnabled(true)`, which the native SDK persists
   ///   and which would override the manifest setting on later launches.
   ///
+  /// On Android the SDK can also be not initialized at all, because its
+  /// automatic start failed (usually a missing app id or client token in
+  /// `AndroidManifest.xml`) or because the app removed the SDK's init
+  /// provider. Calls that need the SDK then fail with `sdk_not_initialized`,
+  /// as on iOS, and this method initializes it. If that fails, it throws a
+  /// `PlatformException` of code `sdk_initialization_failed` whose message is
+  /// the SDK's reason.
+  ///
   /// Follow it with [activateApp] if you have also turned automatic event
   /// logging off.
   Future<void> initializeSdk() {

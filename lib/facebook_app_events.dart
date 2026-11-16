@@ -114,6 +114,12 @@ class FacebookAppEvents {
   ///   `FacebookSdk.setAutoInitEnabled(true)`, which the native SDK persists
   ///   and which would override the manifest setting on later launches.
   ///
+  /// On Android a `PlatformException` of code `sdk_not_initialized` means
+  /// something else: the SDK failed to start at all, usually because the app
+  /// id or client token is missing from `AndroidManifest.xml`. This method
+  /// and every other one except [setGraphApiVersion] then fail with that
+  /// code, and the exception message carries the SDK's reason.
+  ///
   /// Follow it with [activateApp] if you have also turned automatic event
   /// logging off.
   Future<void> initializeSdk() {

@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Guidance for AI coding agents (Claude Code, Codex and others) working in this repo. `CLAUDE.md` imports this file, so edit the guidance here and nowhere else.
+Guidance for AI coding agents (Claude Code, Codex and others) working in this repo. This is the only guidance file: Claude Code reads `AGENTS.md` when there is no `CLAUDE.md`, so do not add one.
 
 ## Before making changes
 

@@ -15,26 +15,39 @@ void main() {
         .setMockMethodCallHandler(channel, (MethodCall m) async => throw error);
   }
 
+  // The wire strings are public: apps may compare `PlatformException.code`
+  // against them. Spelled out here, not derived from the enum, so a renamed or
+  // swapped wire code fails a test.
+  const wireCodes = <String, FacebookAppEventsErrorCode>{
+    'INVALID_ARGUMENT': FacebookAppEventsErrorCode.invalidArgument,
+    'sdk_not_initialized': FacebookAppEventsErrorCode.sdkNotInitialized,
+    'sdk_initialization_failed':
+        FacebookAppEventsErrorCode.sdkInitializationFailed,
+    'missing_context': FacebookAppEventsErrorCode.missingContext,
+    'missing_application': FacebookAppEventsErrorCode.missingApplication,
+  };
+
   tearDown(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);
   });
 
   group('FacebookAppEventsErrorCode', () {
-    test('wire codes are unique', () {
-      final wireCodes = FacebookAppEventsErrorCode.values
-          .map((value) => value.wireCode)
-          .whereType<String>()
-          .toList();
-      expect(wireCodes.toSet(), hasLength(wireCodes.length));
+    test('every value has the wire code that has shipped', () {
+      expect(
+        {
+          for (final value in FacebookAppEventsErrorCode.values)
+            if (value.wireCode != null) value.wireCode: value,
+        },
+        wireCodes,
+      );
+      expect(FacebookAppEventsErrorCode.unknown.wireCode, isNull);
     });
 
-    test('fromWireCode maps every known wire code back to its value', () {
-      for (final value in FacebookAppEventsErrorCode.values) {
-        final wireCode = value.wireCode;
-        if (wireCode == null) continue;
+    test('fromWireCode maps each wire code to its value', () {
+      wireCodes.forEach((wireCode, value) {
         expect(FacebookAppEventsErrorCode.fromWireCode(wireCode), value);
-      }
+      });
     });
 
     test('fromWireCode falls back to unknown', () {
@@ -74,6 +87,20 @@ void main() {
         );
       });
     });
+  });
+
+  // Every plugin method must reach the channel through the one wrapper that
+  // converts errors. The channel exists only inside that wrapper; this fails
+  // if a second `invokeMethod` call appears anywhere in lib/.
+  test('lib/ calls the method channel in exactly one place', () {
+    final calls = Directory('lib')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.dart'))
+        .expand((file) =>
+            RegExp(r'\binvokeMethod\b').allMatches(file.readAsStringSync()))
+        .length;
+    expect(calls, 1);
   });
 
   group('FacebookAppEventsException', () {
@@ -117,19 +144,59 @@ void main() {
     });
 
     test('maps each known wire code', () async {
-      for (final value in FacebookAppEventsErrorCode.values) {
-        final wireCode = value.wireCode;
-        if (wireCode == null) continue;
+      for (final MapEntry(key: wireCode, value: value) in wireCodes.entries) {
         failWith(PlatformException(code: wireCode));
 
         await expectLater(
           facebookAppEvents.flush(),
           throwsA(
             isA<FacebookAppEventsException>()
-                .having((e) => e.errorCode, 'errorCode', value),
+                .having((e) => e.errorCode, 'errorCode', value)
+                .having((e) => e.code, 'code', wireCode),
           ),
         );
       }
+    });
+
+    // Checked on the constructor: the test binding's mock channel drops the
+    // `stacktrace` field when it encodes a thrown PlatformException.
+    test('forwards the native stack trace', () {
+      final exception = FacebookAppEventsException.fromPlatformException(
+        PlatformException(
+          code: 'error',
+          message: 'boom',
+          stacktrace: 'java.lang.IllegalStateException: boom',
+        ),
+      );
+      expect(exception.stacktrace, 'java.lang.IllegalStateException: boom');
+    });
+
+    test('keeps the Dart stack trace of the failed channel call', () async {
+      failWith(PlatformException(code: 'sdk_not_initialized'));
+
+      late StackTrace rethrown;
+      try {
+        await facebookAppEvents.flush();
+        fail('flush should have thrown');
+      } on FacebookAppEventsException catch (_, stackTrace) {
+        rethrown = stackTrace;
+      }
+      // A plain `throw` inside the wrapper would start the trace at the
+      // wrapper; the original one comes from the channel's own decoding.
+      expect(rethrown.toString(), contains('invokeMethod'));
+    });
+
+    test('can be created from an error code', () {
+      final exception = FacebookAppEventsException(
+        FacebookAppEventsErrorCode.sdkNotInitialized,
+        message: 'not yet',
+      );
+      expect(exception.code, 'sdk_not_initialized');
+      expect(exception.message, 'not yet');
+      expect(
+        FacebookAppEventsException(FacebookAppEventsErrorCode.unknown).code,
+        'unknown',
+      );
     });
 
     test('keeps the raw code when it is not a known one', () async {

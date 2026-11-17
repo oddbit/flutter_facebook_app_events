@@ -24,22 +24,27 @@ void main() {
     multiLine: true,
   );
 
-  test('plugin android/build.gradle does not apply KGP via a DSL form (issue #492)', () {
+  test(
+      'plugin android/build.gradle does not apply KGP via a DSL form (issue #492)',
+      () {
     final file = File('android/build.gradle');
-    expect(file.existsSync(), isTrue, reason: 'android/build.gradle should exist');
+    expect(file.existsSync(), isTrue,
+        reason: 'android/build.gradle should exist');
     final text = file.readAsStringSync();
 
     expect(
       legacyApply.hasMatch(text),
       isFalse,
-      reason: 'android/build.gradle applies KGP via `apply plugin: "kotlin-android"`; Flutter 3.44+ '
+      reason:
+          'android/build.gradle applies KGP via `apply plugin: "kotlin-android"`; Flutter 3.44+ '
           'flags this. Use the imperative `project.pluginManager.apply("kotlin-android")` form '
           'guarded by `agpMajor < 9` instead (see issue #492).',
     );
     expect(
       pluginsBlockId.hasMatch(text),
       isFalse,
-      reason: 'android/build.gradle applies KGP via a `plugins { id "kotlin-android" }` block; '
+      reason:
+          'android/build.gradle applies KGP via a `plugins { id "kotlin-android" }` block; '
           'Flutter 3.44+ flags this. Use the imperative `project.pluginManager.apply(...)` form '
           'guarded by `agpMajor < 9` instead (see issue #492).',
     );

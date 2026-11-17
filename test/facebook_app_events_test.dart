@@ -118,7 +118,8 @@ void main() {
       );
     });
 
-    test('logCompletedRegistration handles custom parameters and overrides', () async {
+    test('logCompletedRegistration handles custom parameters and overrides',
+        () async {
       await facebookAppEvents.logCompletedRegistration(
         registrationMethod: 'email',
         parameters: {
@@ -530,7 +531,8 @@ void main() {
       );
     });
 
-    test('setDataProcessingOptions throws RangeError for values that do not '
+    test(
+        'setDataProcessingOptions throws RangeError for values that do not '
         'fit in 32 bits', () {
       expect(
         () => facebookAppEvents.setDataProcessingOptions(
@@ -840,8 +842,7 @@ void main() {
     });
 
     test('clearUserDataForType forwards field token', () async {
-      await facebookAppEvents
-          .clearUserDataForType(FacebookUserDataField.email);
+      await facebookAppEvents.clearUserDataForType(FacebookUserDataField.email);
       expect(
         methodCall,
         isMethodCall('clearUserDataForType', arguments: 'email'),

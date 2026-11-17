@@ -13,8 +13,20 @@ Flutter plugin for [Facebook App Events](https://oddb.it/rhg), Meta's app measur
 ## Documentation
 
 - Plugin API reference (auto-generated): [pub.dev/documentation/facebook_app_events/latest](https://oddb.it/gie)
-- Flutter integration guides: [oddbit.id guides for this plugin](https://oddb.it/fbae-guides)
+- Guides, troubleshooting and background: [oddbit.id guides for this plugin](https://oddb.it/fbae-guides)
 - Meta App Events overview: [developers.facebook.com/docs/app-events](https://oddb.it/rhg). What that surface maps to in Flutter, and what it leaves to your app: [what Facebook App Events covers in Flutter](https://oddb.it/fbae-guide-app-events)
+
+This README is the quick start. The reasoning behind each setting, platform differences in depth, and what to do when something does not work are in the [guides](https://oddb.it/fbae-guides).
+
+## Requirements
+
+| | Minimum |
+| --- | --- |
+| Flutter | 3.41.0 |
+| iOS deployment target | 15.0 |
+| Xcode | 26.4 |
+
+On an older Xcode the build fails inside the Facebook SDK with errors that do not mention Xcode: [Facebook SDK `.swiftinterface` build errors](https://oddb.it/fbae-guide-xcode).
 
 ## Setting things up
 
@@ -22,9 +34,8 @@ You must first create an app at Facebook for developers: [developers.facebook.co
 
 1. Get your app id (referred to as `[APP_ID]` below)
 2. Get your client token (referred to as `[CLIENT_TOKEN]` below).
-   See "[Facebook Doc: Client Tokens](https://oddb.it/jex)" for more information and how to obtain it.
-   The token is not a secret and it is not the app id, and it goes in a different file on each platform. Which file, and what fails when it is missing or wrong: [where the Facebook client token goes](https://oddb.it/fbae-guide-client-token).
-
+   See "[Facebook Doc: Client Tokens](https://oddb.it/jex)" for how to obtain it.
+   It is not the app id, and it goes in a different file on each platform: [where the Facebook client token goes](https://oddb.it/fbae-guide-client-token).
 
 ### Configure Android
 
@@ -53,21 +64,7 @@ After that, add that string resource reference to your main `AndroidManifest.xml
 
 ### Configure iOS
 
-Building requires **Xcode 26.4 or newer** (see [the build errors older versions give](#ios-build-fails-in-the-facebook-sdks-swiftinterface-files)).
-
-This plugin requires **iOS 15.0 or newer**, the minimum of the Facebook iOS SDK v19. If your app targets an older version, raise `IPHONEOS_DEPLOYMENT_TARGET` to `15.0` in `ios/Runner.xcodeproj` (Runner target → General → Minimum Deployments) and, if your `ios/Podfile` has an uncommented `platform :ios, ...` line, set it to `'15.0'` as well. Otherwise CocoaPods or Swift Package Manager will refuse to resolve the Facebook SDK.
-
-**Upgrading from a plugin version built on Facebook SDK 18.x (0.31.x or older) with CocoaPods:** your app's `ios/Podfile.lock` still pins `FBSDKCoreKit` 18.x, and `pod install` does not move a plugin's transitive dependency when the plugin's constraint changes. The build stops with "changed the constraints of dependency `FBSDKCoreKit` inside your development pod `facebook_app_events`", and the `pod repo update` hint Flutter prints does not fix it. After upgrading, run this once:
-
-```bash
-cd ios && pod update FBSDKCoreKit
-```
-
-This also releases `FBAEMKit` and `FBSDKCoreKit_Basics`, which are pinned through `FBSDKCoreKit`.
-
-Read through the "[Getting Started with App Events for iOS](https://oddb.it/77p)" and "[Getting Started with the Facebook SDK for iOS](https://oddb.it/hei)" guides. In particular, follow [step 5](https://oddb.it/279) by opening `Info.plist` "As Source Code" and add the following
-
-- If your code does not have `CFBundleURLTypes`, add the following just before the final `</dict>` element:
+Follow [step 5 of Meta's iOS guide](https://oddb.it/279): open `Info.plist` "As Source Code" and add the following just before the final `</dict>` element. If the file already has a `CFBundleURLTypes` array, add the `<dict>` to it instead of adding a second array.
 
 ```xml
 <key>CFBundleURLTypes</key>
@@ -87,47 +84,32 @@ Read through the "[Getting Started with App Events for iOS](https://oddb.it/77p)
 <string>[APP_NAME]</string>
 ```
 
-- If your code already contains `CFBundleURLTypes`, insert the following:
+If your app targets an iOS version below 15.0, raise `IPHONEOS_DEPLOYMENT_TARGET` to `15.0` in `ios/Runner.xcodeproj` and, if your `ios/Podfile` has an uncommented `platform :ios, ...` line, set it to `'15.0'` as well.
 
-```xml
-<array>
- <dict>
- <key>CFBundleURLSchemes</key>
- <array>
-   <string>fb[APP_ID]</string>
- </array>
- </dict>
-</array>
-<key>FacebookAppID</key>
-<string>[APP_ID]</string>
-<key>FacebookClientToken</key>
-<string>[CLIENT_TOKEN]</string>
-<key>FacebookDisplayName</key>
-<string>[APP_NAME]</string>
+The plugin works with both **Swift Package Manager** (the Flutter default since 3.44) and **CocoaPods**, and with both the `UIScene` and the legacy app-delegate lifecycle, without extra configuration. Which integration your build uses, and how to switch: [Swift Package Manager setup for this plugin](https://oddb.it/fbae-guide-spm).
+
+**Upgrading with CocoaPods across a Facebook SDK major** (for example from plugin 0.31.x): run `cd ios && pod update FBSDKCoreKit` once. Otherwise the build stops with "changed the constraints of dependency `FBSDKCoreKit`".
+
+## Usage
+
+```dart
+final facebookAppEvents = FacebookAppEvents();
+
+await facebookAppEvents.logEvent(
+  name: 'button_clicked',
+  parameters: {'button_id': 'the_clickme_button'},
+);
+
+await facebookAppEvents.logPurchase(amount: 9.99, currency: 'USD');
 ```
 
-#### Swift Package Manager (SPM)
+Event parameter values must be `String`, `num` or `bool`. Anything else throws an `ArgumentError`, because the native SDKs silently drop an event that carries another type. Encode lists and maps as a JSON string first.
 
-This plugin supports iOS integration via both **Swift Package Manager** (the Flutter default since 3.44) and **CocoaPods**.
+The plugin mirrors the App Events API of the native SDKs 1:1. What it leaves out on purpose: [what Facebook App Events covers in Flutter](https://oddb.it/fbae-guide-app-events). Missing something? [Open an issue](https://oddb.it/3wd).
 
-- CocoaPods (the Flutter default before 3.44, and used whenever Swift Package Manager is turned off): no additional steps beyond the configuration above.
-- Swift Package Manager: the plugin includes a Swift package manifest at [ios/facebook_app_events/Package.swift](https://oddb.it/fbae-package-swift). Facebook's official iOS SDK also documents SPM support (see [Swift Package Manager](https://oddb.it/s73)).
+## Consent: deferring SDK initialization
 
-Which of the two your build uses is decided by your Flutter project's configuration, not by this plugin, which ships both. How to tell which one you are on, and how to move between them: [Swift Package Manager setup for this plugin](https://oddb.it/fbae-guide-spm).
-
-The Swift package depends on the `FlutterFramework` package, which the Flutter tool generates for Swift Package Manager builds starting with Flutter 3.41. This is why the plugin requires **Flutter 3.41.0 or newer**, even for apps that use CocoaPods.
-
-#### iOS UIScene lifecycle
-
-This plugin supports both the legacy `UIApplicationDelegate` lifecycle and the newer **`UIScene`** lifecycle (the default for apps built with Flutter 3.38+). It registers as both an application delegate and a scene delegate, so Facebook URL callbacks (deep links and deferred app links) reach the SDK regardless of which lifecycle your app uses. No extra host-app configuration is required beyond the standard Facebook setup above.
-
-The plugin uses Flutter's scene-delegate plugin APIs (`FlutterSceneLifeCycleDelegate` / `addSceneDelegate`), added in Flutter 3.38. The plugin's overall minimum is Flutter 3.41 (see [Swift Package Manager](#swift-package-manager-spm) above).
-
-### Deferring SDK initialization (consent gating)
-
-By default the Facebook SDK is initialized before any of your Dart code runs: on iOS the plugin calls `initializeSDK()` when it registers, and on Android the SDK's own `FacebookInitProvider` runs at process start. Initialization is not inert. It fetches gatekeeper, server and domain configuration from Meta and writes to local storage, and the `AutoLogAppEventsEnabled` / `AdvertiserIDCollectionEnabled` flags do not prevent that; they only stop app events from being logged. Apps that must not contact Meta until the user has consented need to defer initialization itself.
-
-Turn automatic initialization off on each platform, then call `initializeSdk()` from Dart once consent exists:
+By default the Facebook SDK initializes before your Dart code runs, and initializing contacts Meta. The auto-log flags do not prevent that. To hold the SDK back until the user has consented, turn automatic initialization off:
 
 ```xml
 <!-- ios/Runner/Info.plist -->
@@ -141,31 +123,19 @@ Turn automatic initialization off on each platform, then call `initializeSdk()` 
 ```
 
 ```dart
-final facebookAppEvents = FacebookAppEvents();
-
 // After the user has consented, and on every later launch where consent is
 // already stored. The plugin does not remember the decision for you.
 await facebookAppEvents.initializeSdk();
 await facebookAppEvents.activateApp(); // only if auto-logging is also off
 ```
 
-An absent key means `true` on both platforms, so existing apps are unaffected. Calling `initializeSdk()` when automatic initialization is on is harmless.
+**On iOS, call `initializeSdk()` before anything else.** Until then every other call (except `setGraphApiVersion`) fails with `sdkNotInitialized`. Android does not enforce that order, so a flow that works on Android can still be wrong for iOS.
 
-**The two platforms do not behave the same before `initializeSdk()` is called.** On iOS, `FacebookAutoInitEnabled=false` keeps the SDK completely unconfigured, and the plugin rejects every other call with a `FacebookAppEventsException` whose `errorCode` is `sdkNotInitialized` (wire code `sdk_not_initialized`) until you initialize it (the only exception is `setGraphApiVersion`, which is safe to call early). On Android, `AutoInitEnabled=false` does *not* keep the SDK asleep: the app id and client token are still loaded at process start and plugin calls still work, the SDK is merely not "fully initialized". `initializeSdk()` maps to `FacebookSdk.fullyInitialize()` there. See [Known Limitations](#deferred-initialization-on-ios) for the full list of what the iOS gate covers.
+The full picture, including what Android still does before consent: [holding the Facebook SDK back until consent](https://oddb.it/fbae-guide-consent).
 
-### Event metadata collected by the Facebook SDK
+## Event metadata (Facebook SDK v19)
 
-Starting with Facebook SDK v19, the native SDK attaches extra context to logged app events (Meta's SDK changelogs date this to October 12, 2026). It is on by default and independent of `AutoLogAppEventsEnabled`. What it attaches:
-
-- **Screen title:** the title of the screen the event was logged on.
-- **Inbound URL:** the URL that most recently opened the app, including its query string. Meta calls this the "AppLink URL", but it is not limited to App Links: it is any URL that launches or resumes the app, including custom-scheme deep links and OAuth or magic-link callbacks that carry codes or tokens. On iOS the SDK caches every URL passed to `ApplicationDelegate`, and this plugin forwards every URL the app receives through `application(_:open:options:)` and `scene(_:openURLContexts:)`. On Android the SDK saves the launching intent's data URI whenever an activity starts or resumes.
-- **Outbound URL (iOS only):** the last URL the app itself opened through `UIApplication.open(_:options:completionHandler:)`, in any scheme (for example through `url_launcher`). It is sent as `outbound_url`, next to the inbound URL.
-
-Both URLs are stored on the device (`UserDefaults` on iOS, `SharedPreferences` on Android) and persist across launches until a newer URL overwrites them. They leave the device only attached to logged events.
-
-**On Android, deferred initialization does not defer this capture.** On iOS, collection is installed as part of SDK initialization, so `FacebookAutoInitEnabled=false` holds it off until `initializeSdk()` (and the plugin does not forward incoming URLs before that). On Android, inbound URL capture is set up when the SDK loads at process start, which still happens with `com.facebook.sdk.AutoInitEnabled=false`, so inbound URLs are written to disk before `initializeSdk()` is called. The Android capture checks only the manifest key, not the Events Manager setting. If your app must not collect anything before consent, set the manifest opt-out below.
-
-To opt out, set the SDK's own configuration key to `false`, or turn off "Automatically include more app event details" in Events Manager (which does not stop the on-device capture on Android described above):
+**Since SDK v19, every event carries the screen title and the last URL that opened your app, query string included.** That covers OAuth and magic-link callbacks, and on Android the URL is stored from process start, even when initialization is deferred. It is on by default. To opt out:
 
 ```xml
 <!-- ios/Runner/Info.plist -->
@@ -174,43 +144,11 @@ To opt out, set the SDK's own configuration key to `false`, or turn off "Automat
 ```
 
 ```xml
-<!-- android/app/src/main/AndroidManifest.xml, inside <application> -->
+<!-- android/app/src/main/AndroidManifest.xml, under <application> -->
 <meta-data android:name="com.facebook.sdk.AutoLogMetaDataEnabled" android:value="false"/>
 ```
 
-The static key is only half of a consent flow, because it cannot be changed after the user consents. For that, call `setAutoLogMetaDataEnabled` from Dart. It maps to `FacebookSdk.setAutoLogMetaDataEnabled` (Android) and `Settings.shared.isMetaDataCollectionEnabled` (iOS); the value is persisted across launches and takes precedence over the manifest or Info.plist key. Turning it on takes effect without a relaunch, though not instantly: Android reads the flag on the next activity start or resume, and iOS installs the collectors once the SDK has fetched its metadata-collection gatekeeper. Turning it off also clears the URLs the SDK has already stored on the device. On iOS it is gated like the other `Settings` setters, so call it after `initializeSdk()`:
-
-```dart
-// Manifest / Info.plist key set to false, so nothing is captured before consent.
-await facebookAppEvents.initializeSdk();
-await facebookAppEvents.setAutoLogMetaDataEnabled(true);
-```
-
-SDK v19 also adds an `AutoLogProductImprovementEnabled` control (`FBSDKAutoLogProductImprovementEnabled` on iOS, `com.facebook.sdk.AutoLogProductImprovementEnabled` on Android) for diagnostic data. Meta states the SDK does not collect or send this data yet; the key only lets you opt out ahead of time. That setting is not exposed through this plugin's Dart API; configure it natively.
-
-## About Facebook App Events
-
-Please refer to the official SDK documentation for correct and expected behavior (see documentation [iOS](https://oddb.it/wks) and [Android](https://oddb.it/yu2)). Please
-[report an issue](https://oddb.it/3wd)
-if you find anything that is not working according to official documentation.
-
-### API scope
-
-The plugin mirrors the App Events surface of the native SDKs 1:1. If a method exists on `AppEvents` (iOS) / `AppEventsLogger` or the related `Settings` / `FacebookSdk` toggles (Android), you should find it here under the same name. A few native APIs are intentionally **not** exposed because they don't translate to Flutter: the access-token overloads of `logEvent`/`logPurchase`, hybrid-webview augmentation (`augmentWebView` / `augmentHybridWebView`), the Unity integration hooks, and iOS-only `logFailedStoreKit2Purchase`. If you need one of these, please [open an issue](https://oddb.it/3wd).
-
-## Dependencies on Facebook SDK
-Every now and then it is necessary for this plugin to update the Facebook SDK dependency. We follow the major
-version of the current Facebook SDK in order to be as compatible as possible with other dependencies in your
-project. 
-
-For Facebook SDK release notes, see [iOS](https://oddb.it/ikt) and [Android](https://oddb.it/un7).
-
-Please do note that it means that you get "the latest version" up until next major release, and it might
-be a source of unexpected behavior for you if you are not aware of this. It is a preferred option to the
-alternative of locking into a specific MINOR version of the SDK, which might be causing incompatibilities 
-with your other plugins or dependencies.
-
-Because the exact version is resolved at build time rather than pinned here, two builds of the same app can ship different SDK versions. How to read the version you actually got, and what controls it: [which Facebook SDK version you actually get](https://oddb.it/fbae-guide-sdk-versions).
+To turn it on after consent, call `setAutoLogMetaDataEnabled(true)` (on iOS after `initializeSdk()`). What exactly is collected, where it is stored and when it leaves the device: [what Facebook SDK v19 attaches to your events](https://oddb.it/fbae-guide-event-metadata).
 
 ## Handling errors
 
@@ -239,126 +177,41 @@ Compare `errorCode`, not `code`: `code` is the wire string from the table, not t
 
 `FacebookAppEventsException` extends Flutter's `PlatformException`, and `code` still holds the wire code. Code that catches `PlatformException` and compares `e.code` strings keeps working. Invalid arguments caught in Dart before the call reaches the native side, such as an unsupported event parameter type, throw `ArgumentError` as before.
 
+## Platform notes
+
+- **Graph API version.** The plugin pins the Graph API version to `v24.0` on both platforms, because the Android SDK still defaults to a version Meta has removed. Override it with `setGraphApiVersion('vXX.0')` early in startup if you need a specific one. Background: [which Facebook SDK version you actually get](https://oddb.it/fbae-guide-sdk-versions).
+- **Facebook SDK version.** The plugin follows the SDK's major version (currently v19) and does not pin a minor, so two builds can resolve different SDK releases. The same guide explains how to read what you got. Release notes: [iOS](https://oddb.it/ikt), [Android](https://oddb.it/un7).
+- **`clearUserDataForType`** works on iOS and is a no-op on Android, which has no per-field clear. Use `clearUserData()` there.
+- **`setUserData`** merges on both platforms: only the fields you pass are updated.
+
 ## Troubleshooting
 
-### Events are not showing up in Events Manager
+| Symptom | Guide |
+| --- | --- |
+| Events do not show up in Events Manager, or counts disagree with yours | [Events not showing in Events Manager](https://oddb.it/fbae-guide-not-landing) |
+| iOS build fails with "Consecutive statements on a line must be separated by ';'" in a `.swiftinterface` file | [Facebook SDK `.swiftinterface` build errors](https://oddb.it/fbae-guide-xcode) |
+| A call fails with `sdk_not_initialized`, or `lateinit property appEventsLogger has not been initialized` | [Holding the Facebook SDK back until consent](https://oddb.it/fbae-guide-consent) |
+| Events Manager says "Please Upgrade SDK" to version 4.34.0 | [The "Please Upgrade SDK" warning explained](https://oddb.it/fbae-guide-codeless) |
+| Not sure where the client token goes, or events fail silently after setup | [Where the Facebook client token goes](https://oddb.it/fbae-guide-client-token) |
+| Swift Package Manager will not resolve the Facebook SDK | [Swift Package Manager setup](https://oddb.it/fbae-guide-spm) |
 
-**Symptom:** you call `logEvent` and nothing appears in Events Manager, or the counts disagree with your own database.
-
-**First check:** use **Test Events** in Events Manager rather than the aggregate dashboards, which are delayed and deduplicated. Call `flush()` to send immediately instead of waiting for the SDK's batching. If nothing arrives at all, the cause is almost always configuration rather than the plugin: a missing or wrong app id or client token, or a value type the SDK refuses (see [Event parameter values](#event-parameter-values) below).
-
-Full diagnosis, split by layer (configuration, transport, attribution), with per-platform verification steps: [events not showing in Events Manager](https://oddb.it/fbae-guide-not-landing).
-
-### iOS build fails in the Facebook SDK's `.swiftinterface` files
-
-With plugin 0.32.0 or newer, an iOS build on an Xcode older than 26.4 stops with errors like these, pointing into the Facebook SDK's frameworks (`FBSDKCoreKit`, `FBAEMKit` and others):
-
-```
-.../FBAEMKit.framework/Modules/FBAEMKit.swiftmodule/arm64-apple-ios.private.swiftinterface:13:63: error: Expected type
-.../arm64-apple-ios.private.swiftinterface:13:81: error: Consecutive statements on a line must be separated by ';'
-```
-
-The Facebook iOS SDK v19 ships its Swift interfaces in a syntax that needs Swift 6.3, which comes with Xcode 26.4. It affects device and simulator builds alike, on every architecture, with both CocoaPods and Swift Package Manager. Check your version with `xcodebuild -version`, then either:
-
-1. **Update Xcode to 26.4 or newer.** This is the fix if you can.
-2. **Stay on the last plugin release that uses Facebook SDK v18:** set `facebook_app_events: ^0.31.1` in `pubspec.yaml`. With CocoaPods, also run `cd ios && pod update FBSDKCoreKit`, because `Podfile.lock` still pins v19.
-
-### `sdk_not_initialized` on Android
-
-On Android the Facebook SDK initializes itself when the app process starts. If that fails, the SDK only writes an info-level `Failed to auto initialize the Facebook SDK` line to logcat and the app keeps running. Plugin calls that need the SDK, such as `logEvent`, then fail with a `FacebookAppEventsException` whose `errorCode` is `sdkNotInitialized` (wire code `sdk_not_initialized`). Before this was handled, the same situation surfaced as `lateinit property appEventsLogger has not been initialized`.
-
-Call `initializeSdk()` to find out why. It runs the SDK's initialization again; if that fails too, it throws a `FacebookAppEventsException` whose `errorCode` is `sdkInitializationFailed` (wire code `sdk_initialization_failed`) whose message is the SDK's own reason. The usual one is that `com.facebook.sdk.ApplicationId` or `com.facebook.sdk.ClientToken` could not be read from `AndroidManifest.xml` (see [Configure Android](#configure-android)). The plugin never initializes the SDK by itself: only `initializeSdk()` does, so an app that keeps the SDK off until consent is not overridden.
-
-Remember to `await` plugin calls inside your `try` block. An un-awaited call that fails is reported as an unhandled error instead of reaching your `catch`.
-
-### Facebook Event Manager "Please Upgrade SDK" warning
-
-When setting up codeless events in Facebook Event Manager, you may encounter a warning message stating:
-> "To use the codeless event setup tool, you will need to update to Facebook SDK Version 4.34.0 or higher."
-
-**This is a defect in the Events Manager UI and does not indicate an actual problem with your SDK version.** Version 4.34.0 is from the 4.x line, years older than the plugin's Facebook SDK 19.x, and the version it asks for is not the version it checks for.
-
-**Do not downgrade your SDK, and do not add the deprecated `FacebookSDK` umbrella pod** (Meta stopped publishing it after 11.2.1 in September 2021). Instead:
-
-1. Ignore the warning. Your SDK is already current.
-2. Codeless events should still work despite the warning message.
-3. Verify your configuration: `FacebookAppID`, `FacebookClientToken` and `FacebookDisplayName` in `Info.plist` on iOS; `facebook_app_id` and `facebook_client_token` in `strings.xml`, referenced as meta-data in `AndroidManifest.xml`, on Android.
-4. Test on a physical device by shaking it to open the codeless event setup tool.
-5. To confirm the SDK is logging at all, call `setDebugLoggingEnabled(true)` and watch for app event and network request logs.
-
-**Codeless setup is gated by Meta server-side, not by an app-side flag.** Meta's docs for codeless debug logging ([iOS](https://oddb.it/m28), [Android](https://oddb.it/ji7)) describe the `FacebookCodelessDebugLogEnabled` (`Info.plist`) and `com.facebook.sdk.CodelessDebugLogEnabled` (Android manifest) flags, but in Facebook SDK 19.x neither flag has a consumer left in the SDK, so setting either changes nothing. On Android the codeless path is armed by `CodelessManager.onActivityResumed` from Meta's fetched app settings; on iOS by `FBSDKCodelessIndexer` from the `auto_event_setup_enabled` field Meta returns.
-
-Why the warning appears, what the SDK actually checks, and how to tell a UI defect from a real misconfiguration: [the "Please Upgrade SDK" warning explained](https://oddb.it/fbae-guide-codeless).
-
-Related reports, for what they actually show rather than as explanations of this warning:
-
-- [GitHub Issue #402](https://oddb.it/7eq): Events Manager telling a developer on a current SDK to remove `FBSDKCoreKit`, `FBSDKLoginKit`, `FBSDKShareKit`, `FBSDKPlacesKit` and `FBSDKMessengerShareKit` from their Podfile, including the pod that logs app events. A different Events Manager message from the one above, closed as stale in March 2025 with no diagnosis.
-- [Facebook iOS SDK Issue #2513](https://oddb.it/hrz): the same family of false "upgrade your SDK" report, on SDK 17.1.0, where Events Manager claimed the app needed updating in order to serve ads to users on iOS 14.5 or higher. Closed as a duplicate.
-
-## Known Limitations
-
-### Graph API Version
-
-The Facebook Android SDK ships with an outdated default Graph API version that Meta has already removed (the iOS SDK had the same problem in 18.0.x, defaulting to the removed `v17.0`):
-
-| Platform | SDK default | Removed by Meta |
-|---|---|---|
-| Android SDK v19.x | `v16.0` | May 14, 2025 |
-| iOS SDK v19.x | `v26.0` | — |
-
-This plugin works around the issue by overriding the Graph API version to `v24.0` during plugin initialization, on both platforms so that Graph behavior is the same everywhere. This requires no extra configuration for the vast majority of apps.
-
-The override covers every Graph request made after the plugin has registered with the Flutter engine, which includes all app event uploads. It cannot cover the Android SDK's own startup work: the SDK initializes itself from a content provider at process start, before any Flutter plugin runs, and the app-settings fetch it issues at that point is built with the SDK default (`v16.0`). There is no manifest key for the Graph API version, so that one request cannot be redirected from the app side. It is served the same way as any other call to a removed version (see below), and it is the one place an Android app can still trigger a deprecation notice for `v16.0`.
-
-Calls to a removed version are not rejected. Meta routes them to the oldest version that is still usable, so the app keeps working while silently using a version nobody chose. What reaches you instead is a deprecation notice from Meta with a removal deadline, on a version you did not knowingly pick. That is what [#474](https://oddb.it/fbae-issue-474) in this repository was.
-
-If you need to target a specific Graph API version (e.g. to pin to the same version as your backend), call `setGraphApiVersion` as early as possible in app startup before using features that may trigger Graph API requests:
-
-```dart
-final facebookAppEvents = FacebookAppEvents();
-
-// Override the Graph API version (optional, the plugin sets a current default)
-await facebookAppEvents.setGraphApiVersion('v24.0');
-
-// Then activate the app as usual
-await facebookAppEvents.activateApp();
-```
-
-Refer to Meta's [Graph API changelog](https://oddb.it/ku2) for currently active versions.
-
-This is a plugin-specific workaround for a [known upstream issue in the iOS SDK](https://oddb.it/y8r) and [Android SDK](https://oddb.it/gmy). The iOS SDK has since corrected its default, but the Android SDK v19.0.0 still defaults to `v16.0`, so the override stays until the Android SDK ships a corrected default.
-
-### Event parameter values
-
-The native Facebook SDKs only accept `String` and numeric event parameter values. An event carrying any other value type is **silently dropped** by the SDK. To protect against that, `logEvent` (and the helpers that route through it) accepts `String`, `num`, and `bool` values: booleans are converted to `"1"`/`"0"` (Meta's yes/no convention) so events are recorded identically on both platforms, and any other value type throws an `ArgumentError`. Encode structured values (lists, maps) as a JSON string first, as Meta prescribes for parameters like `fb_content`.
-
-### `clearUserDataForType` on Android
-
-`clearUserDataForType` is **functional on iOS** but is a **no-op on Android** (a warning is logged). The Android `AppEventsLogger` exposes no per-field clear; call `clearUserData()` to clear all previously-set user data fields at once.
-
-### Deferred initialization on iOS
-
-With `FacebookAutoInitEnabled` set to `false`, the Facebook iOS SDK is unconfigured until `initializeSdk()` is called, and the native SDK does not tolerate calls in that state: `AppEvents` methods throw in debug builds and are silently dropped in release, the persisted `Settings` setters (`setAutoLogAppEventsEnabled`, `setAdvertiserIdCollectionEnabled`, `setAutoLogMetaDataEnabled`) crash, and some lazily-read settings such as the app id would be cached as empty for the rest of the process. The plugin therefore rejects **every method except `initializeSdk` and `setGraphApiVersion`** with a `FacebookAppEventsException` whose `errorCode` is `sdkNotInitialized` (wire code `sdk_not_initialized`) until initialization has happened. Incoming Facebook App Link URLs are also ignored until then.
-
-In practice this means your consent flow must call `initializeSdk()` *before* `setUserData`, `setDataProcessingOptions`, `setLimitEventAndDataUsage`, `setAutoLogAppEventsEnabled`, `setAutoLogMetaDataEnabled` or any logging call, not after. Android does not have this restriction (see [Deferring SDK initialization](#deferring-sdk-initialization-consent-gating)), so a consent flow that works on Android can still be misordered for iOS; the error is deliberate so that shows up in development rather than as silently lost data.
+All guides: [oddbit.id guides for this plugin](https://oddb.it/fbae-guides).
 
 ## Compatibility alerts
 
-When Meta ships something that breaks Flutter apps, we email what changed and what to do about it. Facebook SDK v18 defaulting to Graph API versions Meta had already removed was one of those. A few times a year, only when something real happened. Not a newsletter.
+When Meta ships something that breaks Flutter apps, we email what changed and what to do about it. A few times a year, only when something real happened. Not a newsletter.
 
 [Subscribe to compatibility alerts](https://oddb.it/fbae-alerts)
 
 ## Getting help
 
-**Plugin defects are fixed for free, always.** If this plugin does not behave the way the native SDK documents, [open an issue](https://oddb.it/3wd). No conditions attached.
+**Plugin defects are fixed for free, always.** If this plugin does not behave the way the native SDK documents, [open an issue](https://oddb.it/3wd).
 
 **Questions about using or configuring App Events:** start with the [guides](https://oddb.it/fbae-guides), then the [repository discussions](https://oddb.it/z42) or [StackOverflow](https://oddb.it/ywj).
 
-**Attribution debugging where ad spend is on the line:** if installs and purchases are not matching up between your app, Events Manager and Ads Manager, that is usually not a plugin bug and not a quick answer. We offer a [Meta attribution audit](https://oddb.it/fbae-audit): a one hour diagnostic call at $300, credited in full against the audit fee if you go ahead, booked first and invoiced after we have read your intake answers. If the cause turns out to be a defect in this plugin, we fix it free and you keep the diagnostic.
+**Attribution debugging where ad spend is on the line:** if installs and purchases do not match up between your app, Events Manager and Ads Manager, that is usually not a plugin bug and not a quick answer. We offer a [Meta attribution audit](https://oddb.it/fbae-audit): a one hour diagnostic call at $300, credited in full against the audit fee if you go ahead. If the cause turns out to be a defect in this plugin, we fix it free and you keep the diagnostic.
 
-### Who maintains this
-
-Oddbit is a senior-led studio, based in Indonesia with roots in Sweden, shipping Flutter, Firebase and analytics integrations. `facebook_app_events` is one of the open source tools we maintain and use ourselves. Wiring up Meta attribution end to end, including consent flows, iOS App Tracking Transparency and SKAdNetwork, and getting events to actually land in Events Manager, gets fiddly. If your team hits a wall, or you would like an experienced pair of hands, [talk to us at oddbit.id](https://oddb.it/website).
+`facebook_app_events` is built and maintained by Oddbit, a senior-led studio shipping Flutter, Firebase and analytics integrations. If your team would like an experienced pair of hands on Meta attribution, consent flows or the app around them, [talk to us at oddbit.id](https://oddb.it/website).
 
 ## Getting involved
 First of all, thank you for even considering to get involved. You are a real super :star: and we :heart: you! 

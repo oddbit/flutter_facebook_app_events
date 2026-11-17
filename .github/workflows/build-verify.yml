@@ -272,8 +272,6 @@ jobs:
     needs: [test]
     runs-on: macos-latest
     timeout-minutes: 60
-    # TEMPORARY: the probe cell is expected to fail; it only records where the Xcode floor is.
-    continue-on-error: ${{ matrix.probe || false }}
     permissions:
       contents: read
     strategy:
@@ -285,16 +283,13 @@ jobs:
           - label: "Flutter stable"
             flutter: ""
           # The Facebook iOS SDK v19 ships Swift interfaces that only Swift 6.3+ can read, so
-          # the plugin needs Xcode 26.4 or newer. The other cells use the runner's newest Xcode;
-          # this one keeps the documented minimum building.
+          # the plugin needs Xcode 26.4 or newer (26.3 fails with "Consecutive statements on a
+          # line must be separated by ';'" in the SDK's .swiftinterface files; confirmed by a
+          # probe run in #524). The other cells use the runner's newest Xcode; this one keeps
+          # the documented minimum building.
           - label: "Flutter stable, Xcode 26.4 (minimum)"
             flutter: ""
             xcode: "26.4"
-          # TEMPORARY probe, removed once its result is recorded.
-          - label: "Flutter stable, Xcode 26.3 (probe, expected to fail)"
-            flutter: ""
-            xcode: "26.3"
-            probe: true
     env:
       CI: true
     defaults:

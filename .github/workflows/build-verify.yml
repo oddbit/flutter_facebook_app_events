@@ -58,9 +58,11 @@ jobs:
         if: ${{ matrix.format }}
         run: dart format --output=none --set-exit-if-changed .
 
-      # Covers the package and the example (both resolved above).
+      # Covers the package and the example (both resolved above). Warnings and errors fail the
+      # job; infos do not, because they include deprecations that differ per Flutter version
+      # (3.50 deprecates `package:flutter/material.dart`, whose replacement the floor lacks).
       - name: Analyze
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos
 
       - name: Flutter test (root)
         run: flutter test

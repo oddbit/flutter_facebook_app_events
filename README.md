@@ -53,6 +53,8 @@ After that, add that string resource reference to your main `AndroidManifest.xml
 
 ### Configure iOS
 
+Building requires **Xcode 26.4 or newer** (see [the build errors older versions give](#ios-build-fails-in-the-facebook-sdks-swiftinterface-files)).
+
 This plugin requires **iOS 15.0 or newer**, the minimum of the Facebook iOS SDK v19. If your app targets an older version, raise `IPHONEOS_DEPLOYMENT_TARGET` to `15.0` in `ios/Runner.xcodeproj` (Runner target → General → Minimum Deployments) and, if your `ios/Podfile` has an uncommented `platform :ios, ...` line, set it to `'15.0'` as well. Otherwise CocoaPods or Swift Package Manager will refuse to resolve the Facebook SDK.
 
 **Upgrading from a plugin version built on Facebook SDK 18.x (0.31.x or older) with CocoaPods:** your app's `ios/Podfile.lock` still pins `FBSDKCoreKit` 18.x, and `pod install` does not move a plugin's transitive dependency when the plugin's constraint changes. The build stops with "changed the constraints of dependency `FBSDKCoreKit` inside your development pod `facebook_app_events`", and the `pod repo update` hint Flutter prints does not fix it. After upgrading, run this once:
@@ -246,6 +248,20 @@ Compare `errorCode`, not `code`: `code` is the wire string from the table, not t
 **First check:** use **Test Events** in Events Manager rather than the aggregate dashboards, which are delayed and deduplicated. Call `flush()` to send immediately instead of waiting for the SDK's batching. If nothing arrives at all, the cause is almost always configuration rather than the plugin: a missing or wrong app id or client token, or a value type the SDK refuses (see [Event parameter values](#event-parameter-values) below).
 
 Full diagnosis, split by layer (configuration, transport, attribution), with per-platform verification steps: [events not showing in Events Manager](https://oddb.it/fbae-guide-not-landing).
+
+### iOS build fails in the Facebook SDK's `.swiftinterface` files
+
+With plugin 0.32.0 or newer, an iOS build on an Xcode older than 26.4 stops with errors like these, pointing into the Facebook SDK's frameworks (`FBSDKCoreKit`, `FBAEMKit` and others):
+
+```
+.../FBAEMKit.framework/Modules/FBAEMKit.swiftmodule/arm64-apple-ios.private.swiftinterface:13:63: error: Expected type
+.../arm64-apple-ios.private.swiftinterface:13:81: error: Consecutive statements on a line must be separated by ';'
+```
+
+The Facebook iOS SDK v19 ships its Swift interfaces in a syntax that needs Swift 6.3, which comes with Xcode 26.4. It affects device and simulator builds alike, on every architecture, with both CocoaPods and Swift Package Manager. Check your version with `xcodebuild -version`, then either:
+
+1. **Update Xcode to 26.4 or newer.** This is the fix if you can.
+2. **Stay on the last plugin release that uses Facebook SDK v18:** set `facebook_app_events: ^0.31.1` in `pubspec.yaml`. With CocoaPods, also run `cd ios && pod update FBSDKCoreKit`, because `Podfile.lock` still pins v19.
 
 ### `sdk_not_initialized` on Android
 

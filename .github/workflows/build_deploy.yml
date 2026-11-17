@@ -28,6 +28,20 @@ jobs:
 
       - run: flutter --version
 
+      # The tag is what triggers publishing, but pub.dev publishes the version in pubspec.yaml.
+      # Stop here if the two disagree. (pubspec, podspec and CHANGELOG are kept in step by
+      # test/release_consistency_test.dart, which the verify job has already run.)
+      - name: Check that the tag matches pubspec.yaml
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          pubspec_version="$(sed -nE 's/^version:[[:space:]]*([^[:space:]]+).*/\1/p' pubspec.yaml)"
+          if [ "v${pubspec_version}" != "$TAG_NAME" ]; then
+            echo "::error::Tag ${TAG_NAME} does not match pubspec.yaml version ${pubspec_version}"
+            exit 1
+          fi
+
       - run: flutter pub get
 
       - name: Publish package

@@ -20,6 +20,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.math.BigDecimal
+import org.json.JSONObject
 import java.util.Currency
 import java.util.Locale
 import com.facebook.LoggingBehavior
@@ -40,6 +41,9 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   private val logTag = "FacebookAppEvents"
+
+  // The entry of a push notification's payload that carries Meta's campaign data.
+  private val pushPayloadKey = "fb_push_payload"
 
   private var application: Application? = null
   private var applicationContext: Context? = null
@@ -302,6 +306,19 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     if (payloadBundle == null) {
       result.error("INVALID_ARGUMENT", "Payload is required", null)
       return
+    }
+
+    // The Android SDK reads Meta's entry as a JSON string, which is how FCM
+    // delivers it. An iOS-style notification carries it as a nested map;
+    // accept that form too so one Dart call works on both platforms.
+    val facebookPayload = payload?.get(pushPayloadKey)
+    if (facebookPayload is Map<*, *>) {
+      try {
+        payloadBundle.putString(pushPayloadKey, JSONObject(facebookPayload).toString())
+      } catch (e: RuntimeException) {
+        // Not representable as JSON (a null key, for example): leave the nested
+        // bundle in place, which the SDK ignores.
+      }
     }
 
     if (action != null) {

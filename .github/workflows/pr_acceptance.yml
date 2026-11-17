@@ -3,6 +3,12 @@ name: PR acceptance
 on:
   pull_request:
 
+# A new push to a pull request makes the runs for its older commits pointless. Cancel them so
+# they stop holding runners (the macOS queue in particular).
+concurrency:
+  group: pr-acceptance-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   # Build confirmation lives in the reusable build-verify workflow so it stays in sync with the
   # release pipeline (build_deploy.yml) — same Android matrix + iOS build for both.

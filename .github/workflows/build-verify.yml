@@ -12,11 +12,22 @@ on:
 
 jobs:
   test:
-    name: Dart tests
+    name: Dart checks — ${{ matrix.label }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The minimum Flutter the plugin supports, so the Dart layer and its tests are known
+          # to work there and not only on the newest SDK.
+          - label: "Flutter 3.41 (floor)"
+            flutter: "3.41.0"
+          - label: "Flutter stable"
+            flutter: ""
+            format: true
     env:
       CI: true
     steps:
@@ -26,6 +37,8 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          # Empty string → latest of the channel; otherwise pin to the floor version.
+          flutter-version: ${{ matrix.flutter }}
           # The Flutter SDK is deliberately not cached (`cache: true`): each copy is 1.6-2 GB,
           # which filled the repo's 10 GB Actions cache quota, and a fresh download takes about
           # as long as restoring it.
@@ -35,12 +48,22 @@ jobs:
       - name: Flutter pub get (root)
         run: flutter pub get
 
-      - name: Flutter test (root)
-        run: flutter test
-
       - name: Flutter pub get (example)
         working-directory: example
         run: flutter pub get
+
+      # One formatter version only: output can differ between Dart releases, and stable is
+      # what contributors run.
+      - name: Check formatting
+        if: ${{ matrix.format }}
+        run: dart format --output=none --set-exit-if-changed .
+
+      # Covers the package and the example (both resolved above).
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Flutter test (root)
+        run: flutter test
 
       - name: Flutter test (example)
         working-directory: example

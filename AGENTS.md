@@ -6,6 +6,8 @@ Guidance for AI coding agents (Claude Code, Codex and others) working in this re
 
 Read [`CONTRIBUTING.md`](CONTRIBUTING.md) and follow the guidelines in it. In particular, the **Release Process** section lists files that must stay in sync (e.g. `pubspec.yaml` and `ios/facebook_app_events.podspec` versions) — consult it before preparing a release or bumping the version.
 
+CI (`.github/workflows/build-verify.yml`) fails on unformatted Dart (`dart format`), analyzer findings (`flutter analyze`) and failing tests, on both the Flutter floor and stable. `test/release_consistency_test.dart` checks the values the Release Process says must match.
+
 ## Plugin architecture
 
 This plugin exposes Meta's Facebook App Events SDK to Flutter with an explicit 1:1 mapping between the Dart API and the native handlers. When adding, renaming, or modifying a method, keep the three layers in sync:

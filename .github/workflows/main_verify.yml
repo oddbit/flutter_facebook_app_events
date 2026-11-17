@@ -9,6 +9,12 @@ on:
     branches:
       - main
 
+# Never cancel a run on main half way: it is the one that saves the shared caches. Runs for
+# later pushes wait their turn.
+concurrency:
+  group: main-verify
+  cancel-in-progress: false
+
 jobs:
   build-verify:
     uses: ./.github/workflows/build-verify.yml

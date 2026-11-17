@@ -64,7 +64,7 @@ Also check the pinned Graph API version while preparing a release. The plugin ov
 
 - `android/src/main/kotlin/id/oddbit/flutter/facebook_app_events/FacebookAppEventsPlugin.kt` — `FacebookSdk.setGraphApiVersion(...)`
 - `ios/facebook_app_events/Sources/facebook_app_events/FacebookAppEventsPlugin.swift` — `Settings.shared.graphAPIVersion = ...`
-- `README.md` — the "Graph API Version" section under Known Limitations
+- `README.md` — the "Graph API version" entry under Platform notes
 
 The deadline worth tracking is **not** a version's expiry date. Calls to an expired version are routed to the oldest version that is still usable ([Graph API versioning](https://oddb.it/fbae-graph-versioning)), so nothing breaks outright. What reaches app owners is Meta's deprecation notice, which sets a floor ("all versions prior to vXX will be removed") on Meta's own schedule, independent of any expiry. Compare the pin against [Meta's Graph API changelog](https://oddb.it/fbae-graph-changelog) at release time and bump it if the current latest has moved well past it.
 

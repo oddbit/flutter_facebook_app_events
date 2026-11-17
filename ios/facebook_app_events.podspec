@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'facebook_app_events'
-  s.version          = '0.33.0'
+  s.version          = '0.34.0'
   s.summary          = 'Flutter plugin for Facebook App Events'
   s.description      = <<-DESC
 Flutter plugin for Meta's Facebook App Events SDK.
@@ -15,7 +15,7 @@ Flutter plugin for Meta's Facebook App Events SDK.
   s.swift_version       = '5.9'
   s.ios.deployment_target = '15.0'
 
-  # Do not specify PATCH version of FBSDKCoreKit. See README file for explanation
-  # https://github.com/oddbit/flutter_facebook_app_events#dependencies-on-facebook-sdk
+  # Do not specify PATCH version of FBSDKCoreKit. See "Facebook SDK version" under
+  # Platform notes in the README.
   s.dependency 'FBSDKCoreKit', '~> 19.0'
 end

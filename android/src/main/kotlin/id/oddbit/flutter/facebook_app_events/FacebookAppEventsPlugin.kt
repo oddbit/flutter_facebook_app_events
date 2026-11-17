@@ -20,7 +20,9 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.math.BigDecimal
+import org.json.JSONObject
 import java.util.Currency
+import java.util.Locale
 import com.facebook.LoggingBehavior
 
 /** FacebookAppEventsPlugin */
@@ -39,6 +41,9 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   private val logTag = "FacebookAppEvents"
+
+  // The entry of a push notification's payload that carries Meta's campaign data.
+  private val pushPayloadKey = "fb_push_payload"
 
   private var application: Application? = null
   private var applicationContext: Context? = null
@@ -293,18 +298,27 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
   private fun handlePushNotificationOpen(call: MethodCall, result: Result) {
     val action = call.argument<String>("action")
     val payload = call.argument<Map<String, Any>>("payload")
-    // Unlike logEvent parameters, the payload is not validated in the Dart
-    // layer, so map Bundle-incompatible values (e.g. lists) to a clean error
-    // instead of an opaque platform exception.
-    val payloadBundle = try {
-      createBundleFromMap(payload)
-    } catch (e: IllegalArgumentException) {
-      result.error("INVALID_ARGUMENT", e.message, null)
-      return
-    }
+    // A push payload is whatever the notification carried, so it can hold
+    // values a Bundle cannot (lists, typically). The SDK only reads the
+    // `fb_push_payload` string from it, so those values are left out rather
+    // than failing the call. iOS accepts the same payloads.
+    val payloadBundle = createBundleFromMap(payload, skipUnsupportedValues = true)
     if (payloadBundle == null) {
       result.error("INVALID_ARGUMENT", "Payload is required", null)
       return
+    }
+
+    // The Android SDK reads Meta's entry as a JSON string, which is how FCM
+    // delivers it. An iOS-style notification carries it as a nested map;
+    // accept that form too so one Dart call works on both platforms.
+    val facebookPayload = payload?.get(pushPayloadKey)
+    if (facebookPayload is Map<*, *>) {
+      try {
+        payloadBundle.putString(pushPayloadKey, JSONObject(facebookPayload).toString())
+      } catch (e: RuntimeException) {
+        // Not representable as JSON (a null key, for example): leave the nested
+        // bundle in place, which the SDK ignores.
+      }
     }
 
     if (action != null) {
@@ -326,7 +340,10 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     result.success(null)
   }
 
-  private fun createBundleFromMap(parameterMap: Map<String, Any?>?): Bundle? {
+  private fun createBundleFromMap(
+    parameterMap: Map<String, Any?>?,
+    skipUnsupportedValues: Boolean = false
+  ): Bundle? {
     if (parameterMap == null) {
       return null
     }
@@ -346,14 +363,16 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
         is Boolean -> bundle.putBoolean(key, value)
         is Map<*, *> -> {
           @Suppress("UNCHECKED_CAST")
-          val nestedBundle = createBundleFromMap(value as? Map<String, Any?>)
+          val nestedBundle = createBundleFromMap(value as? Map<String, Any?>, skipUnsupportedValues)
           if (nestedBundle != null) {
             bundle.putBundle(key, nestedBundle)
           }
         }
-        else -> throw IllegalArgumentException(
-            "Unsupported value type ${value.javaClass.simpleName} for key '$key'; " +
-            "encode structured values as a JSON string.")
+        else -> if (!skipUnsupportedValues) {
+          throw IllegalArgumentException(
+              "Unsupported value type ${value.javaClass.simpleName} for key '$key'; " +
+              "encode structured values as a JSON string.")
+        }
       }
     }
     return bundle
@@ -466,9 +485,11 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
     result.success(null)
   }
 
+  // Case-insensitive, like the iOS handler: `Currency.getInstance` itself only
+  // accepts upper case.
   private fun currencyFromCode(code: String): Currency? {
     return try {
-      Currency.getInstance(code)
+      Currency.getInstance(code.uppercase(Locale.ROOT))
     } catch (e: IllegalArgumentException) {
       null
     }

@@ -12,11 +12,22 @@ on:
 
 jobs:
   test:
-    name: Dart tests
+    name: Dart checks — ${{ matrix.label }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The minimum Flutter the plugin supports, so the Dart layer and its tests are known
+          # to work there and not only on the newest SDK.
+          - label: "Flutter 3.41 (floor)"
+            flutter: "3.41.0"
+          - label: "Flutter stable"
+            flutter: ""
+            format: true
     env:
       CI: true
     steps:
@@ -26,6 +37,8 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          # Empty string → latest of the channel; otherwise pin to the floor version.
+          flutter-version: ${{ matrix.flutter }}
           # The Flutter SDK is deliberately not cached (`cache: true`): each copy is 1.6-2 GB,
           # which filled the repo's 10 GB Actions cache quota, and a fresh download takes about
           # as long as restoring it.
@@ -35,12 +48,24 @@ jobs:
       - name: Flutter pub get (root)
         run: flutter pub get
 
-      - name: Flutter test (root)
-        run: flutter test
-
       - name: Flutter pub get (example)
         working-directory: example
         run: flutter pub get
+
+      # One formatter version only: output can differ between Dart releases, and stable is
+      # what contributors run.
+      - name: Check formatting
+        if: ${{ matrix.format }}
+        run: dart format --output=none --set-exit-if-changed .
+
+      # Covers the package and the example (both resolved above). Warnings and errors fail the
+      # job; infos do not, because they include deprecations that differ per Flutter version
+      # (3.50 deprecates `package:flutter/material.dart`, whose replacement the floor lacks).
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Flutter test (root)
+        run: flutter test
 
       - name: Flutter test (example)
         working-directory: example
@@ -68,6 +93,8 @@ jobs:
           # `android.builtInKotlin=false`, so the Flutter Gradle Plugin applies KGP to the plugin.
           - label: "Flutter stable"
             flutter: ""
+            # Also runs example/integration_test on an emulator, against the real Facebook SDK.
+            integration: true
           # AGP 9 defaults (no `android.builtInKotlin`/`android.newDsl` overrides), as in an app
           # migrated to Built-in Kotlin: AGP supplies Kotlin to the plugin.
           - label: "Flutter stable + Built-in Kotlin"
@@ -165,6 +192,32 @@ jobs:
         working-directory: example
         run: flutter build apk --debug -v
 
+      # The unit tests mock the method channel, so the Kotlin handlers only execute here.
+      - name: Enable KVM for the emulator
+        if: ${{ matrix.integration }}
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      # The action runs each `script` line as its own shell command. The second half removes the
+      # client token from the manifest, which makes the Facebook SDK fail to start (the
+      # situation in issue #516), and runs the tests for that case on the rebuilt app.
+      - name: Integration tests on an Android emulator
+        if: ${{ matrix.integration }}
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          working-directory: example
+          script: |
+            flutter test integration_test/plugin_test.dart -d emulator-5554
+            sed -i '/com.facebook.sdk.ClientToken/,+1d' android/app/src/main/AndroidManifest.xml
+            if grep -q 'ClientToken' android/app/src/main/AndroidManifest.xml; then echo "client token still in the manifest"; exit 1; fi
+            flutter test integration_test/sdk_start_failure_test.dart -d emulator-5554
+
   ios:
     name: iOS example
     needs: [test]
@@ -257,6 +310,16 @@ jobs:
             flutter: "3.41.0"
           - label: "Flutter stable"
             flutter: ""
+            # Also runs example/integration_test on a simulator, against the real Facebook SDK.
+            integration: true
+          # The Facebook iOS SDK v19 ships Swift interfaces that only Swift 6.3+ can read, so
+          # the plugin needs Xcode 26.4 or newer (26.3 fails with "Consecutive statements on a
+          # line must be separated by ';'" in the SDK's .swiftinterface files; confirmed by a
+          # probe run in #524). The other cells use the runner's newest Xcode; this one keeps
+          # the documented minimum building.
+          - label: "Flutter stable, Xcode 26.4 (minimum)"
+            flutter: ""
+            xcode: "26.4"
     env:
       CI: true
     defaults:
@@ -271,6 +334,12 @@ jobs:
       - uses: actions/checkout@v7
         with:
           path: facebook_app_events
+
+      - name: Select Xcode ${{ matrix.xcode }}
+        if: ${{ matrix.xcode }}
+        run: |
+          sudo xcode-select -s "/Applications/Xcode_${{ matrix.xcode }}.app"
+          xcodebuild -version
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -304,6 +373,21 @@ jobs:
           test -L ios/Flutter/ephemeral/Packages/.packages/facebook_app_events
           test -f ios/Flutter/ephemeral/Packages/.packages/FlutterFramework/Package.swift
           grep -q 'FlutterGeneratedPluginSwiftPackage' ios/Runner.xcodeproj/project.pbxproj
+
+      # The unit tests mock the method channel, so the Swift handlers only execute here.
+      - name: Integration tests on an iOS simulator
+        if: ${{ matrix.integration }}
+        working-directory: facebook_app_events/example
+        run: |
+          set -euo pipefail
+          udid="$(xcrun simctl list devices available --json \
+            | jq -r '[.devices[][] | select(.name | startswith("iPhone"))] | last | .udid // empty')"
+          if [ -z "$udid" ]; then
+            echo "::error::No available iPhone simulator on this runner"
+            exit 1
+          fi
+          xcrun simctl boot "$udid"
+          flutter test integration_test/plugin_test.dart -d "$udid"
 
       # Flutter only prints this warning (it does not fail the build), so check for it explicitly.
       # Runs even if an earlier step failed, so the specific error still shows up in that case.

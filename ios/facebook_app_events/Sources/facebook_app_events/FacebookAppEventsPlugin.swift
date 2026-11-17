@@ -301,10 +301,11 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
 
     private func handlePushNotificationOpen(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let arguments = call.arguments as? [String: Any] ?? [:]
-        guard let payload = arguments["payload"] as? [String: Any] else {
+        guard let rawPayload = arguments["payload"] as? [String: Any] else {
             result(FlutterError(code: "INVALID_ARGUMENT", message: "Payload is required", details: nil))
             return
         }
+        let payload = Self.normalizedPushPayload(rawPayload)
 
         if let action = arguments["action"] as? String {
             AppEvents.shared.logPushNotificationOpen(payload: payload, action: action)
@@ -312,6 +313,44 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
             AppEvents.shared.logPushNotificationOpen(payload: payload)
         }
         result(nil)
+    }
+
+    /// Returns `payload` with Meta's `fb_push_payload` entry in the only shape
+    /// the SDK can handle: a dictionary whose `campaign` is a string.
+    ///
+    /// `logPushNotificationOpen` subscripts that entry as a dictionary and
+    /// calls `length` on its `campaign` without checking either type, so any
+    /// other shape raises an Objective-C exception and takes the app down.
+    /// The common one is a JSON string, which is how FCM delivers the entry
+    /// (and the form the Android SDK expects), so that is parsed here. An
+    /// entry that cannot be brought into shape is dropped, which makes the
+    /// SDK ignore the notification.
+    private static func normalizedPushPayload(_ payload: [String: Any]) -> [String: Any] {
+        let key = "fb_push_payload"
+        guard let entry = payload[key] else { return payload }
+
+        var facebookPayload: [String: Any]?
+        if let dictionary = entry as? [String: Any] {
+            facebookPayload = dictionary
+        } else if let json = entry as? String, let data = json.data(using: .utf8) {
+            facebookPayload = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+        }
+
+        var normalized = payload
+        if var facebookPayload = facebookPayload {
+            switch facebookPayload["campaign"] {
+            case is String:
+                break
+            case let number as NSNumber:
+                facebookPayload["campaign"] = number.stringValue
+            default:
+                facebookPayload["campaign"] = nil
+            }
+            normalized[key] = facebookPayload
+        } else {
+            normalized[key] = nil
+        }
+        return normalized
     }
 
     private func handleSetUserId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -372,8 +411,12 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
     private func handlePurchased(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let arguments = call.arguments as? [String: Any] ?? [:]
         guard let amount = arguments["amount"] as? Double,
-              let currency = arguments["currency"] as? String else {
+              let currencyCode = arguments["currency"] as? String else {
             result(FlutterError(code: "INVALID_ARGUMENT", message: "Amount and currency are required", details: nil))
+            return
+        }
+        guard let currency = Self.isoCurrencyCode(from: currencyCode) else {
+            result(Self.invalidCurrencyError(currencyCode))
             return
         }
 
@@ -430,7 +473,7 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
               let link = arguments["link"] as? String,
               let title = arguments["title"] as? String,
               let priceAmount = arguments["priceAmount"] as? Double,
-              let currency = arguments["currency"] as? String else {
+              let currencyCode = arguments["currency"] as? String else {
             result(FlutterError(code: "INVALID_ARGUMENT", message: "Missing required logProductItem fields", details: nil))
             return
         }
@@ -446,6 +489,11 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
         guard let availability = Self.productAvailability(from: availabilityToken),
               let condition = Self.productCondition(from: conditionToken) else {
             result(FlutterError(code: "INVALID_ARGUMENT", message: "Invalid availability or condition value", details: nil))
+            return
+        }
+
+        guard let currency = Self.isoCurrencyCode(from: currencyCode) else {
+            result(Self.invalidCurrencyError(currencyCode))
             return
         }
 
@@ -469,6 +517,32 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
             parameters: parameters
         )
         result(nil)
+    }
+
+    /// Upper-cased ISO 4217 codes known to this OS version.
+    private static let isoCurrencyCodes: Set<String> = {
+        if #available(iOS 16, *) {
+            return Set(Locale.Currency.isoCurrencies.map { $0.identifier.uppercased() })
+        }
+        return Set(Locale.isoCurrencyCodes.map { $0.uppercased() })
+    }()
+
+    /// Returns `code` upper-cased if it is an ISO 4217 currency code, else nil.
+    ///
+    /// The SDK takes any string as a currency and logs it as is. The Android
+    /// SDK takes a `java.util.Currency`, so the Android handler has to reject
+    /// unknown codes; this keeps the two platforms the same.
+    private static func isoCurrencyCode(from code: String) -> String? {
+        let normalized = code.uppercased()
+        return isoCurrencyCodes.contains(normalized) ? normalized : nil
+    }
+
+    private static func invalidCurrencyError(_ code: String) -> FlutterError {
+        FlutterError(
+            code: "INVALID_ARGUMENT",
+            message: "'\(code)' is not a valid ISO 4217 currency code",
+            details: nil
+        )
     }
 
     private static func productAvailability(from token: String) -> AppEvents.ProductAvailability? {

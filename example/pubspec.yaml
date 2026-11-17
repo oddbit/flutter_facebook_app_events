@@ -16,6 +16,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # Runs integration_test/ on a device or emulator, against the real native SDKs.
+  integration_test:
+    sdk: flutter
 
 flutter:
   uses-material-design: true

@@ -316,6 +316,12 @@ class FacebookAppEvents {
 
   /// Logs an app event that tracks that the application was open via Push Notification.
   ///
+  /// Pass the notification's data as [payload]. The SDK only reads Meta's
+  /// `fb_push_payload` entry from it; other entries, of any type, are ignored
+  /// on both platforms. That entry may be a JSON string (how Firebase Cloud
+  /// Messaging delivers it) or a map (how APNs delivers it) on either
+  /// platform.
+  ///
   /// See documentation:
   /// - [iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/fbsdkappevents.html)
   /// - [Android](https://developers.facebook.com/docs/reference/androidsdk/current/facebook/com/facebook/appevents/appeventslogger.html)
@@ -522,7 +528,9 @@ class FacebookAppEvents {
 
   /// Logs a purchase event.
   ///
-  /// [currency] should be an ISO 4217 currency code (for example: `"USD"`).
+  /// [currency] must be an ISO 4217 currency code (for example: `"USD"`), in
+  /// any letter case. An unknown code fails with
+  /// [FacebookAppEventsErrorCode.invalidArgument] on both platforms.
   ///
   /// [parameters] follows the same value-type rules as [logEvent]: `String`,
   /// `num`, and `bool` (sent as `"1"`/`"0"`); other types throw an
@@ -808,7 +816,8 @@ class FacebookAppEvents {
   /// product-catalog audiences.
   ///
   /// At least one of [gtin], [mpn] or [brand] must be provided — this is a
-  /// requirement of the native SDK.
+  /// requirement of the native SDK. [currency] must be an ISO 4217 currency
+  /// code, as for [logPurchase].
   ///
   /// See documentation:
   /// - [iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/fbsdkappevents.html)

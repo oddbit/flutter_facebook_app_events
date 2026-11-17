@@ -301,10 +301,11 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
 
     private func handlePushNotificationOpen(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let arguments = call.arguments as? [String: Any] ?? [:]
-        guard let payload = arguments["payload"] as? [String: Any] else {
+        guard let rawPayload = arguments["payload"] as? [String: Any] else {
             result(FlutterError(code: "INVALID_ARGUMENT", message: "Payload is required", details: nil))
             return
         }
+        let payload = Self.normalizedPushPayload(rawPayload)
 
         if let action = arguments["action"] as? String {
             AppEvents.shared.logPushNotificationOpen(payload: payload, action: action)
@@ -312,6 +313,44 @@ public class FacebookAppEventsPlugin: NSObject, FlutterPlugin, FlutterSceneLifeC
             AppEvents.shared.logPushNotificationOpen(payload: payload)
         }
         result(nil)
+    }
+
+    /// Returns `payload` with Meta's `fb_push_payload` entry in the only shape
+    /// the SDK can handle: a dictionary whose `campaign` is a string.
+    ///
+    /// `logPushNotificationOpen` subscripts that entry as a dictionary and
+    /// calls `length` on its `campaign` without checking either type, so any
+    /// other shape raises an Objective-C exception and takes the app down.
+    /// The common one is a JSON string, which is how FCM delivers the entry
+    /// (and the form the Android SDK expects), so that is parsed here. An
+    /// entry that cannot be brought into shape is dropped, which makes the
+    /// SDK ignore the notification.
+    private static func normalizedPushPayload(_ payload: [String: Any]) -> [String: Any] {
+        let key = "fb_push_payload"
+        guard let entry = payload[key] else { return payload }
+
+        var facebookPayload: [String: Any]?
+        if let dictionary = entry as? [String: Any] {
+            facebookPayload = dictionary
+        } else if let json = entry as? String, let data = json.data(using: .utf8) {
+            facebookPayload = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+        }
+
+        var normalized = payload
+        if var facebookPayload = facebookPayload {
+            switch facebookPayload["campaign"] {
+            case is String:
+                break
+            case let number as NSNumber:
+                facebookPayload["campaign"] = number.stringValue
+            default:
+                facebookPayload["campaign"] = nil
+            }
+            normalized[key] = facebookPayload
+        } else {
+            normalized[key] = nil
+        }
+        return normalized
     }
 
     private func handleSetUserId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

@@ -10,6 +10,10 @@ CI (`.github/workflows/build-verify.yml`) fails on unformatted Dart (`dart forma
 
 `example/integration_test/` runs the plugin inside the example app against the real Facebook SDK, on an Android emulator and an iOS simulator in CI. It is the only place the Kotlin and Swift handlers execute (the tests in `test/` mock the method channel), so a change to native behavior should come with a test there. Tests in that folder share one app process and run in file order.
 
+## Documentation split
+
+`README.md` is a quick start only: requirements, setup, the minimal consent and metadata configuration, the error-code table, and a troubleshooting table of links. Explanations, platform differences in depth, and troubleshooting live in the guides on the Oddbit website (https://oddbit.id/en/projects/facebook-app-events/guides, source in the `oddbit-website` repo under `data/{en,sv,id}/guides.json`). When a change needs more than a line or two of explanation, add or update a guide there and link it from the README through an `oddb.it/fbae-guide-*` short link, instead of growing the README.
+
 ## Plugin architecture
 
 This plugin exposes Meta's Facebook App Events SDK to Flutter with an explicit 1:1 mapping between the Dart API and the native handlers. When adding, renaming, or modifying a method, keep the three layers in sync:
@@ -32,7 +36,7 @@ The plugin follows the **major** version of the Facebook SDK (currently v19.x). 
 
 ## Known platform divergence
 
-- `clearUserDataForType`: functional on iOS; no-op on Android (the Android `AppEventsLogger` has no per-field clear). Documented in the Dart dartdoc and README "Known Limitations".
+- `clearUserDataForType`: functional on iOS; no-op on Android (the Android `AppEventsLogger` has no per-field clear). Documented in the Dart dartdoc and README "Platform notes".
 - Deferred SDK initialization (`FacebookAutoInitEnabled` on iOS, `com.facebook.sdk.AutoInitEnabled` on Android, `initializeSdk()` in Dart): on iOS the SDK is fully unconfigured until `initializeSdk()`, so the Swift handler gates every method call except `initializeSdk`/`setGraphApiVersion` (and the URL forwarders) behind a `isSdkInitialized` flag and returns `FlutterError(sdk_not_initialized)`; adding a new handler must keep it behind that gate unless its SDK call is verified safe pre-configuration. On Android `AutoInitEnabled=false` still runs `sdkInitialize`, so there is no deferred-init gate and `initializeSdk` maps to `FacebookSdk.fullyInitialize()` — never `setAutoInitEnabled(true)`, which persists and overrides the manifest. If the Android SDK is not initialized at all (`FacebookInitProvider` swallows a failed start, or the app removed the provider), `onMethodCall` converts the SDK's `FacebookSdkNotInitializedException` to the same `sdk_not_initialized` code, and `initializeSdk` is the only place the plugin calls `sdkInitialize` (failing with `sdk_initialization_failed`); never initialize implicitly, since the app may be holding the SDK back for consent. For the same reason nothing in `onAttachedToEngine` may throw, and the `AppEventsLogger` is created lazily.
 - `setUserData` uses merge semantics on both platforms: only fields present in the call are updated. The iOS handler deliberately skips absent keys because passing nil to the native setter would *clear* the field on iOS (Android ignores nulls).
 - Graph API version override: plugin forces `v24.0` at init on both platforms. The Android SDK still defaults to the removed `v16.0` in v19.0.0 (`ServerProtocol.getDefaultAPIVersion`); the iOS SDK has defaulted to `v26.0` since 18.1.1, but the pin is kept on both for consistent Graph behavior. Revisit when the Android SDK ships a corrected default.

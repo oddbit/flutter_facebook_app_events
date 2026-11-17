@@ -66,7 +66,7 @@ void main() {
     test('README states the pinned version', () {
       final readmePin = firstGroup(
         'README.md',
-        RegExp(r'overriding the Graph API version to `(v\d+\.\d+)`'),
+        RegExp(r'pins the Graph API version to `(v\d+\.\d+)`'),
       );
       expect(readmePin, kotlinPin());
     });

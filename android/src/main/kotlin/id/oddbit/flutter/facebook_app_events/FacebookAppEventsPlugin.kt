@@ -553,7 +553,7 @@ class FacebookAppEventsPlugin: FlutterPlugin, MethodCallHandler {
 
   private fun handleClearUserDataForType(call: MethodCall, result: Result) {
     // Android's AppEventsLogger has no per-field clear; this is intentionally a
-    // no-op. Use clearUserData() to clear all fields. See README "Known Limitations".
+    // no-op. Use clearUserData() to clear all fields. See README "Platform notes".
     Log.w(logTag, "clearUserDataForType is not supported on Android; use clearUserData() to clear all fields.")
     result.success(null)
   }

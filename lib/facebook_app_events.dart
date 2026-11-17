@@ -318,7 +318,9 @@ class FacebookAppEvents {
   ///
   /// Pass the notification's data as [payload]. The SDK only reads Meta's
   /// `fb_push_payload` entry from it; other entries, of any type, are ignored
-  /// on both platforms.
+  /// on both platforms. That entry may be a JSON string (how Firebase Cloud
+  /// Messaging delivers it) or a map (how APNs delivers it) on either
+  /// platform.
   ///
   /// See documentation:
   /// - [iOS](https://developers.facebook.com/docs/reference/iossdk/current/FBSDKCoreKit/classes/fbsdkappevents.html)

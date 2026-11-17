@@ -1,4 +1,8 @@
 .DS_Store
+
+# IDE project files: machine-specific, and anything tracked here is also published to pub.dev
+.idea/
+*.iml
 .dart_tool/
 
 .packages

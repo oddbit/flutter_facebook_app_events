@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'facebook_app_events'
-  s.version          = '0.33.0'
+  s.version          = '0.34.0'
   s.summary          = 'Flutter plugin for Facebook App Events'
   s.description      = <<-DESC
 Flutter plugin for Meta's Facebook App Events SDK.

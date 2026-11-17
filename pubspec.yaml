@@ -1,7 +1,7 @@
 name: facebook_app_events
 description: Flutter plugin for Meta's Facebook App Events SDK. Log app events on
   Android and iOS for ads measurement, attribution and audiences.
-version: 0.33.0
+version: 0.34.0
 homepage: https://oddb.it/app-events-pubspec
 repository: https://github.com/oddbit/flutter_facebook_app_events
 

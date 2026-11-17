@@ -8,6 +8,8 @@ Read [`CONTRIBUTING.md`](CONTRIBUTING.md) and follow the guidelines in it. In pa
 
 CI (`.github/workflows/build-verify.yml`) fails on unformatted Dart (`dart format`), analyzer findings (`flutter analyze`) and failing tests, on both the Flutter floor and stable. `test/release_consistency_test.dart` checks the values the Release Process says must match.
 
+`example/integration_test/` runs the plugin inside the example app against the real Facebook SDK, on an Android emulator and an iOS simulator in CI. It is the only place the Kotlin and Swift handlers execute (the tests in `test/` mock the method channel), so a change to native behavior should come with a test there. Tests in that folder share one app process and run in file order.
+
 ## Plugin architecture
 
 This plugin exposes Meta's Facebook App Events SDK to Flutter with an explicit 1:1 mapping between the Dart API and the native handlers. When adding, renaming, or modifying a method, keep the three layers in sync:

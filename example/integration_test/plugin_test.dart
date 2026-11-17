@@ -189,7 +189,12 @@ void main() {
       );
     });
 
-    testWidgets('push payloads may contain values of any type', (tester) async {
+    // The iOS SDK crashes the app on an `fb_push_payload` that is not a
+    // dictionary with a string campaign, and the Android SDK only reads it as
+    // a JSON string. The handlers convert; every shape below must be survived
+    // on both platforms.
+    testWidgets('push payloads are accepted in every shape', (tester) async {
+      // As Firebase Cloud Messaging delivers it.
       await facebookAppEvents.logPushNotificationOpen(
         payload: {
           'fb_push_payload': '{"campaign":"integration-test"}',
@@ -198,6 +203,28 @@ void main() {
         },
         action: 'open',
       );
+      // As APNs delivers it.
+      await facebookAppEvents.logPushNotificationOpen(
+        payload: {
+          'fb_push_payload': {'campaign': 'integration-test'},
+        },
+      );
+      // Malformed or missing entries are ignored, not fatal.
+      await facebookAppEvents.logPushNotificationOpen(
+        payload: {'fb_push_payload': 'not json'},
+      );
+      await facebookAppEvents.logPushNotificationOpen(
+        payload: {
+          'fb_push_payload': {'campaign': 42},
+        },
+      );
+      await facebookAppEvents.logPushNotificationOpen(
+        payload: {
+          'fb_push_payload': [1, 2, 3],
+        },
+      );
+      await facebookAppEvents.logPushNotificationOpen(payload: {});
+
       await facebookAppEvents.setPushNotificationsDeviceToken('0a1b2c3d');
     });
 

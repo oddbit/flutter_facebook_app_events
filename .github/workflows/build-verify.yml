@@ -93,6 +93,8 @@ jobs:
           # `android.builtInKotlin=false`, so the Flutter Gradle Plugin applies KGP to the plugin.
           - label: "Flutter stable"
             flutter: ""
+            # Also runs example/integration_test on an emulator, against the real Facebook SDK.
+            integration: true
           # AGP 9 defaults (no `android.builtInKotlin`/`android.newDsl` overrides), as in an app
           # migrated to Built-in Kotlin: AGP supplies Kotlin to the plugin.
           - label: "Flutter stable + Built-in Kotlin"
@@ -190,6 +192,32 @@ jobs:
         working-directory: example
         run: flutter build apk --debug -v
 
+      # The unit tests mock the method channel, so the Kotlin handlers only execute here.
+      - name: Enable KVM for the emulator
+        if: ${{ matrix.integration }}
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      # The action runs each `script` line as its own shell command. The second half removes the
+      # client token from the manifest, which makes the Facebook SDK fail to start (the
+      # situation in issue #516), and runs the tests for that case on the rebuilt app.
+      - name: Integration tests on an Android emulator
+        if: ${{ matrix.integration }}
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          working-directory: example
+          script: |
+            flutter test integration_test/plugin_test.dart -d emulator-5554
+            sed -i '/com.facebook.sdk.ClientToken/,+1d' android/app/src/main/AndroidManifest.xml
+            if grep -q 'ClientToken' android/app/src/main/AndroidManifest.xml; then echo "client token still in the manifest"; exit 1; fi
+            flutter test integration_test/sdk_start_failure_test.dart -d emulator-5554
+
   ios:
     name: iOS example
     needs: [test]
@@ -284,6 +312,8 @@ jobs:
             flutter: "3.41.0"
           - label: "Flutter stable"
             flutter: ""
+            # Also runs example/integration_test on a simulator, against the real Facebook SDK.
+            integration: true
           # The Facebook iOS SDK v19 ships Swift interfaces that only Swift 6.3+ can read, so
           # the plugin needs Xcode 26.4 or newer. The other cells use the runner's newest Xcode;
           # this one keeps the documented minimum building.
@@ -348,6 +378,21 @@ jobs:
           test -L ios/Flutter/ephemeral/Packages/.packages/facebook_app_events
           test -f ios/Flutter/ephemeral/Packages/.packages/FlutterFramework/Package.swift
           grep -q 'FlutterGeneratedPluginSwiftPackage' ios/Runner.xcodeproj/project.pbxproj
+
+      # The unit tests mock the method channel, so the Swift handlers only execute here.
+      - name: Integration tests on an iOS simulator
+        if: ${{ matrix.integration }}
+        working-directory: facebook_app_events/example
+        run: |
+          set -euo pipefail
+          udid="$(xcrun simctl list devices available --json \
+            | jq -r '[.devices[][] | select(.name | startswith("iPhone"))] | last | .udid // empty')"
+          if [ -z "$udid" ]; then
+            echo "::error::No available iPhone simulator on this runner"
+            exit 1
+          fi
+          xcrun simctl boot "$udid"
+          flutter test integration_test/plugin_test.dart -d "$udid"
 
       # Flutter only prints this warning (it does not fail the build), so check for it explicitly.
       # Runs even if an earlier step failed, so the specific error still shows up in that case.
